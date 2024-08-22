@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <IsAspireHost>true</IsAspireHost>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotnetProjectManagement.Project.WebAPI\DotnetProjectManagement.Project.WebAPI.csproj"/>
+    <ProjectReference Include="..\DotnetProjectManagement.WebApp\DotnetProjectManagement.WebApp.csproj"/>
+  </ItemGroup>
+
+</Project>
