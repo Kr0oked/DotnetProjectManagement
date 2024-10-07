@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotnetProjectManagement.Project.Common\DotnetProjectManagement.Project.Common.csproj"/>
-    <ProjectReference Include="..\DotnetProjectManagement.ServiceDefaults\DotnetProjectManagement.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\DotnetProjectManagement.ServiceDefaults\DotnetProjectManagement.ServiceDefaults.csproj"/>
   </ItemGroup>
 
 </Project>

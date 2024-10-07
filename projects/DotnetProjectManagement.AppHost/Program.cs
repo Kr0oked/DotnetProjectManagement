@@ -1,9 +1,9 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var projectWebApi = builder.AddProject<Projects.DotnetProjectManagement_Project_WebAPI>("project-WebAPI");
+builder.AddProject<Projects.DotnetProjectManagement_Project_WebAPI>("project")
+    .WithExternalHttpEndpoints();
 
-builder.AddProject<Projects.DotnetProjectManagement_WebApp>("webApp")
-    .WithReference(projectWebApi)
+builder.AddProject<Projects.DotnetProjectManagement_WebApp>("web")
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();
