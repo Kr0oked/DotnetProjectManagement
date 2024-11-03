@@ -1,36 +1,70 @@
 using DotnetProjectManagement.Project.Common;
 using DotnetProjectManagement.ServiceDefaults;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
+
+const string corsDevelopmentPolicy = "CorsDevelopmentPolicy";
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-const string policyName = "CorsPolicy";
-builder.Services.AddCors(cors =>
-    cors.AddPolicy(name: policyName, policy =>
-        policy.AllowAnyOrigin()
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => builder.Configuration.Bind("JwtBearer", options));
+builder.Services.AddAuthorization();
+
+builder.Services.AddCors(options =>
+    options.AddPolicy(corsDevelopmentPolicy,
+        policy => policy
+            .WithOrigins("http://localhost:5000")
             .AllowAnyHeader()
             .AllowAnyMethod()));
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    const string openApi = "OpenAPI";
+    options.AddSecurityDefinition(openApi,
+        new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.OpenIdConnect,
+            OpenIdConnectUrl = new Uri(builder.Configuration.GetValue<string>("JwtBearer:MetadataAddress")!)
+        });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = openApi }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.OAuthClientId("swagger");
+        options.OAuthScopes("openid", "profile", "roles");
+    });
 }
 
-app.UseCors(policyName);
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors(corsDevelopmentPolicy);
+}
 
 app.UseHttpsRedirection();
+
+app.UseAuthorization();
 
 var summaries = new[]
 {
@@ -50,6 +84,7 @@ app.MapGet("/weatherforecast", () =>
         return forecast;
     })
     .WithName("GetWeatherForecast")
-    .WithOpenApi();
+    .WithOpenApi()
+    .RequireAuthorization();
 
 app.Run();

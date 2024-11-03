@@ -1,11 +1,13 @@
-﻿@page "/weather"
+﻿@page "/fetchdata"
 @using DotnetProjectManagement.Project.Common
 @using DotnetProjectManagement.WebApp.Services
+@using Microsoft.AspNetCore.Authorization
 @inject WeatherForecastClient WeatherForecastClient
+@attribute [Authorize]
 
-<PageTitle>Weather</PageTitle>
+<PageTitle>Weather forecast</PageTitle>
 
-<h1>Weather</h1>
+<h1>Weather forecast</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
 
@@ -41,6 +43,7 @@ else
 }
 
 @code {
+
     private List<WeatherForecast>? _forecasts;
 
     protected override async Task OnInitializedAsync()
