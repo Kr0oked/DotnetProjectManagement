@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+
+rectangle "Web Browser" {
+    agent "Blazor WebAssembly"
+}
+
+cloud "Cloud Services" {
+
+    agent Gateway
+
+    agent "Project Web API"
+
+    database "Maria DB"
+
+    agent Keycloak
+}
+
+"Blazor WebAssembly" --> Gateway
+"Blazor WebAssembly" --> Keycloak
+Gateway --> "Project Web API"
+"Project Web API" --> "Maria DB"
+"Project Web API" --> Keycloak
+
+@enduml

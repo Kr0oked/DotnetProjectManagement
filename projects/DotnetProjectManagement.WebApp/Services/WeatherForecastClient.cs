@@ -6,5 +6,5 @@ using Project.Common;
 public class WeatherForecastClient(HttpClient httpClient)
 {
     public async Task<List<WeatherForecast>> GetWeatherForecastsAsync(CancellationToken cancellationToken = default) =>
-        (await httpClient.GetFromJsonAsync<List<WeatherForecast>>("/weatherforecast", cancellationToken))!;
+        (await httpClient.GetFromJsonAsync<List<WeatherForecast>>("/api/project/weatherforecast", cancellationToken))!;
 }

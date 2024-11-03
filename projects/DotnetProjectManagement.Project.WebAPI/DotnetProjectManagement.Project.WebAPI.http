@@ -1,6 +1,0 @@
-@DotnetProjectManagement.Project.WebAPI_HostAddress = http://localhost:5234
-
-GET {{DotnetProjectManagement.Project.WebAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

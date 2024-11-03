@@ -8,11 +8,15 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keyc
     .WithRealmImport("realms", true)
     .WithDataVolume();
 
-builder.AddProject<Projects.DotnetProjectManagement_Project_WebAPI>("project-web-api")
-    .WithExternalHttpEndpoints()
+var projectWebAPI = builder.AddProject<Projects.DotnetProjectManagement_Project_WebAPI>("project-web-api")
     .WithReference(keycloak);
+
+builder.AddProject<Projects.DotnetProjectManagement_Gateway>("gateway")
+    .WithExternalHttpEndpoints()
+    .WithReference(projectWebAPI);
 
 builder.AddProject<Projects.DotnetProjectManagement_WebApp>("web-app")
     .WithExternalHttpEndpoints();
+
 
 builder.Build().Run();

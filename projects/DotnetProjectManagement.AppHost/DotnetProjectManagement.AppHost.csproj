@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DotnetProjectManagement.Gateway\DotnetProjectManagement.Gateway.csproj"/>
     <ProjectReference Include="..\DotnetProjectManagement.Project.WebAPI\DotnetProjectManagement.Project.WebAPI.csproj"/>
     <ProjectReference Include="..\DotnetProjectManagement.WebApp\DotnetProjectManagement.WebApp.csproj"/>
   </ItemGroup>
