@@ -1,12 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Authors>Philipp Bobek</Authors>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
 </Project>
