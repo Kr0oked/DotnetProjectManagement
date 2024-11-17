@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+
+package Project {
+    usecase "Mange Milestones" as manageMilestones
+    usecase "Read Milestones" as readMilestones
+}
+
+:Administrator: as admin
+:Manager: as manager
+:Worker: as worker
+:Guest: as guest
+
+admin --> manageMilestones
+admin --> readMilestones
+
+manager --> manageMilestones
+manager --> readMilestones
+
+worker --> readMilestones
+
+guest --> readMilestones
+
+@enduml

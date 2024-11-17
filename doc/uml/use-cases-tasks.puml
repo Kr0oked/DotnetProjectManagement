@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+package Project {
+    usecase "Mange Tasks" as manageTasks
+    usecase "Process Tasks" as processTasks
+    usecase "Read Tasks" as readTasks
+}
+
+:Administrator: as admin
+:Manager: as manager
+:Worker: as worker
+:Guest: as guest
+
+admin --> manageTasks
+admin --> processTasks
+admin --> readTasks
+
+manager --> manageTasks
+manager --> processTasks
+manager --> readTasks
+
+worker --> readTasks
+worker --> processTasks
+
+guest --> readTasks
+
+@enduml
