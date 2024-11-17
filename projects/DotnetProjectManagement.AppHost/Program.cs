@@ -9,14 +9,17 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keyc
     .WithDataVolume();
 
 var projectWebAPI = builder.AddProject<Projects.DotnetProjectManagement_Project_WebAPI>("project-web-api")
-    .WithReference(keycloak);
+    .WithReference(keycloak)
+    .WaitFor(keycloak);
 
-builder.AddProject<Projects.DotnetProjectManagement_Gateway>("gateway")
+var gateway = builder.AddProject<Projects.DotnetProjectManagement_Gateway>("gateway")
     .WithExternalHttpEndpoints()
-    .WithReference(projectWebAPI);
+    .WithReference(projectWebAPI)
+    .WaitFor(projectWebAPI);
 
 builder.AddProject<Projects.DotnetProjectManagement_WebApp>("web-app")
-    .WithExternalHttpEndpoints();
-
+    .WithExternalHttpEndpoints()
+    .WaitFor(keycloak)
+    .WaitFor(gateway);
 
 builder.Build().Run();
