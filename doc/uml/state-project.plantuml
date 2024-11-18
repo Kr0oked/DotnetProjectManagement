@@ -1,0 +1,7 @@
+@startuml
+
+[*] --> Active : Create project
+Active --> Archived: Archive project
+Archived --> Active: Reopen Project
+
+@enduml

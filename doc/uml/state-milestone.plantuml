@@ -1,0 +1,6 @@
+@startuml
+
+[*] --> Active : Create milestone
+Active --> Deleted: Delete milestone
+
+@enduml

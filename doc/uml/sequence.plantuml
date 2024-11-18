@@ -1,0 +1,42 @@
+@startuml
+actor Worker
+actor Manager
+actor Administrator
+participant Application
+
+activate Administrator
+Administrator -> Application: Create project
+activate Application
+Application -> Administrator
+deactivate Application
+
+Administrator -> Application: Add Manager member
+activate Application
+Application --> Manager: Send mail
+Application -> Administrator
+deactivate Application
+deactivate Administrator
+
+activate Manager
+Manager -> Application: Add Worker member
+activate Application
+Application --> Worker: Send mail
+Application -> Manager
+deactivate Application
+
+Manager -> Application: Create task for Worker
+activate Application
+Application --> Worker: Send mail
+Application -> Manager
+deactivate Application
+deactivate Manager
+
+activate Worker
+Worker -> Application: Close task
+activate Application
+Application --> Manager: Send mail
+Application -> Worker
+deactivate Application
+deactivate Worker
+
+@enduml

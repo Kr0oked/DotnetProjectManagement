@@ -1,0 +1,7 @@
+@startuml
+
+[*] --> Open: Create task
+Open --> Closed: Close task
+Closed --> Open: Reopen task
+
+@enduml

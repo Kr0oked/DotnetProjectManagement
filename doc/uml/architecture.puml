@@ -23,8 +23,11 @@ cloud "Cloud Services" {
         database "Blob Storage" as DocumentDB
     }
 
+frame Something {
     agent Keycloak
     agent "Message Broker" as MessageBroker
+    agent "Mail Server" as MailServer
+}
 }
 
 BlazorWebAssembly --> Gateway
@@ -37,6 +40,7 @@ Gateway --> DocumentAPI
 ProjectAPI --> ProjectDB
 ProjectAPI --> Keycloak
 ProjectAPI <-- MessageBroker
+ProjectAPI --> MailServer
 
 UserAPI --> Keycloak
 
