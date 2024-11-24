@@ -8,5 +8,5 @@ public class CustomAuthorizationMessageHandler : AuthorizationMessageHandler
     public CustomAuthorizationMessageHandler(
         IAccessTokenProvider provider, NavigationManager navigation, IConfiguration configuration)
         : base(provider, navigation) =>
-        this.ConfigureHandler(authorizedUrls: [configuration["ApiUrl"]!]);
+        this.ConfigureHandler([configuration["ApiUrl"]!]);
 }

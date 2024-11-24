@@ -1,3 +1,5 @@
+using Projects;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var keycloakAdminUsername = builder.AddParameter("keycloakAdminUsername");
@@ -8,16 +10,16 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keyc
     .WithRealmImport("realms", true)
     .WithDataVolume();
 
-var projectWebAPI = builder.AddProject<Projects.DotnetProjectManagement_Project_WebAPI>("project-web-api")
+var projectWebAPI = builder.AddProject<DotnetProjectManagement_Project_WebAPI>("project-web-api")
     .WithReference(keycloak)
     .WaitFor(keycloak);
 
-var gateway = builder.AddProject<Projects.DotnetProjectManagement_Gateway>("gateway")
+var gateway = builder.AddProject<DotnetProjectManagement_Gateway>("gateway")
     .WithExternalHttpEndpoints()
     .WithReference(projectWebAPI)
     .WaitFor(projectWebAPI);
 
-builder.AddProject<Projects.DotnetProjectManagement_WebApp>("web-app")
+builder.AddProject<DotnetProjectManagement_WebApp>("web-app")
     .WithExternalHttpEndpoints()
     .WaitFor(keycloak)
     .WaitFor(gateway);

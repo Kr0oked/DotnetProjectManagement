@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetProjectManagement.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetProjectManagement.Gateway", "projects\DotnetProjectManagement.Gateway\DotnetProjectManagement.Gateway.csproj", "{7610C613-5AA9-4651-ACE5-10536ED7C10A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetProjectManagement.Project.WebAPI.UnitTests", "projects\DotnetProjectManagement.Project.WebAPI.UnitTests\DotnetProjectManagement.Project.WebAPI.UnitTests.csproj", "{3677BA8E-154B-44EA-B68B-ABA5850ACC1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{7610C613-5AA9-4651-ACE5-10536ED7C10A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7610C613-5AA9-4651-ACE5-10536ED7C10A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7610C613-5AA9-4651-ACE5-10536ED7C10A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3677BA8E-154B-44EA-B68B-ABA5850ACC1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3677BA8E-154B-44EA-B68B-ABA5850ACC1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3677BA8E-154B-44EA-B68B-ABA5850ACC1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3677BA8E-154B-44EA-B68B-ABA5850ACC1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -11,7 +11,7 @@ class Project {
     + History: IReadOnlyList<ProjectActivity> <<get>>
 
     + UpdateDisplayName(user: User, displayName: string) : void
-    + UpdateMembers(user: User, IReadOnlyDictionary<User, ProjectMemberRole>) : void
+    + UpdateMembers(user: User, IDictionary<User, ProjectMemberRole>: members) : void
     + Archive(user: User) : void
     + Restore(user: User) : void
 }
