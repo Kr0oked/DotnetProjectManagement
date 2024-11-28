@@ -9,43 +9,22 @@ cloud "Cloud Services" {
 
     agent Gateway
 
-    frame "Project Service" {
-        agent "Project API" as ProjectAPI
+    frame "ProjectManagement Service" {
+        agent "ProjectManagement App" as ProjectAPI
         database "Database" as ProjectDB
     }
 
-    frame "User Service" {
-        agent "User API" as UserAPI
+    frame Infrastructure {
+        agent Keycloak
     }
-
-    frame "Document Service" {
-        agent "Document API" as DocumentAPI
-        database "Blob Storage" as DocumentDB
-    }
-
-frame Something {
-    agent Keycloak
-    agent "Message Broker" as MessageBroker
-    agent "Mail Server" as MailServer
-}
 }
 
 BlazorWebAssembly --> Gateway
 BlazorWebAssembly --> Keycloak
 
 Gateway --> ProjectAPI
-Gateway --> UserAPI
-Gateway --> DocumentAPI
 
 ProjectAPI --> ProjectDB
 ProjectAPI --> Keycloak
-ProjectAPI <-- MessageBroker
-ProjectAPI --> MailServer
-
-UserAPI --> Keycloak
-
-DocumentAPI --> Keycloak
-DocumentAPI --> DocumentDB
-DocumentAPI --> MessageBroker
 
 @enduml

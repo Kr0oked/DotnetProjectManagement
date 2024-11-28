@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectManagement.UseCases\ProjectManagement.UseCases.csproj" />
+    <ProjectReference Include="..\ProjectManagement.Web.DTOs\ProjectManagement.Web.DTOs.csproj" />
+  </ItemGroup>
+
+</Project>
