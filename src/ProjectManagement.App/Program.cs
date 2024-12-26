@@ -1,13 +1,17 @@
+using DotnetProjectManagement.ProjectManagement.App.APIs;
+using DotnetProjectManagement.ProjectManagement.App.Extensions;
+using DotnetProjectManagement.ProjectManagement.Data.Contexts;
+using DotnetProjectManagement.ServiceDefaults;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
-using ProjectManagement.Web.DTOs;
-using ServiceDefaults;
 
 const string corsDevelopmentPolicy = "CorsDevelopmentPolicy";
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+builder.Services.AddProblemDetails();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,12 +40,21 @@ builder.Services.AddSwaggerGen(options =>
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = openApi }
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = openApi
+                }
             },
             Array.Empty<string>()
         }
     });
 });
+
+builder.AddNpgsqlDbContext<ProjectManagementDbContext>("project-management-db",
+    settings => settings.DisableRetry = true);
+
+builder.AddApplicationServices();
 
 var app = builder.Build();
 
@@ -53,7 +66,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.OAuthClientId("swagger");
-        options.OAuthScopes("openid", "profile", "roles");
+        options.OAuthScopes("dotnet-roles", "openid", "profile");
     });
 }
 
@@ -64,26 +77,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapProjectApi()
+    .WithOpenApi()
+    .RequireAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
+app.MapUserApi()
     .WithOpenApi()
     .RequireAuthorization();
 

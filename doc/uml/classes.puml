@@ -2,18 +2,13 @@
 left to right direction
 
 class Project {
-    + Id: string <<get>>
-    + DisplayName: string <<get>>
-    + Members: IReadOnlyDictionary<User, ProjectMemberRole> <<get>>
-    + Archived: bool <<get>>
-    + Milestones: IReadOnlySet<Milestone> <<get>>
-    + Tasks: IReadOnlySet<Task> <<get>>
-    + History: IReadOnlyList<ProjectActivity> <<get>>
-
-    + UpdateDisplayName(user: User, displayName: string) : void
-    + UpdateMembers(user: User, IDictionary<User, ProjectMemberRole>: members) : void
-    + Archive(user: User) : void
-    + Restore(user: User) : void
+    + Id: Guid
+    + DisplayName: string
+    + Members: IDictionary<User, ProjectMemberRole>
+    + Archived: bool
+    + Milestones: ISet<Milestone>
+    + Tasks: ISet<Task>
+    + History: ISet<ProjectActivity>
 }
 
 enum ProjectMemberRole {
@@ -23,63 +18,51 @@ enum ProjectMemberRole {
 }
 
 class Milestone {
-    + Id: string <<get>>
-    + DisplayName: string <<get>>
-    + StartDate: DateOnly? <<get>>
-    + DueDate: DateOnly? <<get>>
-    + Deleted: bool <<get>>
-    + Project: Project <<get>>
-    + Tasks: IReadOnlySet<Task> <<get>>
-    + History: IReadOnlyList<MilestoneActivity> <<get>>
-
-    + UpdateDisplayName(user: User, displayName: string) : void
-    + UpdateDates(user: User, startDate: DateOnly?, dueDate: DateOnly?) : void
-    + Delete(user: User) : void
+    + Id: Guid
+    + DisplayName: string
+    + StartDate: DateOnly?
+    + DueDate: DateOnly?
+    + Deleted: bool
+    + Project: Project
+    + Tasks: ISet<Task>
+    + History: ISet<MilestoneActivity>
 }
 
 class Task {
-    + Id: string <<get>>
-    + DisplayName: string <<get>>
-    + Description: string <<get>>
-    + Assignees: IReadOnlySet<User> <<get>>
-    + Milestone: Milestone? <<get>>
-    + Attachments: IReadOnlySet<<Document> <<get>>
-    + Open: string <<get>>
-    + Project: Project <<get>>
-    + History: IReadOnlyList<TaskActivity> <<get>>
-
-    + UpdateDisplayName(user: User, displayName: string) : void
-    + UpdateDescription(user: User, description: string) : void
-    + UpdateAssignees(user: User, assignees: IEnumerable<User>) : void
-    + UpdateMilestone(user: User, milestone: Milestone?) : void
-    + UpdateAttachments(user: User, attachments: IEnumerable<Document>) : void
-    + Close(user: User) : void
-    + Reopen(user: User) : void
+    + Id: Guid
+    + DisplayName: string
+    + Description: string
+    + Assignees: ISet<User>
+    + Milestone: Milestone?
+    + Attachments: ISet<<Document>
+    + Open: string
+    + Project: Project
+    + History: IList<TaskActivity>
 }
 
 abstract class Activity {
-    + Id: string <<get>>
-    + User: user <<get>>
-    + Timestamp: DateTimeOffset <<get>>
+    + Id: Guid
+    + User: User
+    + Timestamp: DateTimeOffset
 }
 
 abstract class ProjectActivity extends Activity {
-    + Project: Project <<get>>
+    + Project: Project
 }
 
 class ProjectCreatedActivity extends ProjectActivity {
-    + DisplayName: string <<get>>
-    + Members: IReadOnlyDictionary<User, ProjectMemberRole>
+    + DisplayName: string
+    + Members: IDictionary<User, ProjectMemberRole>
 }
 
 class ProjectDisplayNameUpdatedActivity extends ProjectActivity {
-    + NewDisplayName: string <<get>>
-    + PreviousDisplayName: string <<get>>
+    + NewDisplayName: string
+    + PreviousDisplayName: string
 }
 
 class ProjectMembersUpdatedActivity extends ProjectActivity {
-    + NewMembers: IReadOnlyDictionary<User, ProjectMemberRole>
-    + PreviousMembers: IReadOnlyDictionary<User, ProjectMemberRole>
+    + NewMembers: IDictionary<User, ProjectMemberRole>
+    + PreviousMembers: IDictionary<User, ProjectMemberRole>
 }
 
 class ProjectArchivedActivity extends ProjectActivity {
@@ -89,64 +72,64 @@ class ProjectRestoredActivity extends ProjectActivity {
 }
 
 abstract class MilestoneActivity extends Activity {
-    + Milestone: Milestone <<get>>
+    + Milestone: Milestone
 }
 
 class MilestoneCreatedActivity extends MilestoneActivity {
-    + DisplayName: string <<get>>
-    + StartDate: DateOnly? <<get>>
-    + DueDate: DateOnly? <<get>>
+    + DisplayName: string
+    + StartDate: DateOnly?
+    + DueDate: DateOnly?
 }
 
 class MilestoneDisplayNameUpdatedActivity extends MilestoneActivity {
-    + NewDisplayName: string <<get>>
-    + PreviousDisplayName: string <<get>>
+    + NewDisplayName: string
+    + PreviousDisplayName: string
 }
 
 class MilestoneDatesUpdatedActivity extends MilestoneActivity {
-    + NewStartDate: DateOnly? <<get>>
-    + NewDueDate: DateOnly? <<get>>
-    + PreviousStartDate: DateOnly? <<get>>
-    + PreviousDueDate: DateOnly? <<get>>
+    + NewStartDate: DateOnly?
+    + NewDueDate: DateOnly?
+    + PreviousStartDate: DateOnly?
+    + PreviousDueDate: DateOnly?
 }
 
 class MilestoneDeletedActivity extends MilestoneActivity {
 }
 
 abstract class TaskActivity extends Activity {
-    + Task: Task <<get>>
+    + Task: Task
 }
 
 class TaskCreatedActivity extends TaskActivity {
-    + DisplayName: string <<get>>
-    + Description: string <<get>>
-    + Open: string <<get>>
-    + Assignees: IReadOnlySet<User> <<get>>
+    + DisplayName: string
+    + Description: string
+    + Open: string
+    + Assignees: ISet<User>
 }
 
 class TaskDisplayNameUpdatedActivity extends TaskActivity {
-    + NewDisplayName: string <<get>>
-    + PreviousDisplayName: string <<get>>
+    + NewDisplayName: string
+    + PreviousDisplayName: string
 }
 
 class TaskDescriptionUpdatedActivity extends TaskActivity {
-    + NewDescription : string <<get>>
-    + PreviousDescription: string <<get>>
+    + NewDescription : string
+    + PreviousDescription: string
 }
 
 class TaskAssigneesUpdatedActivity extends TaskActivity {
-    + NewAssignees: IReadOnlySet<User> <<get>>
-    + PreviousAssignees: IReadOnlySet<User> <<get>>
+    + NewAssignees: ISet<User>
+    + PreviousAssignees: ISet<User>
 }
 
 class TaskMilestoneUpdatedActivity extends TaskActivity {
-    + NewMilestone: Milestone? <<get>>
-    + PreviousMilestone: Milestone? <<get>>
+    + NewMilestone: Milestone?
+    + PreviousMilestone: Milestone?
 }
 
 class TaskAttachmentsUpdatedActivity extends TaskActivity {
-    + NewAttachments: IReadOnlySet<Document> <<get>>
-    + PreviousAttachments: IReadOnlySet<Document> <<get>>
+    + NewAttachments: ISet<Document>
+    + PreviousAttachments: ISet<Document>
 }
 
 class TaskClosedActivity extends TaskActivity {
@@ -156,24 +139,20 @@ class TaskReopenedActivity extends TaskActivity {
 }
 
 class Document {
-    + Id: string <<get>>
-    + DisplayName: string <<get>>
-    + MimeType: string <<get>>
-    + CreatedTime: DateTimeOffset <<get>>
-    + CreatedBy: User <<get>>
-    + Task: Task? <<get>>
-    + History: IReadOnlyList<TaskAttachmentsUpdatedActivity> <<get>>
+    + Id: Guid
+    + DisplayName: string
+    + CreatedTime: DateTimeOffset
+    + CreatedBy: User
+    + Task: Task?
+    + History: IList<TaskAttachmentsUpdatedActivity>
 }
 
 class User {
-    + Username: string <<get>>
-    + IsAdministrator: bool <<get>>
-    + ActiveProjects: IReadOnlyDictionary<Projects, ProjectMemberRole> <<get>>
-    + ArchivedProjects: IReadOnlyDictionary<Projects, ProjectMemberRole> <<get>>
-    + OpenTasks: IReadOnlySet<Task> <<get>>
-    + ClosedTasks: IReadOnlySet<Task> <<get>>
-    + Documents: IReadOnlySet<Document> <<get>>
-    + History: IReadOnlyList<Activity> <<get>>
+    + Username: string
+    + Projects: IDictionary<Projects, ProjectMemberRole>
+    + Tasks: ISet<Task>
+    + Documents: ISet<Document>
+    + History: IList<Activity>
 }
 
 Project "1" *-- "0..*" Milestone

@@ -12,4 +12,5 @@ Feature: Create projects
         Given I am logged in with a user that is an administrator
         When I try to create a new project
         And I provide a display name
+        And I provide a list of members and their roles
         Then the project gets created

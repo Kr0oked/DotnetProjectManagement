@@ -1,4 +1,4 @@
-using ServiceDefaults;
+using DotnetProjectManagement.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 

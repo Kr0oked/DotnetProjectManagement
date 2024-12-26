@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <IsAspireSharedProject>true</IsAspireSharedProject>
+    <RootNamespace>DotnetProjectManagement.ServiceDefaults</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

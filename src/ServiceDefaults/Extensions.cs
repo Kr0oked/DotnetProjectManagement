@@ -1,4 +1,4 @@
-namespace ServiceDefaults;
+namespace DotnetProjectManagement.ServiceDefaults;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;

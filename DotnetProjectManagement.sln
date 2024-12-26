@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "src\Gateway\Gate
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDefaults", "src\ServiceDefaults\ServiceDefaults.csproj", "{4684A742-EA15-49BC-9D96-A0A255026F5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.Web.DTOs", "src\ProjectManagement.Web.DTOs\ProjectManagement.Web.DTOs.csproj", "{E158DB59-1446-4F46-B65F-2FDB711F24DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.Web", "src\ProjectManagement.Web\ProjectManagement.Web.csproj", "{E158DB59-1446-4F46-B65F-2FDB711F24DA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFrontend", "src\WebFrontend\WebFrontend.csproj", "{07B6E755-FC01-4FCB-8C8E-D4B1F831B33E}"
 EndProject
@@ -16,15 +16,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5DCBE184-D88
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1D70BEF6-45D7-42AD-BA03-7E8F67BC2AE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.Entities", "src\ProjectManagement.Entities\ProjectManagement.Entities.csproj", "{7814A3B0-CAB3-42D1-A9F8-07F1E67BD019}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.Web", "src\ProjectManagement.Web\ProjectManagement.Web.csproj", "{6233C766-20EA-45D5-9570-6CB9E55159BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.Domain", "src\ProjectManagement.Domain\ProjectManagement.Domain.csproj", "{7814A3B0-CAB3-42D1-A9F8-07F1E67BD019}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.UseCases", "src\ProjectManagement.UseCases\ProjectManagement.UseCases.csproj", "{A1C43EBD-1B9E-4088-A04F-6E3B691C21A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.Database", "src\ProjectManagement.Database\ProjectManagement.Database.csproj", "{BEBF35D4-1FC3-45FE-AD2B-544102DB0F68}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.App", "src\ProjectManagement.App\ProjectManagement.App.csproj", "{F30EFF16-DA78-414D-91A3-DCA168C6BD65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.MigrationService", "src\ProjectManagement.MigrationService\ProjectManagement.MigrationService.csproj", "{EBC29399-BB06-43C1-B8CE-4845387C2947}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagement.Data", "src\ProjectManagement.Data\ProjectManagement.Data.csproj", "{93F8513A-FA80-497A-A82D-031D4911742F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,22 +60,22 @@ Global
 		{7814A3B0-CAB3-42D1-A9F8-07F1E67BD019}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7814A3B0-CAB3-42D1-A9F8-07F1E67BD019}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7814A3B0-CAB3-42D1-A9F8-07F1E67BD019}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6233C766-20EA-45D5-9570-6CB9E55159BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6233C766-20EA-45D5-9570-6CB9E55159BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6233C766-20EA-45D5-9570-6CB9E55159BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6233C766-20EA-45D5-9570-6CB9E55159BA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1C43EBD-1B9E-4088-A04F-6E3B691C21A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1C43EBD-1B9E-4088-A04F-6E3B691C21A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1C43EBD-1B9E-4088-A04F-6E3B691C21A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1C43EBD-1B9E-4088-A04F-6E3B691C21A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BEBF35D4-1FC3-45FE-AD2B-544102DB0F68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BEBF35D4-1FC3-45FE-AD2B-544102DB0F68}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BEBF35D4-1FC3-45FE-AD2B-544102DB0F68}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BEBF35D4-1FC3-45FE-AD2B-544102DB0F68}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F30EFF16-DA78-414D-91A3-DCA168C6BD65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F30EFF16-DA78-414D-91A3-DCA168C6BD65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F30EFF16-DA78-414D-91A3-DCA168C6BD65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F30EFF16-DA78-414D-91A3-DCA168C6BD65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBC29399-BB06-43C1-B8CE-4845387C2947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBC29399-BB06-43C1-B8CE-4845387C2947}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBC29399-BB06-43C1-B8CE-4845387C2947}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBC29399-BB06-43C1-B8CE-4845387C2947}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93F8513A-FA80-497A-A82D-031D4911742F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93F8513A-FA80-497A-A82D-031D4911742F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93F8513A-FA80-497A-A82D-031D4911742F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93F8513A-FA80-497A-A82D-031D4911742F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6CA2CF78-3977-425A-AC08-2869C8BFD256} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
@@ -84,10 +84,10 @@ Global
 		{07B6E755-FC01-4FCB-8C8E-D4B1F831B33E} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
 		{E158DB59-1446-4F46-B65F-2FDB711F24DA} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
 		{049E4AB8-1C48-41E8-A5A9-282E4F291614} = {1D70BEF6-45D7-42AD-BA03-7E8F67BC2AE8}
-		{BEBF35D4-1FC3-45FE-AD2B-544102DB0F68} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
 		{7814A3B0-CAB3-42D1-A9F8-07F1E67BD019} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
 		{A1C43EBD-1B9E-4088-A04F-6E3B691C21A2} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
-		{6233C766-20EA-45D5-9570-6CB9E55159BA} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
 		{F30EFF16-DA78-414D-91A3-DCA168C6BD65} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
+		{93F8513A-FA80-497A-A82D-031D4911742F} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
+		{EBC29399-BB06-43C1-B8CE-4845387C2947} = {5DCBE184-D883-4D79-AD16-24DE9DE4A5C0}
 	EndGlobalSection
 EndGlobal

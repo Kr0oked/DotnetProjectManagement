@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <RootNamespace>DotnetProjectManagement.ProjectManagement.UseCases.UnitTests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ProjectManagement.UseCases\ProjectManagement.UseCases.csproj" />
+    <ProjectReference Include="..\..\src\ProjectManagement.UseCases\ProjectManagement.UseCases.csproj"/>
   </ItemGroup>
 
 </Project>

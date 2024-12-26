@@ -1,4 +1,4 @@
-namespace WebFrontend.Services;
+namespace DotnetProjectManagement.WebFrontend.Services;
 
 using System.Net.Http.Json;
 using ProjectManagement.Web.DTOs;

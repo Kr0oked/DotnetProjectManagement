@@ -1,5 +1,5 @@
-using WebFrontend;
-using WebFrontend.Services;
+using DotnetProjectManagement.WebFrontend;
+using DotnetProjectManagement.WebFrontend.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

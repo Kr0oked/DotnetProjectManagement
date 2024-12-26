@@ -1,0 +1,39 @@
+namespace DotnetProjectManagement.ProjectManagement.Domain.Entities;
+
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+
+public class Project : IValidatableObject
+{
+    public Guid Id { get; init; } = Guid.NewGuid();
+
+    [Required(AllowEmptyStrings = false)]
+    [StringLength(255)]
+    public required string DisplayName { get; set; }
+
+    public required bool Archived { get; set; }
+
+    public required Dictionary<Guid, ProjectMemberRole> Members { get; set; }
+
+    public override string ToString() =>
+        new StringBuilder()
+            .Append(nameof(Project))
+            .Append(" { ")
+            .Append(nameof(this.Id)).Append(" = ").Append(this.Id)
+            .Append(nameof(this.DisplayName)).Append(" = ").Append(this.DisplayName)
+            .Append(nameof(this.Archived)).Append(" = ").Append(this.Archived)
+            .Append(nameof(this.Members)).Append(" = ").Append(this.Members)
+            .Append(" }")
+            .ToString();
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) =>
+        this.Members
+            .Where(member => !Enum.IsDefined(member.Value))
+            .Select(member =>
+                new ValidationResult($"The value {member.Value} is not a valid role.", [nameof(this.Members)]));
+
+    public ProjectMemberRole? GetRoleOfUser(Guid userId) => this.Members
+        .Where(member => member.Key == userId)
+        .Select(member => member.Value)
+        .FirstOrDefault();
+}
