@@ -2,6 +2,9 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.Project.Restore;
 
 using Abstractions;
 using Domain.Entities;
+using DTOs;
+using Exceptions;
+using Mappers;
 using Microsoft.Extensions.Logging;
 
 public class ProjectRestoreUseCase(
@@ -11,7 +14,7 @@ public class ProjectRestoreUseCase(
     TimeProvider timeProvider,
     ILogger<ProjectRestoreUseCase> logger)
 {
-    public async Task RestoreProjectAsync(
+    public async Task<ProjectDto> RestoreProjectAsync(
         Actor actor,
         Guid projectId,
         CancellationToken cancellationToken = default
@@ -40,6 +43,7 @@ public class ProjectRestoreUseCase(
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogProjectRestored(actor.UserId, projectId);
+        return project.ToDto();
     }
 
     private async Task CreateActivityAsync(Actor actor, Project project, CancellationToken cancellationToken)

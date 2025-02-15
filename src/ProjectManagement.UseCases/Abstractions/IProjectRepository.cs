@@ -1,6 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.Abstractions;
 
 using Domain.Entities;
+using DTOs;
 
 public interface IProjectRepository
 {
@@ -8,7 +9,7 @@ public interface IProjectRepository
         PageRequest pageRequest,
         CancellationToken cancellationToken = default);
 
-    public Task<Page<Project>> FindByMembershipAsync(
+    public Task<Page<Project>> FindByNotArchivedAndMembershipAsync(
         Guid userId,
         PageRequest pageRequest,
         CancellationToken cancellationToken = default);

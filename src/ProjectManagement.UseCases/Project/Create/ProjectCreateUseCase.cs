@@ -2,10 +2,10 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.Project.Create;
 
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using UseCases;
 using Abstractions;
 using Domain.Entities;
 using DTOs;
+using Exceptions;
 using Mappers;
 using Microsoft.Extensions.Logging;
 

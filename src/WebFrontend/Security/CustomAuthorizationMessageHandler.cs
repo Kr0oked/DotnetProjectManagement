@@ -1,4 +1,4 @@
-namespace DotnetProjectManagement.WebFrontend.Services;
+namespace DotnetProjectManagement.WebFrontend.Security;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;

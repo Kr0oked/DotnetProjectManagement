@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazor.Bootstrap"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all"/>

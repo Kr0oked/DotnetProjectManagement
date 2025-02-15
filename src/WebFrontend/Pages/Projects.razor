@@ -1,0 +1,261 @@
+﻿@page "/projects"
+@using System.Collections.Immutable
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using DotnetProjectManagement.ProjectManagement.Domain.Entities
+@using DotnetProjectManagement.ProjectManagement.Web.Models
+@using DotnetProjectManagement.WebFrontend.Security
+@using Microsoft.AspNetCore.Authorization
+@using WebFrontend.Services
+@inject ProjectClient ProjectClient
+@inject UserClient UserClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@implements IDisposable
+@attribute [Authorize]
+
+<PageTitle>Projects</PageTitle>
+
+<h1>Projects</h1>
+
+<p>Access and manage projects</p>
+
+@if (_user is null)
+{
+    <div class="d-flex justify-content-center">
+        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge"/>
+    </div>
+}
+else
+{
+    @if (IsUserAdmin())
+    {
+        <Button Color="ButtonColor.Primary" TooltipTitle="Create new project" @onclick="StartNewProject">
+            <Icon Name="IconName.Plus"></Icon>
+        </Button>
+    }
+
+    <Grid @ref="_grid"
+          TItem="ProjectRepresentation"
+          Class="table table-hover"
+          DataProvider="ProjectsDataProvider"
+          AllowPaging="true"
+          Responsive="true">
+
+        <GridColumn TItem="ProjectRepresentation" HeaderText="Actions">
+            <Button Color="ButtonColor.Primary"
+                    Disabled="@((!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager)) || context.Archived)"
+                    TooltipTitle="Edit"
+                    Class="mx-2"
+                    @onclick="() => StartEditProject(context)">
+                <Icon Name="IconName.Pencil"></Icon>
+            </Button>
+            @if (context.Archived)
+            {
+                <Button Color="ButtonColor.Primary"
+                        Disabled="@(!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager))"
+                        TooltipTitle="Restore"
+                        @onclick="() => RestoreProject(context.Id)">
+                    <Icon Name="IconName.Reply"></Icon>
+                </Button>
+            }
+            else
+            {
+                <Button Color="ButtonColor.Warning"
+                        Disabled="@(!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager))"
+                        TooltipTitle="Archive"
+                        @onclick="() => ArchiveProject(context.Id)">
+                    <Icon Name="IconName.Archive"></Icon>
+                </Button>
+            }
+        </GridColumn>
+        <GridColumn TItem="ProjectRepresentation" HeaderText="Name">@context.DisplayName</GridColumn>
+        <GridColumn TItem="ProjectRepresentation" HeaderText="No. Members">@context.Members.Count</GridColumn>
+        <GridColumn TItem="ProjectRepresentation" HeaderText="Archived">@(context.Archived ? "Yes" : "No")</GridColumn>
+    </Grid>
+
+    <Modal @ref="_modal" Title="Save project" Size="ModalSize.Large" UseStaticBackdrop="true">
+        <BodyTemplate>
+            <EditForm EditContext="@_editContext">
+                <DataAnnotationsValidator/>
+                <div class="form-group row">
+                    <label class="col-md-2 col-form-label">Name</label>
+                    <div class="col-md-10">
+                        <TextInput @bind-Value="@_projectModel.DisplayName" Placeholder="Enter name"/>
+                        <ValidationMessage For="@(() => _projectModel.DisplayName)"/>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <Grid TItem="UserRepresentation"
+                              Class="table table-hover"
+                              DataProvider="UsersDataProvider"
+                              AllowPaging="true"
+                              Responsive="true">
+
+                            <GridColumn TItem="UserRepresentation" HeaderText="Name" Context="user">
+                                @user.FirstName @user.LastName
+                            </GridColumn>
+
+                            <GridColumn TItem="UserRepresentation" HeaderText="Role" Context="user">
+                                @{
+                                    ProjectMemberRole? modelRole = _projectModel.Members.TryGetValue(user.Id, out var value) ? value : null;
+                                }
+                                <InputSelect Value="modelRole"
+                                             ValueExpression="() => modelRole"
+                                             ValueChanged="(ProjectMemberRole? selectedRole) => SetProjectRole(user.Id, selectedRole)"
+                                             class="form-select">
+                                    <option value=""></option>
+                                    <option value="@ProjectMemberRole.Guest">Guest</option>
+                                    <option value="@ProjectMemberRole.Worker">Worker</option>
+                                    <option value="@ProjectMemberRole.Manager">Manager</option>
+                                </InputSelect>
+                            </GridColumn>
+
+                        </Grid>
+                    </div>
+                </div>
+            </EditForm>
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button Color="ButtonColor.Secondary" @onclick="_modal.HideAsync">Cancel</Button>
+            <Button Color="ButtonColor.Primary" @onclick="SaveProject">Save changes</Button>
+        </FooterTemplate>
+    </Modal>
+}
+
+@code {
+
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private ClaimsPrincipal? _user;
+    private Grid<ProjectRepresentation> _grid = null!;
+    private Modal _modal = null!;
+    private EditContext _editContext = null!;
+    private readonly ProjectModel _projectModel = new();
+    private Guid? _saveProjectId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(_projectModel);
+
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _user = authenticationState.User;
+    }
+
+    private bool IsUserAdmin() => _user?.IsAdmin() ?? false;
+
+    private bool IsProjectRole(ProjectRepresentation projectRepresentation, ProjectMemberRole role)
+    {
+        if (_user?.Id() is { } id)
+        {
+            return projectRepresentation.Members[id] == role;
+        }
+
+        return false;
+    }
+
+    private async Task ArchiveProject(Guid projectId)
+    {
+        await ProjectClient.ArchiveProjectAsync(projectId, _cancellationTokenSource.Token);
+        await _grid.RefreshDataAsync(_cancellationTokenSource.Token);
+    }
+
+    private async Task RestoreProject(Guid projectId)
+    {
+        await ProjectClient.RestoreProjectAsync(projectId, _cancellationTokenSource.Token);
+        await _grid.RefreshDataAsync(_cancellationTokenSource.Token);
+    }
+
+    private async Task<GridDataProviderResult<ProjectRepresentation>> ProjectsDataProvider(
+        GridDataProviderRequest<ProjectRepresentation> request)
+    {
+        var page = await ProjectClient
+            .ListProjectsAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+        return new GridDataProviderResult<ProjectRepresentation>
+        {
+            Data = page.Content,
+            TotalCount = (int)page.TotalElements
+        };
+    }
+
+    private async Task<GridDataProviderResult<UserRepresentation>> UsersDataProvider(
+        GridDataProviderRequest<UserRepresentation> request)
+    {
+        var page = await UserClient
+            .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+        return new GridDataProviderResult<UserRepresentation>
+        {
+            Data = page.Content,
+            TotalCount = (int)page.TotalElements
+        };
+    }
+
+    private async Task StartNewProject()
+    {
+        _saveProjectId = null;
+        _projectModel.DisplayName = "";
+        _projectModel.Members = [];
+        await _modal.ShowAsync();
+    }
+
+    private async Task StartEditProject(ProjectRepresentation project)
+    {
+        _saveProjectId = project.Id;
+        _projectModel.DisplayName = project.DisplayName;
+        _projectModel.Members = project.Members.ToDictionary();
+        await _modal.ShowAsync();
+    }
+
+    private void SetProjectRole(Guid userId, ProjectMemberRole? value)
+    {
+        if (value is { } role)
+        {
+            _projectModel.Members[userId] = role;
+        }
+        else
+        {
+            _projectModel.Members.Remove(userId);
+        }
+    }
+
+    private async Task SaveProject()
+    {
+        if (_editContext.Validate())
+        {
+            var request = new ProjectSaveRequest
+            {
+                DisplayName = _projectModel.DisplayName,
+                Members = _projectModel.Members.ToImmutableDictionary()
+            };
+
+            if (_saveProjectId is { } projectId)
+            {
+                await ProjectClient.UpdateProjectAsync(projectId, request, _cancellationTokenSource.Token);
+            }
+            else
+            {
+                await ProjectClient.CreateProjectAsync(request, _cancellationTokenSource.Token);
+            }
+
+            await _modal.HideAsync();
+            await _grid.RefreshDataAsync(_cancellationTokenSource.Token);
+        }
+    }
+
+    public void Dispose()
+    {
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
+    }
+
+    private class ProjectModel
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Name required.")]
+        [StringLength(255, ErrorMessage = "Maximum 255 characters.")]
+        public string DisplayName { get; set; } = "";
+
+        public Dictionary<Guid, ProjectMemberRole> Members { get; set; } = [];
+    }
+
+}

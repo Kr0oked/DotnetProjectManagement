@@ -3,9 +3,9 @@ namespace DotnetProjectManagement.ProjectManagement.App.Services;
 using System.Collections.Immutable;
 using Data.Contexts;
 using Data.Models;
-using UseCases;
 using UseCases.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using UseCases.DTOs;
 using ProjectEntity = Domain.Entities.Project;
 using ProjectDb = Data.Models.Project;
 
@@ -16,13 +16,13 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         CancellationToken cancellationToken = default)
     {
         var queryable = dbContext.Projects
-            .OrderBy(project => project.DisplayName)
-            .Skip(pageRequest.Offset)
-            .Take(pageRequest.Size);
+            .OrderBy(project => project.Id);
 
         var totalElements = await queryable.LongCountAsync(cancellationToken);
 
         var projects = queryable
+            .Skip(pageRequest.Offset)
+            .Take(pageRequest.Size)
             .Include(project => project.Members)
             .Select(project => MapToEntity(project))
             .ToImmutableList();
@@ -30,20 +30,21 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         return new Page<ProjectEntity>(projects, pageRequest, totalElements);
     }
 
-    public async Task<Page<ProjectEntity>> FindByMembershipAsync(
+    public async Task<Page<ProjectEntity>> FindByNotArchivedAndMembershipAsync(
         Guid userId,
         PageRequest pageRequest,
         CancellationToken cancellationToken = default)
     {
         var queryable = dbContext.Projects
+            .Where(project => !project.Archived)
             .Where(project => project.Members.Any(member => member.UserId == userId))
-            .OrderBy(project => project.DisplayName)
-            .Skip(pageRequest.Offset)
-            .Take(pageRequest.Size);
+            .OrderBy(project => project.Id);
 
         var totalElements = await queryable.LongCountAsync(cancellationToken);
 
         var projects = queryable
+            .Skip(pageRequest.Offset)
+            .Take(pageRequest.Size)
             .Include(project => project.Members)
             .Select(project => MapToEntity(project))
             .ToImmutableList();

@@ -5,11 +5,11 @@ using System.Net;
 using Keycloak;
 using Data.Contexts;
 using Domain.Entities;
-using UseCases;
 using UseCases.Abstractions;
 using FS.Keycloak.RestApiClient.Client;
 using FS.Keycloak.RestApiClient.Model;
 using Microsoft.Extensions.Options;
+using UseCases.DTOs;
 using User;
 
 public class UserRepository(

@@ -8,6 +8,7 @@ using Domain.Entities;
 public record ProjectSaveRequest : IValidatableObject
 {
     [Description("Name of the project.")]
+    [Required(AllowEmptyStrings = false)]
     [StringLength(255)]
     public required string DisplayName { get; init; }
 

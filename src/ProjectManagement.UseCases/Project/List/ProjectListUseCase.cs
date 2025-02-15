@@ -22,5 +22,5 @@ public class ProjectListUseCase(IProjectRepository projectRepository)
         CancellationToken cancellationToken) =>
         actor.IsAdministrator
             ? await projectRepository.FindAllAsync(pageRequest, cancellationToken)
-            : await projectRepository.FindByMembershipAsync(actor.UserId, pageRequest, cancellationToken);
+            : await projectRepository.FindByNotArchivedAndMembershipAsync(actor.UserId, pageRequest, cancellationToken);
 }

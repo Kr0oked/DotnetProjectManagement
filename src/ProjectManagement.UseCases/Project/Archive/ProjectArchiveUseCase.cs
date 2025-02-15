@@ -2,6 +2,9 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.Project.Archive;
 
 using Abstractions;
 using Domain.Entities;
+using DTOs;
+using Exceptions;
+using Mappers;
 using Microsoft.Extensions.Logging;
 
 public class ProjectArchiveUseCase(
@@ -11,7 +14,7 @@ public class ProjectArchiveUseCase(
     TimeProvider timeProvider,
     ILogger<ProjectArchiveUseCase> logger)
 {
-    public async Task ArchiveProjectAsync(
+    public async Task<ProjectDto> ArchiveProjectAsync(
         Actor actor,
         Guid projectId,
         CancellationToken cancellationToken = default
@@ -40,6 +43,7 @@ public class ProjectArchiveUseCase(
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogProjectArchived(actor.UserId, projectId);
+        return project.ToDto();
     }
 
     private async Task CreateActivityAsync(Actor actor, Guid projectId, CancellationToken cancellationToken)

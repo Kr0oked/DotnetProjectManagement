@@ -1,6 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.Abstractions;
 
 using Domain.Entities;
+using DTOs;
 
 public interface IUserRepository
 {

@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.User.GetDetails;
 
 using Abstractions;
 using DTOs;
+using Exceptions;
 using Mappers;
 
 public class UserGetDetailsUseCase(IUserRepository userRepository)

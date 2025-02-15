@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.Project.GetDetails;
 
 using Abstractions;
 using DTOs;
+using Exceptions;
 using Mappers;
 
 public class ProjectGetDetailsUseCase(IProjectRepository projectRepository)

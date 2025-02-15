@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using UseCases;
 using UseCases.DTOs;
+using UseCases.Exceptions;
 using UseCases.Project.Archive;
 using UseCases.Project.Create;
 using UseCases.Project.GetDetails;
@@ -19,7 +19,7 @@ public static class ProjectApi
 {
     public static RouteGroupBuilder MapProjectApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/projects")
+        var api = app.MapGroup("projects")
             .WithTags("Projects");
 
         api.MapGet("/", ListProjectsAsync)
@@ -174,8 +174,11 @@ public static class ProjectApi
         }
     }
 
-    private static async
-        Task<Results<NoContent, BadRequest<ProblemDetails>, UnauthorizedHttpResult, NotFound<ProblemDetails>>>
+    private static async Task<Results<
+            Ok<ProjectRepresentation>,
+            BadRequest<ProblemDetails>,
+            UnauthorizedHttpResult,
+            NotFound<ProblemDetails>>>
         ArchiveProjectAsync(
             ClaimsPrincipal user,
             [FromServices] ProjectArchiveUseCase projectArchiveUseCase,
@@ -185,8 +188,8 @@ public static class ProjectApi
         try
         {
             var actor = user.ToActor();
-            await projectArchiveUseCase.ArchiveProjectAsync(actor, projectId, cancellationToken);
-            return TypedResults.NoContent();
+            var project = await projectArchiveUseCase.ArchiveProjectAsync(actor, projectId, cancellationToken);
+            return TypedResults.Ok(project.ToWeb());
         }
         catch (ProjectAlreadyArchivedException exception)
         {
@@ -202,8 +205,11 @@ public static class ProjectApi
         }
     }
 
-    private static async
-        Task<Results<NoContent, BadRequest<ProblemDetails>, UnauthorizedHttpResult, NotFound<ProblemDetails>>>
+    private static async Task<Results<
+            Ok<ProjectRepresentation>,
+            BadRequest<ProblemDetails>,
+            UnauthorizedHttpResult,
+            NotFound<ProblemDetails>>>
         RestoreProjectAsync(
             ClaimsPrincipal user,
             [FromServices] ProjectRestoreUseCase useCase,
@@ -213,8 +219,8 @@ public static class ProjectApi
         try
         {
             var actor = user.ToActor();
-            await useCase.RestoreProjectAsync(actor, projectId, cancellationToken);
-            return TypedResults.NoContent();
+            var project = await useCase.RestoreProjectAsync(actor, projectId, cancellationToken);
+            return TypedResults.Ok(project.ToWeb());
         }
         catch (ProjectNotArchivedException exception)
         {

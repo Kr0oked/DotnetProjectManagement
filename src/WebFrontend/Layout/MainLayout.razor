@@ -1,18 +1,33 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+<BlazorBootstrapLayout StickyHeader="true">
+    <HeaderSection>
+        <ThemeSwitcher Position="DropdownMenuPosition.End" Class="ps-3 ps-lg-2"/>
+        <LoginDisplay/>
+    </HeaderSection>
 
-    <main>
-        <div class="top-row px-4">
-            <LoginDisplay/>
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+    <SidebarSection>
+        <Sidebar2 Href="/"
+                  IconName="IconName.RocketTakeOffFill"
+                  Title="Project Management"
+                  DataProvider="SidebarDataProvider"
+                  WidthUnit="Unit.Px"/>
+    </SidebarSection>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    <ContentSection>
+        @Body
+    </ContentSection>
+
+</BlazorBootstrapLayout>
+
+@code {
+
+    private static async Task<Sidebar2DataProviderResult> SidebarDataProvider(Sidebar2DataProviderRequest request) =>
+        await Task.FromResult(request.ApplyTo(new List<NavItem>
+        {
+            new() { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match = NavLinkMatch.All },
+            new() { Id = "2", Href = "/users", IconName = IconName.PersonLinesFill, Text = "Users" },
+            new() { Id = "3", Href = "/projects", IconName = IconName.RocketFill, Text = "Projects" }
+        }));
+
+}

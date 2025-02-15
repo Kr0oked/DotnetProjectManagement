@@ -1,0 +1,40 @@
+﻿@page "/users"
+@using DotnetProjectManagement.ProjectManagement.Web.Models
+@using Microsoft.AspNetCore.Authorization
+@using WebFrontend.Services
+@inject UserClient UserClient
+@attribute [Authorize]
+
+<PageTitle>Users</PageTitle>
+
+<h1>Users</h1>
+
+<p>Access users</p>
+
+<Grid TItem="UserRepresentation"
+      Class="table table-hover"
+      DataProvider="UsersDataProvider"
+      AllowPaging="true"
+      Responsive="true">
+
+    <GridColumn TItem="UserRepresentation" HeaderText="First name">@context.FirstName</GridColumn>
+    <GridColumn TItem="UserRepresentation" HeaderText="Last name">@context.LastName</GridColumn>
+
+</Grid>
+
+@code {
+
+    private async Task<GridDataProviderResult<UserRepresentation>> UsersDataProvider(
+        GridDataProviderRequest<UserRepresentation> request)
+    {
+        var page = await UserClient
+            .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+        return new GridDataProviderResult<UserRepresentation>
+        {
+            Data = page.Content,
+            TotalCount = (int)page.TotalElements
+        };
+    }
+
+}

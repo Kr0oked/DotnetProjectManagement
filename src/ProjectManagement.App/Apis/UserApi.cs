@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using UseCases;
 using UseCases.DTOs;
+using UseCases.Exceptions;
 using UseCases.User.GetDetails;
 using UseCases.User.List;
 using Web.Models;
@@ -15,7 +15,7 @@ public static class UserApi
 {
     public static RouteGroupBuilder MapUserApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/users")
+        var api = app.MapGroup("users")
             .WithTags("Users");
 
         api.MapGet("/", ListUsersAsync)

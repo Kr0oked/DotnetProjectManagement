@@ -3,19 +3,24 @@
 
 <AuthorizeView>
     <Authorized>
-        Hello, @context.User.Identity?.Name!
-        <button class="nav-link btn btn-link" @onclick="BeginLogOut">Log out</button>
+        <span class="mx-2">Hello, @context.User.Identity?.Name!</span>
+        <Button Color="ButtonColor.Primary" @onclick="BeginLogout">Logout</Button>
     </Authorized>
     <NotAuthorized>
-        <a href="authentication/login">Log in</a>
+        <Button Color="ButtonColor.Primary" @onclick="BeginLogin">Login</Button>
     </NotAuthorized>
 </AuthorizeView>
 
 @code{
 
-    private void BeginLogOut()
+    private void BeginLogout()
     {
         NavigationManager.NavigateToLogout("authentication/logout");
+    }
+
+    private void BeginLogin()
+    {
+        NavigationManager.NavigateToLogin("authentication/login");
     }
 
 }

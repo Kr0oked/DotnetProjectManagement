@@ -311,6 +311,7 @@
       ],
       "security-admin-console": [],
       "admin-cli": [],
+      "project-management-app": [],
       "account-console": [],
       "broker": [
         {
@@ -670,6 +671,61 @@
         "roles",
         "basic",
         "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "organization",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "id": "dbdecbe5-79ce-4462-bbf1-d6a36f54d81a",
+      "clientId": "project-management-app",
+      "name": "",
+      "description": "",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "/*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email",
+        "dotnet-roles"
       ],
       "optionalClientScopes": [
         "address",
@@ -1551,9 +1607,9 @@
           "config": {
             "introspection.token.claim": "true",
             "multivalued": "true",
-            "userinfo.token.claim": "false",
+            "userinfo.token.claim": "true",
             "user.attribute": "foo",
-            "id.token.claim": "false",
+            "id.token.claim": "true",
             "lightweight.claim": "false",
             "access.token.claim": "true",
             "claim.name": "roles",

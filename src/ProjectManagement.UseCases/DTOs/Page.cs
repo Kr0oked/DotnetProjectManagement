@@ -1,4 +1,4 @@
-namespace DotnetProjectManagement.ProjectManagement.UseCases;
+namespace DotnetProjectManagement.ProjectManagement.UseCases.DTOs;
 
 using System.Collections.Immutable;
 

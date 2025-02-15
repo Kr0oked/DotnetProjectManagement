@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using Abstractions;
 using DTOs;
 using Domain.Entities;
+using Exceptions;
 using Mappers;
 using Microsoft.Extensions.Logging;
 
