@@ -6,9 +6,9 @@ using FS.Keycloak.RestApiClient.Authentication.Flow;
 using FS.Keycloak.RestApiClient.ClientFactory;
 using Microsoft.Extensions.Options;
 
-public class KeycloakClientFactory(IOptions<KeycloakClientOptions> options)
+public class KeycloakClientFactory(IOptions<KeycloakClientOptions> options) : IKeycloakClientFactory
 {
-    public UsersApi GetUsersApi()
+    public IUsersApi GetUsersApi()
     {
         var authenticationFlow = new PasswordGrantFlow
         {

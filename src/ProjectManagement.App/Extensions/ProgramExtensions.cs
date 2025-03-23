@@ -11,7 +11,6 @@ using UseCases.Project.Restore;
 using UseCases.Project.Update;
 using UseCases.User.GetDetails;
 using UseCases.User.List;
-using User;
 
 internal static class ProgramExtensions
 {
@@ -37,7 +36,7 @@ internal static class ProgramExtensions
         services.AddOptions<KeycloakClientOptions>()
             .Bind(builder.Configuration.GetSection(KeycloakClientOptions.Key))
             .ValidateDataAnnotations();
-        services.AddScoped<KeycloakClientFactory, KeycloakClientFactory>();
+        services.AddScoped<IKeycloakClientFactory, KeycloakClientFactory>();
 
         services.AddOptions<UserOptions>()
             .Bind(builder.Configuration.GetSection(UserOptions.Key))

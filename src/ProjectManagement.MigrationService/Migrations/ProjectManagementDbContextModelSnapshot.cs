@@ -129,7 +129,7 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectCreatedActivitiyMembers");
+                    b.ToTable("ProjectCreatedActivityMembers");
                 });
 
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectMember", b =>

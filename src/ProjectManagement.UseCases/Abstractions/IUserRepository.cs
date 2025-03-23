@@ -5,10 +5,7 @@ using DTOs;
 
 public interface IUserRepository
 {
-    public Task<Page<User>> FindAllAsync(
-        Guid userId,
-        PageRequest pageRequest,
-        CancellationToken cancellationToken = default);
+    public Task<Page<User>> FindAllAsync(PageRequest pageRequest, CancellationToken cancellationToken = default);
 
     public Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken = default);
 

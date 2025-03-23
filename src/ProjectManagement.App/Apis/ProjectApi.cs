@@ -76,7 +76,7 @@ public static class ProjectApi
             CancellationToken cancellationToken = default)
     {
         var validationResults = new List<ValidationResult>();
-        var isValid = Validator.TryValidateObject(body, new ValidationContext(body), validationResults);
+        var isValid = Validator.TryValidateObject(body, new ValidationContext(body), validationResults, true);
         if (!isValid)
         {
             return TypedResults.ValidationProblem(validationResults.ToErrorDictionary());
@@ -140,7 +140,7 @@ public static class ProjectApi
             CancellationToken cancellationToken = default)
     {
         var validationResults = new List<ValidationResult>();
-        var isValid = Validator.TryValidateObject(body, new ValidationContext(body), validationResults);
+        var isValid = Validator.TryValidateObject(body, new ValidationContext(body), validationResults, true);
         if (!isValid)
         {
             return TypedResults.ValidationProblem(validationResults.ToErrorDictionary());
@@ -159,6 +159,10 @@ public static class ProjectApi
 
             var project = await useCase.UpdateProjectAsync(actor, command, cancellationToken);
             return TypedResults.Ok(project.ToWeb());
+        }
+        catch (UserNotFoundException exception)
+        {
+            return TypedResults.BadRequest(new ProblemDetails { Detail = exception.Message });
         }
         catch (ProjectArchivedException exception)
         {

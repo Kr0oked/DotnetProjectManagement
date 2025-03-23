@@ -22,16 +22,19 @@ public class ProjectCreateUseCase(
         ProjectCreateCommand command,
         CancellationToken cancellationToken = default)
     {
-        VerifyActorIsAdministrator(actor);
+        VerifyAuthorization(actor);
+        await this.VerifyUsersExist(command, cancellationToken);
+
         await using var transaction = await transactionManager.BeginTransactionAsync(cancellationToken);
         var project = await this.CreateProjectAsync(command, cancellationToken);
         await this.CreateActivityAsync(actor, project, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+
         logger.LogProjectCreated(actor.UserId, project);
         return project.ToDto();
     }
 
-    private static void VerifyActorIsAdministrator(Actor actor)
+    private static void VerifyAuthorization(Actor actor)
     {
         if (!actor.IsAdministrator)
         {
@@ -39,7 +42,7 @@ public class ProjectCreateUseCase(
         }
     }
 
-    private async Task<Project> CreateProjectAsync(ProjectCreateCommand command, CancellationToken cancellationToken)
+    private async Task VerifyUsersExist(ProjectCreateCommand command, CancellationToken cancellationToken)
     {
         foreach (var member in command.Members)
         {
@@ -48,7 +51,10 @@ public class ProjectCreateUseCase(
                 throw new UserNotFoundException(member.Key);
             }
         }
+    }
 
+    private async Task<Project> CreateProjectAsync(ProjectCreateCommand command, CancellationToken cancellationToken)
+    {
         var project = new Project
         {
             Id = Guid.NewGuid(),

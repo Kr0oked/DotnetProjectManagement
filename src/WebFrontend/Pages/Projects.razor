@@ -3,10 +3,10 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
 @using DotnetProjectManagement.ProjectManagement.Domain.Entities
+@using DotnetProjectManagement.ProjectManagement.Web.Clients
 @using DotnetProjectManagement.ProjectManagement.Web.Models
 @using DotnetProjectManagement.WebFrontend.Security
 @using Microsoft.AspNetCore.Authorization
-@using WebFrontend.Services
 @inject ProjectClient ProjectClient
 @inject UserClient UserClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -19,7 +19,7 @@
 
 <p>Access and manage projects</p>
 
-@if (_user is null)
+@if (user is null)
 {
     <div class="d-flex justify-content-center">
         <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge"/>
@@ -34,7 +34,7 @@ else
         </Button>
     }
 
-    <Grid @ref="_grid"
+    <Grid @ref="grid"
           TItem="ProjectRepresentation"
           Class="table table-hover"
           DataProvider="ProjectsDataProvider"
@@ -73,15 +73,15 @@ else
         <GridColumn TItem="ProjectRepresentation" HeaderText="Archived">@(context.Archived ? "Yes" : "No")</GridColumn>
     </Grid>
 
-    <Modal @ref="_modal" Title="Save project" Size="ModalSize.Large" UseStaticBackdrop="true">
+    <Modal @ref="modal" Title="Save project" Size="ModalSize.Large" UseStaticBackdrop="true">
         <BodyTemplate>
-            <EditForm EditContext="@_editContext">
+            <EditForm EditContext="@editContext">
                 <DataAnnotationsValidator/>
                 <div class="form-group row">
                     <label class="col-md-2 col-form-label">Name</label>
                     <div class="col-md-10">
-                        <TextInput @bind-Value="@_projectModel.DisplayName" Placeholder="Enter name"/>
-                        <ValidationMessage For="@(() => _projectModel.DisplayName)"/>
+                        <TextInput @bind-Value="@projectModel.DisplayName" Placeholder="Enter name"/>
+                        <ValidationMessage For="@(() => projectModel.DisplayName)"/>
                     </div>
                 </div>
                 <div class="row mb-3">
@@ -98,7 +98,7 @@ else
 
                             <GridColumn TItem="UserRepresentation" HeaderText="Role" Context="user">
                                 @{
-                                    ProjectMemberRole? modelRole = _projectModel.Members.TryGetValue(user.Id, out var value) ? value : null;
+                                    ProjectMemberRole? modelRole = projectModel.Members.TryGetValue(user.Id, out var value) ? value : null;
                                 }
                                 <InputSelect Value="modelRole"
                                              ValueExpression="() => modelRole"
@@ -117,7 +117,7 @@ else
             </EditForm>
         </BodyTemplate>
         <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onclick="_modal.HideAsync">Cancel</Button>
+            <Button Color="ButtonColor.Secondary" @onclick="modal.HideAsync">Cancel</Button>
             <Button Color="ButtonColor.Primary" @onclick="SaveProject">Save changes</Button>
         </FooterTemplate>
     </Modal>
@@ -125,27 +125,27 @@ else
 
 @code {
 
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
-    private ClaimsPrincipal? _user;
-    private Grid<ProjectRepresentation> _grid = null!;
-    private Modal _modal = null!;
-    private EditContext _editContext = null!;
-    private readonly ProjectModel _projectModel = new();
-    private Guid? _saveProjectId;
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private ClaimsPrincipal? user;
+    private Grid<ProjectRepresentation> grid = null!;
+    private Modal modal = null!;
+    private EditContext editContext = null!;
+    private readonly ProjectModel projectModel = new();
+    private Guid? saveProjectId;
 
     protected override async Task OnInitializedAsync()
     {
-        _editContext = new EditContext(_projectModel);
+        editContext = new EditContext(projectModel);
 
         var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _user = authenticationState.User;
+        user = authenticationState.User;
     }
 
-    private bool IsUserAdmin() => _user?.IsAdmin() ?? false;
+    private bool IsUserAdmin() => user?.IsAdmin() ?? false;
 
     private bool IsProjectRole(ProjectRepresentation projectRepresentation, ProjectMemberRole role)
     {
-        if (_user?.Id() is { } id)
+        if (user?.Id() is { } id)
         {
             return projectRepresentation.Members[id] == role;
         }
@@ -155,14 +155,14 @@ else
 
     private async Task ArchiveProject(Guid projectId)
     {
-        await ProjectClient.ArchiveProjectAsync(projectId, _cancellationTokenSource.Token);
-        await _grid.RefreshDataAsync(_cancellationTokenSource.Token);
+        await ProjectClient.ArchiveProjectAsync(projectId, cancellationTokenSource.Token);
+        await grid.RefreshDataAsync(cancellationTokenSource.Token);
     }
 
     private async Task RestoreProject(Guid projectId)
     {
-        await ProjectClient.RestoreProjectAsync(projectId, _cancellationTokenSource.Token);
-        await _grid.RefreshDataAsync(_cancellationTokenSource.Token);
+        await ProjectClient.RestoreProjectAsync(projectId, cancellationTokenSource.Token);
+        await grid.RefreshDataAsync(cancellationTokenSource.Token);
     }
 
     private async Task<GridDataProviderResult<ProjectRepresentation>> ProjectsDataProvider(
@@ -193,60 +193,60 @@ else
 
     private async Task StartNewProject()
     {
-        _saveProjectId = null;
-        _projectModel.DisplayName = "";
-        _projectModel.Members = [];
-        await _modal.ShowAsync();
+        saveProjectId = null;
+        projectModel.DisplayName = "";
+        projectModel.Members = [];
+        await modal.ShowAsync();
     }
 
     private async Task StartEditProject(ProjectRepresentation project)
     {
-        _saveProjectId = project.Id;
-        _projectModel.DisplayName = project.DisplayName;
-        _projectModel.Members = project.Members.ToDictionary();
-        await _modal.ShowAsync();
+        saveProjectId = project.Id;
+        projectModel.DisplayName = project.DisplayName;
+        projectModel.Members = project.Members.ToDictionary();
+        await modal.ShowAsync();
     }
 
     private void SetProjectRole(Guid userId, ProjectMemberRole? value)
     {
         if (value is { } role)
         {
-            _projectModel.Members[userId] = role;
+            projectModel.Members[userId] = role;
         }
         else
         {
-            _projectModel.Members.Remove(userId);
+            projectModel.Members.Remove(userId);
         }
     }
 
     private async Task SaveProject()
     {
-        if (_editContext.Validate())
+        if (editContext.Validate())
         {
             var request = new ProjectSaveRequest
             {
-                DisplayName = _projectModel.DisplayName,
-                Members = _projectModel.Members.ToImmutableDictionary()
+                DisplayName = projectModel.DisplayName,
+                Members = projectModel.Members.ToImmutableDictionary()
             };
 
-            if (_saveProjectId is { } projectId)
+            if (saveProjectId is { } projectId)
             {
-                await ProjectClient.UpdateProjectAsync(projectId, request, _cancellationTokenSource.Token);
+                await ProjectClient.UpdateProjectAsync(projectId, request, cancellationTokenSource.Token);
             }
             else
             {
-                await ProjectClient.CreateProjectAsync(request, _cancellationTokenSource.Token);
+                await ProjectClient.CreateProjectAsync(request, cancellationTokenSource.Token);
             }
 
-            await _modal.HideAsync();
-            await _grid.RefreshDataAsync(_cancellationTokenSource.Token);
+            await modal.HideAsync();
+            await grid.RefreshDataAsync(cancellationTokenSource.Token);
         }
     }
 
     public void Dispose()
     {
-        _cancellationTokenSource.Cancel();
-        _cancellationTokenSource.Dispose();
+        cancellationTokenSource.Cancel();
+        cancellationTokenSource.Dispose();
     }
 
     private class ProjectModel

@@ -116,7 +116,7 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectCreatedActivitiyMembers",
+                name: "ProjectCreatedActivityMembers",
                 columns: table => new
                 {
                     ProjectCreatedActivityId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -126,15 +126,15 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectCreatedActivitiyMembers", x => new { x.ProjectCreatedActivityId, x.UserId });
+                    table.PrimaryKey("PK_ProjectCreatedActivityMembers", x => new { x.ProjectCreatedActivityId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_ProjectCreatedActivitiyMembers_Activities_ProjectCreatedAct~",
+                        name: "FK_ProjectCreatedActivityMembers_Activities_ProjectCreatedActi~",
                         column: x => x.ProjectCreatedActivityId,
                         principalTable: "Activities",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProjectCreatedActivitiyMembers_Users_UserId",
+                        name: "FK_ProjectCreatedActivityMembers_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -184,8 +184,8 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProjectCreatedActivitiyMembers_UserId",
-                table: "ProjectCreatedActivitiyMembers",
+                name: "IX_ProjectCreatedActivityMembers_UserId",
+                table: "ProjectCreatedActivityMembers",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -206,7 +206,7 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                 name: "Document");
 
             migrationBuilder.DropTable(
-                name: "ProjectCreatedActivitiyMembers");
+                name: "ProjectCreatedActivityMembers");
 
             migrationBuilder.DropTable(
                 name: "ProjectMembers");

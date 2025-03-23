@@ -1,6 +1,6 @@
+using DotnetProjectManagement.ProjectManagement.Web.Clients;
 using DotnetProjectManagement.WebFrontend;
 using DotnetProjectManagement.WebFrontend.Security;
-using DotnetProjectManagement.WebFrontend.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

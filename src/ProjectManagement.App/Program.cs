@@ -3,6 +3,7 @@ using DotnetProjectManagement.ProjectManagement.App.Extensions;
 using DotnetProjectManagement.ProjectManagement.Data.Contexts;
 using DotnetProjectManagement.ServiceDefaults;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 const string corsDevelopmentPolicy = "CorsDevelopmentPolicy";
@@ -52,7 +53,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.AddNpgsqlDbContext<ProjectManagementDbContext>("project-management-db",
-    settings => settings.DisableRetry = true);
+    settings => settings.DisableRetry = true,
+    dbContext => dbContext.UseNpgsql(npgsql => npgsql.MigrationsAssembly("ProjectManagement.MigrationService")));
 
 builder.AddApplicationServices();
 

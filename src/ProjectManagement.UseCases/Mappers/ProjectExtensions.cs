@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using Domain.Entities;
 using DTOs;
 
-internal static class ProjectExtensions
+public static class ProjectExtensions
 {
     public static ProjectDto ToDto(this Project project) => new()
     {

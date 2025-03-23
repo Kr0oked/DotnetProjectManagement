@@ -19,12 +19,14 @@ public class Project : IValidatableObject
         new StringBuilder()
             .Append(nameof(Project))
             .Append(" { ")
-            .Append(nameof(this.Id)).Append(" = ").Append(this.Id)
-            .Append(nameof(this.DisplayName)).Append(" = ").Append(this.DisplayName)
-            .Append(nameof(this.Archived)).Append(" = ").Append(this.Archived)
-            .Append(nameof(this.Members)).Append(" = ").Append(this.Members)
+            .Append(nameof(this.Id)).Append(" = ").Append(this.Id).Append(", ")
+            .Append(nameof(this.DisplayName)).Append(" = ").Append(this.DisplayName).Append(", ")
+            .Append(nameof(this.Archived)).Append(" = ").Append(this.Archived).Append(", ")
+            .Append(nameof(this.Members)).Append(" = { ").Append(this.MembersToString()).Append(" }")
             .Append(" }")
             .ToString();
+
+    private string MembersToString() => string.Join(", ", this.Members);
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) =>
         this.Members
@@ -32,8 +34,6 @@ public class Project : IValidatableObject
             .Select(member =>
                 new ValidationResult($"The value {member.Value} is not a valid role.", [nameof(this.Members)]));
 
-    public ProjectMemberRole? GetRoleOfUser(Guid userId) => this.Members
-        .Where(member => member.Key == userId)
-        .Select(member => member.Value)
-        .FirstOrDefault();
+    public ProjectMemberRole? GetRoleOfUser(Guid userId) =>
+        this.Members.TryGetValue(userId, out var role) ? role : null;
 }

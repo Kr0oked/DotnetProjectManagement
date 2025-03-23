@@ -21,19 +21,10 @@ public class ProjectArchiveUseCase(
     )
     {
         await using var transaction = await transactionManager.BeginTransactionAsync(cancellationToken);
+        var project = await this.GetProject(projectId, cancellationToken);
 
-        var project = await projectRepository.FindOneAsync(projectId, cancellationToken)
-                      ?? throw new ProjectNotFoundException(projectId);
-
-        if (!actor.IsAdministrator && project.GetRoleOfUser(actor.UserId) != ProjectMemberRole.Manager)
-        {
-            throw new ManagerRequiredException(actor, projectId);
-        }
-
-        if (project.Archived)
-        {
-            throw new ProjectAlreadyArchivedException(projectId);
-        }
+        VerifyAuthorization(actor, projectId, project);
+        VerifyProjectState(projectId, project);
 
         project.Archived = true;
 
@@ -44,6 +35,26 @@ public class ProjectArchiveUseCase(
         await transaction.CommitAsync(cancellationToken);
         logger.LogProjectArchived(actor.UserId, projectId);
         return project.ToDto();
+    }
+
+    private async Task<Project> GetProject(Guid projectId, CancellationToken cancellationToken) =>
+        await projectRepository.FindOneAsync(projectId, cancellationToken)
+        ?? throw new ProjectNotFoundException(projectId);
+
+    private static void VerifyAuthorization(Actor actor, Guid projectId, Project project)
+    {
+        if (!actor.IsAdministrator && project.GetRoleOfUser(actor.UserId) != ProjectMemberRole.Manager)
+        {
+            throw new ManagerRequiredException(actor, projectId);
+        }
+    }
+
+    private static void VerifyProjectState(Guid projectId, Project project)
+    {
+        if (project.Archived)
+        {
+            throw new ProjectAlreadyArchivedException(projectId);
+        }
     }
 
     private async Task CreateActivityAsync(Actor actor, Guid projectId, CancellationToken cancellationToken)

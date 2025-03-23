@@ -1,4 +1,4 @@
-namespace DotnetProjectManagement.ProjectManagement.App.User;
+namespace DotnetProjectManagement.ProjectManagement.App.Services;
 
 using System.ComponentModel.DataAnnotations;
 

@@ -1,7 +1,7 @@
-namespace DotnetProjectManagement.WebFrontend.Services;
+namespace DotnetProjectManagement.ProjectManagement.Web.Clients;
 
 using System.Net.Http.Json;
-using ProjectManagement.Web.Models;
+using Models;
 
 public class UserClient(HttpClient httpClient)
 {
@@ -11,12 +11,12 @@ public class UserClient(HttpClient httpClient)
         CancellationToken cancellationToken = default) =>
         (await httpClient
             .GetFromJsonAsync<PageRepresentation<UserRepresentation>>(
-                $"/api/project-management/users?pageNumber={pageNumber}&pageSize={pageSize}",
+                $"users?pageNumber={pageNumber}&pageSize={pageSize}",
                 cancellationToken))!;
 
     public async Task<UserRepresentation> GetUserDetailsAsync(
         Guid userId,
         CancellationToken cancellationToken = default) =>
         (await httpClient
-            .GetFromJsonAsync<UserRepresentation>($"/api/project-management/users/{userId}", cancellationToken))!;
+            .GetFromJsonAsync<UserRepresentation>($"users/{userId}", cancellationToken))!;
 }

@@ -12,8 +12,8 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing.AddSource(Worker.ActivitySourceName));
 
 builder.AddNpgsqlDbContext<ProjectManagementDbContext>("project-management-db",
-    configureDbContextOptions: dbContext =>
-        dbContext.UseNpgsql(npgsql => npgsql.MigrationsAssembly(typeof(Program).Assembly.FullName)));
+    configureDbContextOptions: options =>
+        options.UseNpgsql(npgsql => npgsql.MigrationsAssembly(typeof(Program).Assembly.FullName)));
 
 var host = builder.Build();
 host.Run();

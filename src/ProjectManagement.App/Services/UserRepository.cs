@@ -10,20 +10,16 @@ using FS.Keycloak.RestApiClient.Client;
 using FS.Keycloak.RestApiClient.Model;
 using Microsoft.Extensions.Options;
 using UseCases.DTOs;
-using User;
 
 public class UserRepository(
     ProjectManagementDbContext dbContext,
-    KeycloakClientFactory keycloakClientFactory,
+    IKeycloakClientFactory keycloakClientFactory,
     IOptions<UserOptions> options)
     : IUserRepository
 {
-    public async Task<Page<User>> FindAllAsync(
-        Guid userId,
-        PageRequest pageRequest,
-        CancellationToken cancellationToken = default)
+    public async Task<Page<User>> FindAllAsync(PageRequest pageRequest, CancellationToken cancellationToken = default)
     {
-        using var usersApi = keycloakClientFactory.GetUsersApi();
+        var usersApi = keycloakClientFactory.GetUsersApi();
 
         var totalElements = await usersApi
             .GetUsersCountAsync(realm: options.Value.Realm, cancellationToken: cancellationToken);
@@ -53,20 +49,8 @@ public class UserRepository(
 
     private async Task<bool> KeycloakUserExistsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        using var usersApi = keycloakClientFactory.GetUsersApi();
-
-        try
-        {
-            await usersApi.GetUsersByUserIdAsync(
-                realm: options.Value.Realm,
-                userId: userId.ToString(),
-                cancellationToken: cancellationToken);
-            return true;
-        }
-        catch (ApiException exception) when (exception.ErrorCode == (int)HttpStatusCode.NotFound)
-        {
-            return false;
-        }
+        var keycloakUser = await this.FindKeycloakUserAsync(userId, cancellationToken);
+        return keycloakUser is not null;
     }
 
     private async Task<bool> DbUserExistsAsync(Guid userId, CancellationToken cancellationToken)
@@ -103,7 +87,7 @@ public class UserRepository(
 
     private async Task<UserRepresentation?> FindKeycloakUserAsync(Guid userId, CancellationToken cancellationToken)
     {
-        using var usersApi = keycloakClientFactory.GetUsersApi();
+        var usersApi = keycloakClientFactory.GetUsersApi();
 
         try
         {

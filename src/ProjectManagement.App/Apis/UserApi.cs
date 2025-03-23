@@ -2,7 +2,6 @@ namespace DotnetProjectManagement.ProjectManagement.App.APIs;
 
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.DTOs;
@@ -31,15 +30,13 @@ public static class UserApi
     }
 
     private static async Task<Ok<PageRepresentation<UserRepresentation>>> ListUsersAsync(
-        ClaimsPrincipal user,
         [FromServices] UserListUseCase useCase,
         [FromQuery, Range(0, int.MaxValue)] int pageNumber = 0,
         [FromQuery, Range(1, 100)] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        var actor = user.ToActor();
         var pageRequest = new PageRequest(pageNumber, pageSize);
-        var page = await useCase.ListUsersAsync(actor, pageRequest, cancellationToken);
+        var page = await useCase.ListUsersAsync(pageRequest, cancellationToken);
         return TypedResults.Ok(page.ToWeb());
     }
 

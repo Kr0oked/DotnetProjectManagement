@@ -23,27 +23,11 @@ public class ProjectUpdateUseCase(
         CancellationToken cancellationToken = default)
     {
         await using var transaction = await transactionManager.BeginTransactionAsync(cancellationToken);
+        var project = await this.GetProject(command, cancellationToken);
 
-        var project = await projectRepository.FindOneAsync(command.ProjectId, cancellationToken)
-                      ?? throw new ProjectNotFoundException(command.ProjectId);
-
-        if (!actor.IsAdministrator && project.GetRoleOfUser(actor.UserId) != ProjectMemberRole.Manager)
-        {
-            throw new ManagerRequiredException(actor, command.ProjectId);
-        }
-
-        if (project.Archived)
-        {
-            throw new ProjectArchivedException(command.ProjectId);
-        }
-
-        foreach (var member in command.Members)
-        {
-            if (!await userRepository.ExistsAsync(member.Key, cancellationToken))
-            {
-                throw new UserNotFoundException(member.Key);
-            }
-        }
+        await this.VerifyUsersExist(command, cancellationToken);
+        VerifyAuthorization(actor, command, project);
+        VerifyProjectNotArchived(command, project);
 
         await this.CreateActivityAsync(actor, command, project, cancellationToken);
         await this.UpdateProjectAsync(command, project, cancellationToken);
@@ -51,6 +35,37 @@ public class ProjectUpdateUseCase(
         await transaction.CommitAsync(cancellationToken);
         logger.LogProjectUpdated(actor.UserId, project);
         return project.ToDto();
+    }
+
+    private async Task<Project> GetProject(ProjectUpdateCommand command, CancellationToken cancellationToken) =>
+        await projectRepository.FindOneAsync(command.ProjectId, cancellationToken)
+        ?? throw new ProjectNotFoundException(command.ProjectId);
+
+    private async Task VerifyUsersExist(ProjectUpdateCommand command, CancellationToken cancellationToken)
+    {
+        foreach (var member in command.Members)
+        {
+            if (!await userRepository.ExistsAsync(member.Key, cancellationToken))
+            {
+                throw new UserNotFoundException(member.Key);
+            }
+        }
+    }
+
+    private static void VerifyAuthorization(Actor actor, ProjectUpdateCommand command, Project project)
+    {
+        if (!actor.IsAdministrator && project.GetRoleOfUser(actor.UserId) != ProjectMemberRole.Manager)
+        {
+            throw new ManagerRequiredException(actor, command.ProjectId);
+        }
+    }
+
+    private static void VerifyProjectNotArchived(ProjectUpdateCommand command, Project project)
+    {
+        if (project.Archived)
+        {
+            throw new ProjectArchivedException(command.ProjectId);
+        }
     }
 
     private async Task CreateActivityAsync(

@@ -11,7 +11,7 @@ public class ProjectManagementDbContext(DbContextOptions<ProjectManagementDbCont
     public DbSet<Activity> Activities { get; set; } = null!;
     public DbSet<ProjectActivity> ProjectActivities { get; set; } = null!;
     public DbSet<ProjectCreatedActivity> ProjectCreatedActivities { get; set; } = null!;
-    public DbSet<ProjectCreatedActivityMember> ProjectCreatedActivitiyMembers { get; set; } = null!;
+    public DbSet<ProjectCreatedActivityMember> ProjectCreatedActivityMembers { get; set; } = null!;
     public DbSet<ProjectUpdatedActivity> ProjectUpdatedActivities { get; set; } = null!;
     public DbSet<ProjectUpdatedActivityMember> ProjectUpdatedActivityMembers { get; set; } = null!;
     public DbSet<ProjectArchivedActivity> ProjectArchivedActivities { get; set; } = null!;

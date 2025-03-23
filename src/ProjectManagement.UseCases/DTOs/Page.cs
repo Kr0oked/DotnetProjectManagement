@@ -8,7 +8,7 @@ public record Page<TElement>
 
     public long TotalElements { get; }
 
-    public int TotalPages => this.Size == 0 ? 1 : (int)Math.Ceiling((double)this.TotalElements / this.Size);
+    public int TotalPages => (int)Math.Ceiling((double)this.TotalElements / this.Size);
 
     public int Number => this.PageRequest.Number;
 

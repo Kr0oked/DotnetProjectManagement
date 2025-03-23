@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
 {
     [DbContext(typeof(ProjectManagementDbContext))]
-    [Migration("20250103114835_InitialCreate")]
+    [Migration("20250316121825_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -132,7 +132,7 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectCreatedActivitiyMembers");
+                    b.ToTable("ProjectCreatedActivityMembers");
                 });
 
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectMember", b =>

@@ -16,7 +16,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         CancellationToken cancellationToken = default)
     {
         var queryable = dbContext.Projects
-            .OrderBy(project => project.Id);
+            .OrderBy(project => project.DisplayName);
 
         var totalElements = await queryable.LongCountAsync(cancellationToken);
 
@@ -38,7 +38,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         var queryable = dbContext.Projects
             .Where(project => !project.Archived)
             .Where(project => project.Members.Any(member => member.UserId == userId))
-            .OrderBy(project => project.Id);
+            .OrderBy(project => project.DisplayName);
 
         var totalElements = await queryable.LongCountAsync(cancellationToken);
 
