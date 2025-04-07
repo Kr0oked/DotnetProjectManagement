@@ -1,7 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Resources> Localizer
 
 <BlazorBootstrapLayout StickyHeader="true">
     <HeaderSection>
+        <CultureSelector/>
         <ThemeSwitcher Position="DropdownMenuPosition.End" Class="ps-3 ps-lg-2"/>
         <LoginDisplay/>
     </HeaderSection>
@@ -9,7 +12,7 @@
     <SidebarSection>
         <Sidebar2 Href="/"
                   IconName="IconName.RocketTakeOffFill"
-                  Title="Project Management"
+                  Title="@Localizer["AppName"]"
                   DataProvider="SidebarDataProvider"
                   WidthUnit="Unit.Px"/>
     </SidebarSection>
@@ -22,12 +25,31 @@
 
 @code {
 
-    private static async Task<Sidebar2DataProviderResult> SidebarDataProvider(Sidebar2DataProviderRequest request) =>
+    private async Task<Sidebar2DataProviderResult> SidebarDataProvider(Sidebar2DataProviderRequest request) =>
         await Task.FromResult(request.ApplyTo(new List<NavItem>
         {
-            new() { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match = NavLinkMatch.All },
-            new() { Id = "2", Href = "/users", IconName = IconName.PersonLinesFill, Text = "Users" },
-            new() { Id = "3", Href = "/projects", IconName = IconName.RocketFill, Text = "Projects" }
+            new()
+            {
+                Id = "1",
+                Href = "/",
+                IconName = IconName.HouseDoorFill,
+                Text = Localizer["Home"],
+                Match = NavLinkMatch.All
+            },
+            new()
+            {
+                Id = "2",
+                Href = "/users",
+                IconName = IconName.PersonLinesFill,
+                Text = Localizer["Users"]
+            },
+            new()
+            {
+                Id = "3",
+                Href = "/projects",
+                IconName = IconName.RocketFill,
+                Text = Localizer["Projects"]
+            }
         }));
 
 }

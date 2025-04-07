@@ -1,5 +1,7 @@
+using Blazored.LocalStorage;
 using DotnetProjectManagement.ProjectManagement.Web.Clients;
 using DotnetProjectManagement.WebFrontend;
+using DotnetProjectManagement.WebFrontend.Culture;
 using DotnetProjectManagement.WebFrontend.Security;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -26,5 +28,9 @@ builder.Services.AddTransient<ProjectClient>();
 builder.Services.AddTransient<UserClient>();
 
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddBlazoredLocalStorageAsSingleton();
+builder.Services.AddLocalization();
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+await host.SetCulture();
+await host.RunAsync();

@@ -5,19 +5,20 @@
 @using DotnetProjectManagement.ProjectManagement.Domain.Entities
 @using DotnetProjectManagement.ProjectManagement.Web.Clients
 @using DotnetProjectManagement.ProjectManagement.Web.Models
-@using DotnetProjectManagement.WebFrontend.Security
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Resources> Localizer
 @inject ProjectClient ProjectClient
 @inject UserClient UserClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IDisposable
 @attribute [Authorize]
 
-<PageTitle>Projects</PageTitle>
+<PageTitle>@Localizer["Projects"]</PageTitle>
 
-<h1>Projects</h1>
+<h1>@Localizer["Projects"]</h1>
 
-<p>Access and manage projects</p>
+<p>@Localizer["ProjectsDescription"]</p>
 
 @if (user is null)
 {
@@ -29,7 +30,9 @@ else
 {
     @if (IsUserAdmin())
     {
-        <Button Color="ButtonColor.Primary" TooltipTitle="Create new project" @onclick="StartNewProject">
+        <Button Color="ButtonColor.Primary"
+                TooltipTitle="@Localizer["ProjectsCreateTooltip"]"
+                @onclick="StartNewProject">
             <Icon Name="IconName.Plus"></Icon>
         </Button>
     }
@@ -39,12 +42,13 @@ else
           Class="table table-hover"
           DataProvider="ProjectsDataProvider"
           AllowPaging="true"
-          Responsive="true">
+          Responsive="true"
+          PaginationItemsTextFormat="@Localizer["GridPaginationItemsTextFormat"]">
 
-        <GridColumn TItem="ProjectRepresentation" HeaderText="Actions">
+        <GridColumn TItem="ProjectRepresentation" HeaderText="@Localizer["Actions"]">
             <Button Color="ButtonColor.Primary"
                     Disabled="@((!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager)) || context.Archived)"
-                    TooltipTitle="Edit"
+                    TooltipTitle="@Localizer["ActionEdit"]"
                     Class="mx-2"
                     @onclick="() => StartEditProject(context)">
                 <Icon Name="IconName.Pencil"></Icon>
@@ -53,7 +57,7 @@ else
             {
                 <Button Color="ButtonColor.Primary"
                         Disabled="@(!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager))"
-                        TooltipTitle="Restore"
+                        TooltipTitle="@Localizer["ActionRestore"]"
                         @onclick="() => RestoreProject(context.Id)">
                     <Icon Name="IconName.Reply"></Icon>
                 </Button>
@@ -62,25 +66,35 @@ else
             {
                 <Button Color="ButtonColor.Warning"
                         Disabled="@(!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager))"
-                        TooltipTitle="Archive"
+                        TooltipTitle="@Localizer["ActionArchive"]"
                         @onclick="() => ArchiveProject(context.Id)">
                     <Icon Name="IconName.Archive"></Icon>
                 </Button>
             }
         </GridColumn>
-        <GridColumn TItem="ProjectRepresentation" HeaderText="Name">@context.DisplayName</GridColumn>
-        <GridColumn TItem="ProjectRepresentation" HeaderText="No. Members">@context.Members.Count</GridColumn>
-        <GridColumn TItem="ProjectRepresentation" HeaderText="Archived">@(context.Archived ? "Yes" : "No")</GridColumn>
+        <GridColumn TItem="ProjectRepresentation"
+                    HeaderText="@Localizer["ProjectName"]">
+            @context.DisplayName
+        </GridColumn>
+        <GridColumn TItem="ProjectRepresentation"
+                    HeaderText="@Localizer["ProjectMembersCount"]">
+            @context.Members.Count
+        </GridColumn>
+        <GridColumn TItem="ProjectRepresentation"
+                    HeaderText="@Localizer["ProjectArchived"]">
+            @(context.Archived ? Localizer["StateYes"] : Localizer["StateNo"])
+        </GridColumn>
     </Grid>
 
-    <Modal @ref="modal" Title="Save project" Size="ModalSize.Large" UseStaticBackdrop="true">
+    <Modal @ref="modal" Title="@Localizer["ProjectSaveTitle"]" Size="ModalSize.Large" UseStaticBackdrop="true">
         <BodyTemplate>
             <EditForm EditContext="@editContext">
                 <DataAnnotationsValidator/>
                 <div class="form-group row">
                     <label class="col-md-2 col-form-label">Name</label>
                     <div class="col-md-10">
-                        <TextInput @bind-Value="@projectModel.DisplayName" Placeholder="Enter name"/>
+                        <TextInput @bind-Value="@projectModel.DisplayName"
+                                   Placeholder="@Localizer["ProjectNamePlaceholder"]"/>
                         <ValidationMessage For="@(() => projectModel.DisplayName)"/>
                     </div>
                 </div>
@@ -92,22 +106,35 @@ else
                               AllowPaging="true"
                               Responsive="true">
 
-                            <GridColumn TItem="UserRepresentation" HeaderText="Name" Context="user">
+                            <GridColumn TItem="UserRepresentation"
+                                        HeaderText="@Localizer["ProjectName"]"
+                                        Context="user">
                                 @user.FirstName @user.LastName
                             </GridColumn>
 
-                            <GridColumn TItem="UserRepresentation" HeaderText="Role" Context="user">
+                            <GridColumn TItem="UserRepresentation"
+                                        HeaderText="@Localizer["ProjectMemberRole"]"
+                                        Context="user">
                                 @{
-                                    ProjectMemberRole? modelRole = projectModel.Members.TryGetValue(user.Id, out var value) ? value : null;
+                                    ProjectMemberRole? modelRole = projectModel
+                                        .Members.TryGetValue(user.Id, out var value)
+                                        ? value
+                                        : null;
                                 }
                                 <InputSelect Value="modelRole"
                                              ValueExpression="() => modelRole"
                                              ValueChanged="(ProjectMemberRole? selectedRole) => SetProjectRole(user.Id, selectedRole)"
                                              class="form-select">
                                     <option value=""></option>
-                                    <option value="@ProjectMemberRole.Guest">Guest</option>
-                                    <option value="@ProjectMemberRole.Worker">Worker</option>
-                                    <option value="@ProjectMemberRole.Manager">Manager</option>
+                                    <option value="@ProjectMemberRole.Guest">
+                                        @Localizer["ProjectMemberRoleGuest"]
+                                    </option>
+                                    <option value="@ProjectMemberRole.Worker">
+                                        @Localizer["ProjectMemberRoleWorker"]
+                                    </option>
+                                    <option value="@ProjectMemberRole.Manager">
+                                        @Localizer["ProjectMemberRoleManager"]
+                                    </option>
                                 </InputSelect>
                             </GridColumn>
 
@@ -117,8 +144,8 @@ else
             </EditForm>
         </BodyTemplate>
         <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onclick="modal.HideAsync">Cancel</Button>
-            <Button Color="ButtonColor.Primary" @onclick="SaveProject">Save changes</Button>
+            <Button Color="ButtonColor.Secondary" @onclick="modal.HideAsync">@Localizer["ActionCancel"]</Button>
+            <Button Color="ButtonColor.Primary" @onclick="SaveProject">@Localizer["ActionSave"]</Button>
         </FooterTemplate>
     </Modal>
 }
@@ -251,8 +278,14 @@ else
 
     private class ProjectModel
     {
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Name required.")]
-        [StringLength(255, ErrorMessage = "Maximum 255 characters.")]
+        [Required(
+            AllowEmptyStrings = false,
+            ErrorMessageResourceType = typeof(Resources),
+            ErrorMessageResourceName = "ProjectNameErrorRequired")]
+        [StringLength(
+            maximumLength: 255,
+            ErrorMessageResourceType = typeof(Resources),
+            ErrorMessageResourceName = "ProjectNameErrorStringLength")]
         public string DisplayName { get; set; } = "";
 
         public Dictionary<Guid, ProjectMemberRole> Members { get; set; } = [];

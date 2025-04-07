@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="HomeDescription" xml:space="preserve">
+    <value>Starte damit deine Projekte zu verwalten.</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>Projektmanagement</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projekte</value>
+  </data>
+  <data name="Users" xml:space="preserve">
+    <value>Benutzer</value>
+  </data>
+  <data name="ProjectsDescription" xml:space="preserve">
+    <value>Greife auf deine Projekte zu und verwalte sie.</value>
+  </data>
+  <data name="ActionEdit" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="ActionRestore" xml:space="preserve">
+    <value>Wiederherstellen</value>
+  </data>
+  <data name="ActionArchive" xml:space="preserve">
+    <value>Archivieren</value>
+  </data>
+  <data name="ProjectsCreateTooltip" xml:space="preserve">
+    <value>Erstelle ein neues Projekt</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ProjectMembersCount" xml:space="preserve">
+    <value>Mitgliederanzahl</value>
+  </data>
+  <data name="ProjectArchived" xml:space="preserve">
+    <value>Archiviert</value>
+  </data>
+  <data name="StateYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="StateNo" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="ProjectSaveTitle" xml:space="preserve">
+    <value>Projekt speichern</value>
+  </data>
+  <data name="ProjectNamePlaceholder" xml:space="preserve">
+    <value>Namen eingeben</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="ProjectMemberRole" xml:space="preserve">
+    <value>Rolle</value>
+  </data>
+  <data name="ProjectMemberRoleGuest" xml:space="preserve">
+    <value>Gast</value>
+  </data>
+  <data name="ProjectMemberRoleManager" xml:space="preserve">
+    <value>Manager</value>
+  </data>
+  <data name="ProjectMemberRoleWorker" xml:space="preserve">
+    <value>Arbeiter</value>
+  </data>
+  <data name="ActionCancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="ActionSave" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="ProjectNameErrorRequired" xml:space="preserve">
+    <value>Name ist erforderlich.</value>
+  </data>
+  <data name="ProjectNameErrorStringLength" xml:space="preserve">
+    <value>Maximal 255 Buchstaben.</value>
+  </data>
+  <data name="UsersDescription" xml:space="preserve">
+    <value>Greife auf die Benutzer zu.</value>
+  </data>
+  <data name="UserFirstName" xml:space="preserve">
+    <value>Vorname</value>
+  </data>
+  <data name="UserLastName" xml:space="preserve">
+    <value>Nachname</value>
+  </data>
+  <data name="ActionLogout" xml:space="preserve">
+    <value>Abmelden</value>
+  </data>
+  <data name="ActionLogin" xml:space="preserve">
+    <value>Anmelden</value>
+  </data>
+  <data name="ErrorUnauthorized" xml:space="preserve">
+    <value>Sie sind nicht berechtigt auf diese Ressource zuzugreifen.</value>
+  </data>
+  <data name="ErrorNotFound" xml:space="preserve">
+    <value>Entschuldigung, unter dieser Addresse gibt es nichts.</value>
+  </data>
+  <data name="GridPaginationItemsTextFormat" xml:space="preserve">
+    <value>{0} - {1} von {2} Elementen</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Aktionen</value>
+  </data>
+  <data name="AppHello" xml:space="preserve">
+    <value>Hallo, {0}</value>
+  </data>
+</root>

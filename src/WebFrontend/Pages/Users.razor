@@ -2,23 +2,26 @@
 @using DotnetProjectManagement.ProjectManagement.Web.Clients
 @using DotnetProjectManagement.ProjectManagement.Web.Models
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Resources> Localizer
 @inject UserClient UserClient
 @attribute [Authorize]
 
-<PageTitle>Users</PageTitle>
+<PageTitle>@Localizer["Users"]</PageTitle>
 
-<h1>Users</h1>
+<h1>@Localizer["Users"]</h1>
 
-<p>Access users</p>
+<p>@Localizer["UsersDescription"]</p>
 
 <Grid TItem="UserRepresentation"
       Class="table table-hover"
       DataProvider="UsersDataProvider"
       AllowPaging="true"
-      Responsive="true">
+      Responsive="true"
+      PaginationItemsTextFormat="@Localizer["GridPaginationItemsTextFormat"]">
 
-    <GridColumn TItem="UserRepresentation" HeaderText="First name">@context.FirstName</GridColumn>
-    <GridColumn TItem="UserRepresentation" HeaderText="Last name">@context.LastName</GridColumn>
+    <GridColumn TItem="UserRepresentation" HeaderText="@Localizer["UserFirstName"]">@context.FirstName</GridColumn>
+    <GridColumn TItem="UserRepresentation" HeaderText="@Localizer["UserLastName"]">@context.LastName</GridColumn>
 
 </Grid>
 

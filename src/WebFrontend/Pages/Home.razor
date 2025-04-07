@@ -1,7 +1,9 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Resources> Localizer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>@Localizer["Home"]</PageTitle>
 
-<h1>Welcome</h1>
+<h1>@Localizer["Home"]</h1>
 
-Start managing your projects.
+@Localizer["HomeDescription"]

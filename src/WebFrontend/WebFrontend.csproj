@@ -2,18 +2,49 @@
 
   <PropertyGroup>
     <RootNamespace>DotnetProjectManagement.WebFrontend</RootNamespace>
+    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazor.Bootstrap"/>
+    <PackageReference Include="Blazored.LocalStorage"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all"/>
     <PackageReference Include="Microsoft.Extensions.Http"/>
+    <PackageReference Include="Microsoft.Extensions.Localization"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ProjectManagement.Web\ProjectManagement.Web.csproj" />
+    <ProjectReference Include="..\ProjectManagement.Web\ProjectManagement.Web.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Resources.de.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.de.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\Resources.de.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.de.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Culture\CultureSelector.razor"/>
   </ItemGroup>
 
 </Project>

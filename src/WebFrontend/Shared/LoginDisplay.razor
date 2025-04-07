@@ -1,13 +1,15 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Resources> Localizer
 @inject NavigationManager NavigationManager
 
 <AuthorizeView>
     <Authorized>
-        <span class="mx-2">Hello, @context.User.Identity?.Name!</span>
-        <Button Color="ButtonColor.Primary" @onclick="BeginLogout">Logout</Button>
+        <span class="mx-2">@string.Format(@Localizer["AppHello"], context.User.Identity?.Name!)</span>
+        <Button Color="ButtonColor.Primary" @onclick="BeginLogout">@Localizer["ActionLogout"]</Button>
     </Authorized>
     <NotAuthorized>
-        <Button Color="ButtonColor.Primary" @onclick="BeginLogin">Login</Button>
+        <Button Color="ButtonColor.Primary" @onclick="BeginLogin">@Localizer["ActionLogin"]</Button>
     </NotAuthorized>
 </AuthorizeView>
 

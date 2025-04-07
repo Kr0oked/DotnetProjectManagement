@@ -1,0 +1,51 @@
+@using System.Globalization
+@using Blazored.LocalStorage
+@using Microsoft.Extensions.Localization
+@inject ILocalStorageService LocalStorage
+@inject IStringLocalizer<Resources> Localizer
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<div class="culture-selector">
+    <InputSelect Value="currentCulture"
+                 ValueExpression="() => currentCulture"
+                 ValueChanged="(string selectedCulture) => ApplySelectedCultureAsync(selectedCulture)"
+                 class="form-select">
+        <option value="en-US">
+            @Localizer["CultureEnglish"]
+        </option>
+        <option value="de-DE">
+            @Localizer["CultureGerman"]
+        </option>
+    </InputSelect>
+</div>
+
+@code
+{
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    private string currentCulture = "en-US";
+
+    protected override void OnInitialized()
+    {
+        currentCulture = CultureInfo.CurrentCulture.Name;
+    }
+
+    private async Task ApplySelectedCultureAsync(string selectedCulture)
+    {
+        if (!Equals(CultureInfo.CurrentCulture.Name, selectedCulture))
+        {
+            await LocalStorage.SetItemAsStringAsync(
+                WebAssemblyHostExtension.BlazorCultureKey,
+                selectedCulture,
+                cancellationTokenSource.Token);
+            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+        }
+    }
+
+    public void Dispose()
+    {
+        cancellationTokenSource.Cancel();
+        cancellationTokenSource.Dispose();
+    }
+}
