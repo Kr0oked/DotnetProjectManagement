@@ -21,7 +21,7 @@ class Milestone {
     + Id: Guid
     + DisplayName: string
     + StartDate: DateOnly?
-    + DueDate: DateOnly?
+    + EndDate: DateOnly?
     + Deleted: bool
     + Project: Project
     + Tasks: ISet<Task>
@@ -78,7 +78,7 @@ abstract class MilestoneActivity extends Activity {
 class MilestoneCreatedActivity extends MilestoneActivity {
     + DisplayName: string
     + StartDate: DateOnly?
-    + DueDate: DateOnly?
+    + EndDate: DateOnly?
 }
 
 class MilestoneDisplayNameUpdatedActivity extends MilestoneActivity {
@@ -88,9 +88,9 @@ class MilestoneDisplayNameUpdatedActivity extends MilestoneActivity {
 
 class MilestoneDatesUpdatedActivity extends MilestoneActivity {
     + NewStartDate: DateOnly?
-    + NewDueDate: DateOnly?
+    + NewEndDate: DateOnly?
     + PreviousStartDate: DateOnly?
-    + PreviousDueDate: DateOnly?
+    + PreviousEndDate: DateOnly?
 }
 
 class MilestoneDeletedActivity extends MilestoneActivity {

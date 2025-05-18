@@ -39,9 +39,9 @@ Feature: Manage milestones
 
     Scenario: Update task dates
         Given I am logged in with a user that is manager in a project
-        When I try to update the start and due date of an active milestone
+        When I try to update the start and end date of an active milestone
         And I provide a start date
-        And I provide a due date
+        And I provide a end date
         Then the dates gets updated
 
     Scenario: Delete milestone
