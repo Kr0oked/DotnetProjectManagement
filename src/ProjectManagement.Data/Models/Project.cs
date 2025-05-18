@@ -2,7 +2,9 @@ namespace DotnetProjectManagement.ProjectManagement.Data.Models;
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class Project
 {
     [Key]

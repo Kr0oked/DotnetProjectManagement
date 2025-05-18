@@ -1,7 +1,9 @@
 namespace DotnetProjectManagement.ProjectManagement.Data.Models;
 
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class ProjectUpdatedActivity : ProjectActivity
 {
     [Required(AllowEmptyStrings = false)]

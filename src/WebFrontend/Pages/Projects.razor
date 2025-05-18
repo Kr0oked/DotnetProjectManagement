@@ -108,22 +108,22 @@ else
 
                             <GridColumn TItem="UserRepresentation"
                                         HeaderText="@Localizer["ProjectName"]"
-                                        Context="user">
-                                @user.FirstName @user.LastName
+                                        Context="item">
+                                @item.FirstName @item.LastName
                             </GridColumn>
 
                             <GridColumn TItem="UserRepresentation"
                                         HeaderText="@Localizer["ProjectMemberRole"]"
-                                        Context="user">
+                                        Context="item">
                                 @{
                                     ProjectMemberRole? modelRole = projectModel
-                                        .Members.TryGetValue(user.Id, out var value)
+                                        .Members.TryGetValue(item.Id, out var value)
                                         ? value
                                         : null;
                                 }
                                 <InputSelect Value="modelRole"
                                              ValueExpression="() => modelRole"
-                                             ValueChanged="(ProjectMemberRole? selectedRole) => SetProjectRole(user.Id, selectedRole)"
+                                             ValueChanged="(ProjectMemberRole? selectedRole) => SetProjectRole(item.Id, selectedRole)"
                                              class="form-select">
                                     <option value=""></option>
                                     <option value="@ProjectMemberRole.Guest">

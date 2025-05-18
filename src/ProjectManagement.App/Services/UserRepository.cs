@@ -77,12 +77,7 @@ public class UserRepository(
         var dbUser = await dbContext.Users
             .FindAsync(keyValues: [userId], cancellationToken);
 
-        if (dbUser is not null)
-        {
-            return new User { Id = dbUser.Id };
-        }
-
-        return null;
+        return dbUser is not null ? new User { Id = dbUser.Id } : null;
     }
 
     private async Task<UserRepresentation?> FindKeycloakUserAsync(Guid userId, CancellationToken cancellationToken)

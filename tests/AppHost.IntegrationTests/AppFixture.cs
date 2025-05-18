@@ -6,6 +6,7 @@ using Aspire.Hosting.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public sealed class AppFixture : IAsyncLifetime
 {
     public HttpClient GatewayClient { get; private set; } = null!;

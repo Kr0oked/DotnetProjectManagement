@@ -1,10 +1,12 @@
 namespace DotnetProjectManagement.ProjectManagement.Data.Models;
 
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 [PrimaryKey(nameof(ProjectUpdatedActivityId), nameof(UserId), nameof(New))]
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class ProjectUpdatedActivityMember
 {
     public required Guid ProjectUpdatedActivityId { get; set; }

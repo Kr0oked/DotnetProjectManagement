@@ -47,7 +47,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = openApi
                 }
             },
-            Array.Empty<string>()
+            []
         }
     });
 });
