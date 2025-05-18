@@ -2,7 +2,6 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService;
 
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using OpenTelemetry.Trace;
 using Data.Contexts;
 
 public class Worker(
@@ -26,7 +25,7 @@ public class Worker(
         }
         catch (Exception ex)
         {
-            activity?.RecordException(ex);
+            activity?.AddException(ex);
             throw;
         }
 
