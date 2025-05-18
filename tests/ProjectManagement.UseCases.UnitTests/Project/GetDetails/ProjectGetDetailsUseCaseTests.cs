@@ -1,7 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Project.GetDetails;
 
-using Domain.Entities;
 using Abstractions;
+using Domain.Entities;
 using Exceptions;
 using FluentAssertions;
 using Moq;
@@ -12,8 +12,8 @@ using static FluentAssertions.FluentActions;
 
 public class ProjectGetDetailsUseCaseTests
 {
-    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly ProjectGetDetailsUseCase projectGetDetailsUseCase;
+    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
 
     public ProjectGetDetailsUseCaseTests() =>
         this.projectGetDetailsUseCase = new ProjectGetDetailsUseCase(this.projectRepositoryMock.Object);

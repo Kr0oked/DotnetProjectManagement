@@ -3,8 +3,8 @@ namespace DotnetProjectManagement.ProjectManagement.App.Services;
 using System.Collections.Immutable;
 using Data.Contexts;
 using Data.Models;
-using UseCases.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using UseCases.Abstractions;
 using UseCases.DTOs;
 using ProjectEntity = Domain.Entities.Project;
 using ProjectDb = Data.Models.Project;
@@ -62,7 +62,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
     public async Task SaveAsync(ProjectEntity project, CancellationToken cancellationToken = default)
     {
         var existingProject = await dbContext.Projects
-            .FindAsync([project.Id], cancellationToken: cancellationToken);
+            .FindAsync([project.Id], cancellationToken);
 
         if (existingProject is not null)
         {

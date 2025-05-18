@@ -10,8 +10,8 @@ using Xunit;
 
 public class UserListUseCaseTests
 {
-    private readonly Mock<IUserRepository> userRepositoryMock = new();
     private readonly UserListUseCase userListUseCase;
+    private readonly Mock<IUserRepository> userRepositoryMock = new();
 
     public UserListUseCaseTests() => this.userListUseCase = new UserListUseCase(this.userRepositoryMock.Object);
 

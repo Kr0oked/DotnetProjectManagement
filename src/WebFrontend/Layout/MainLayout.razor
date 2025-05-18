@@ -1,5 +1,5 @@
-﻿@inherits LayoutComponentBase
-@using Microsoft.Extensions.Localization
+﻿@using Microsoft.Extensions.Localization
+@inherits LayoutComponentBase
 @inject IStringLocalizer<Resources> Localizer
 
 <BlazorBootstrapLayout StickyHeader="true">
@@ -25,8 +25,9 @@
 
 @code {
 
-    private async Task<Sidebar2DataProviderResult> SidebarDataProvider(Sidebar2DataProviderRequest request) =>
-        await Task.FromResult(request.ApplyTo(new List<NavItem>
+    private async Task<Sidebar2DataProviderResult> SidebarDataProvider(Sidebar2DataProviderRequest request)
+    {
+        return await Task.FromResult(request.ApplyTo(new List<NavItem>
         {
             new()
             {
@@ -51,5 +52,6 @@
                 Text = Localizer["Projects"]
             }
         }));
+    }
 
 }

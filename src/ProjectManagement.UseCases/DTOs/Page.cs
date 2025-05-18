@@ -4,6 +4,14 @@ using System.Collections.Immutable;
 
 public record Page<TElement>
 {
+    public Page(ImmutableList<TElement> content, PageRequest pageRequest, long totalElements)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(totalElements);
+        this.Content = content;
+        this.PageRequest = pageRequest;
+        this.TotalElements = totalElements;
+    }
+
     public int Size => this.PageRequest.Size;
 
     public long TotalElements { get; }
@@ -15,14 +23,6 @@ public record Page<TElement>
     public ImmutableList<TElement> Content { get; }
 
     private PageRequest PageRequest { get; }
-
-    public Page(ImmutableList<TElement> content, PageRequest pageRequest, long totalElements)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(totalElements);
-        this.Content = content;
-        this.PageRequest = pageRequest;
-        this.TotalElements = totalElements;
-    }
 
     public Page<TMapped> Map<TMapped>(Func<TElement, TMapped> converter)
     {

@@ -1,4 +1,8 @@
 ﻿@page "/projects"
+@inject IStringLocalizer<Resources> Localizer
+@inject ProjectClient ProjectClient
+@inject UserClient UserClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Collections.Immutable
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
@@ -7,10 +11,6 @@
 @using DotnetProjectManagement.ProjectManagement.Web.Models
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Localization
-@inject IStringLocalizer<Resources> Localizer
-@inject ProjectClient ProjectClient
-@inject UserClient UserClient
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IDisposable
 @attribute [Authorize]
 
@@ -168,7 +168,10 @@ else
         user = authenticationState.User;
     }
 
-    private bool IsUserAdmin() => user?.IsAdmin() ?? false;
+    private bool IsUserAdmin()
+    {
+        return user?.IsAdmin() ?? false;
+    }
 
     private bool IsProjectRole(ProjectRepresentation projectRepresentation, ProjectMemberRole role)
     {
@@ -283,7 +286,7 @@ else
             ErrorMessageResourceType = typeof(Resources),
             ErrorMessageResourceName = "ProjectNameErrorRequired")]
         [StringLength(
-            maximumLength: 255,
+            255,
             ErrorMessageResourceType = typeof(Resources),
             ErrorMessageResourceName = "ProjectNameErrorStringLength")]
         public string DisplayName { get; set; } = "";

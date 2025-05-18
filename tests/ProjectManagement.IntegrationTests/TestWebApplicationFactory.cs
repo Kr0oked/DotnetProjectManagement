@@ -30,6 +30,12 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
     public ClaimsProvider ClaimsProvider { get; } = new();
     public UsersApiFake UsersApiFake { get; } = new();
 
+    public Task InitializeAsync() => this.postgreSqlContainer.StartAsync();
+
+    public new Task DisposeAsync() => this.postgreSqlContainer.DisposeAsync().AsTask();
+
+    public ITestOutputHelper? OutputHelper { get; set; }
+
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureHostConfiguration(configuration =>
@@ -44,7 +50,7 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
     {
         builder.ConfigureTestServices(services =>
         {
-            services.AddAuthentication(defaultScheme: TestAuthHandler.AuthenticationScheme)
+            services.AddAuthentication(TestAuthHandler.AuthenticationScheme)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                     TestAuthHandler.AuthenticationScheme,
                     _ => { });
@@ -65,11 +71,5 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
 
     protected override void ConfigureClient(HttpClient client) =>
         client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue(scheme: TestAuthHandler.AuthenticationScheme);
-
-    public Task InitializeAsync() => this.postgreSqlContainer.StartAsync();
-
-    public new Task DisposeAsync() => this.postgreSqlContainer.DisposeAsync().AsTask();
-
-    public ITestOutputHelper? OutputHelper { get; set; }
+            new AuthenticationHeaderValue(TestAuthHandler.AuthenticationScheme);
 }

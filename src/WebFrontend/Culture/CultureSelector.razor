@@ -1,9 +1,9 @@
-@using System.Globalization
-@using Blazored.LocalStorage
-@using Microsoft.Extensions.Localization
 @inject ILocalStorageService LocalStorage
 @inject IStringLocalizer<Resources> Localizer
 @inject NavigationManager Navigation
+@using System.Globalization
+@using Blazored.LocalStorage
+@using Microsoft.Extensions.Localization
 @implements IDisposable
 
 <div class="culture-selector">
@@ -39,7 +39,7 @@
                 WebAssemblyHostExtension.BlazorCultureKey,
                 selectedCulture,
                 cancellationTokenSource.Token);
-            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            Navigation.NavigateTo(Navigation.Uri, true);
         }
     }
 

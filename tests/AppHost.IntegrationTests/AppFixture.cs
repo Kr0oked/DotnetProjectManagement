@@ -4,20 +4,20 @@ using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Projects;
 using Xunit;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public sealed class AppFixture : IAsyncLifetime
 {
+    private DistributedApplication distributedApplication = null!;
     public HttpClient GatewayClient { get; private set; } = null!;
     public HttpClient WebFrontendClient { get; private set; } = null!;
-
-    private DistributedApplication distributedApplication = null!;
 
     public async Task InitializeAsync()
     {
         var appHost = await DistributedApplicationTestingBuilder
-            .CreateAsync<Projects.AppHost>();
+            .CreateAsync<AppHost>();
 
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder => clientBuilder.AddStandardResilienceHandler());
 

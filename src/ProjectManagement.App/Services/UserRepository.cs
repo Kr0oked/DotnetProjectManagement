@@ -2,13 +2,13 @@ namespace DotnetProjectManagement.ProjectManagement.App.Services;
 
 using System.Collections.Immutable;
 using System.Net;
-using Keycloak;
 using Data.Contexts;
 using Domain.Entities;
-using UseCases.Abstractions;
 using FS.Keycloak.RestApiClient.Client;
 using FS.Keycloak.RestApiClient.Model;
+using Keycloak;
 using Microsoft.Extensions.Options;
+using UseCases.Abstractions;
 using UseCases.DTOs;
 
 public class UserRepository(
@@ -22,11 +22,11 @@ public class UserRepository(
         var usersApi = keycloakClientFactory.GetUsersApi();
 
         var totalElements = await usersApi
-            .GetUsersCountAsync(realm: options.Value.Realm, cancellationToken: cancellationToken);
+            .GetUsersCountAsync(options.Value.Realm, cancellationToken: cancellationToken);
 
         var keycloakUsers = await usersApi.GetUsersAsync(
-            realm: options.Value.Realm,
-            briefRepresentation: true,
+            options.Value.Realm,
+            true,
             first: pageRequest.Offset,
             max: pageRequest.Size,
             cancellationToken: cancellationToken);
@@ -47,19 +47,6 @@ public class UserRepository(
         await this.DbUserExistsAsync(userId, cancellationToken) ||
         await this.KeycloakUserExistsAsync(userId, cancellationToken);
 
-    private async Task<bool> KeycloakUserExistsAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var keycloakUser = await this.FindKeycloakUserAsync(userId, cancellationToken);
-        return keycloakUser is not null;
-    }
-
-    private async Task<bool> DbUserExistsAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var dbUser = await dbContext.Users
-            .FindAsync(keyValues: [userId], cancellationToken);
-        return dbUser is not null;
-    }
-
     public async Task<User?> FindOneAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var keycloakUser = await this.FindKeycloakUserAsync(userId, cancellationToken);
@@ -75,9 +62,22 @@ public class UserRepository(
         }
 
         var dbUser = await dbContext.Users
-            .FindAsync(keyValues: [userId], cancellationToken);
+            .FindAsync([userId], cancellationToken);
 
         return dbUser is not null ? new User { Id = dbUser.Id } : null;
+    }
+
+    private async Task<bool> KeycloakUserExistsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var keycloakUser = await this.FindKeycloakUserAsync(userId, cancellationToken);
+        return keycloakUser is not null;
+    }
+
+    private async Task<bool> DbUserExistsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var dbUser = await dbContext.Users
+            .FindAsync([userId], cancellationToken);
+        return dbUser is not null;
     }
 
     private async Task<UserRepresentation?> FindKeycloakUserAsync(Guid userId, CancellationToken cancellationToken)
@@ -87,8 +87,8 @@ public class UserRepository(
         try
         {
             var keycloakUser = await usersApi.GetUsersByUserIdAsync(
-                realm: options.Value.Realm,
-                userId: userId.ToString(),
+                options.Value.Realm,
+                userId.ToString(),
                 cancellationToken: cancellationToken);
             return keycloakUser;
         }

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ProjectManagement.Domain\ProjectManagement.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ProjectManagement.Domain\ProjectManagement.Domain.csproj"/>
   </ItemGroup>
 
 </Project>

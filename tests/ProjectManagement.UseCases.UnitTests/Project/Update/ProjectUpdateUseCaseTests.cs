@@ -1,26 +1,26 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Project.Update;
 
 using System.Collections.Immutable;
-using Domain.Entities;
 using Abstractions;
-using DotnetProjectManagement.ProjectManagement.UseCases.DTOs;
+using Domain.Entities;
 using Exceptions;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using UseCases.DTOs;
 using UseCases.Project.Update;
 using Xunit;
 using static FluentAssertions.FluentActions;
 
 public class ProjectUpdateUseCaseTests
 {
-    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
-    private readonly Mock<IUserRepository> userRepositoryMock = new();
     private readonly Mock<IActivityRepository> activityRepositoryMock = new();
-    private readonly Mock<ITransactionManager> transactionManagerMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
-    private readonly Mock<ITransaction> transactionMock = new();
+    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly ProjectUpdateUseCase projectUpdateUseCase;
+    private readonly Mock<TimeProvider> timeProviderMock = new();
+    private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<ITransaction> transactionMock = new();
+    private readonly Mock<IUserRepository> userRepositoryMock = new();
 
     public ProjectUpdateUseCaseTests() =>
         this.projectUpdateUseCase = new ProjectUpdateUseCase(

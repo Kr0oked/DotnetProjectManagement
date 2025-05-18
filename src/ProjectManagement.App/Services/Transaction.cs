@@ -1,7 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.App.Services;
 
-using UseCases.Abstractions;
 using Microsoft.EntityFrameworkCore.Storage;
+using UseCases.Abstractions;
 
 public class Transaction(IDbContextTransaction dbContext) : ITransaction
 {

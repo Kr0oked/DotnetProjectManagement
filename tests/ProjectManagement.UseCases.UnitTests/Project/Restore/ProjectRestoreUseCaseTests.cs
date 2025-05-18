@@ -1,24 +1,24 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Project.Restore;
 
-using Domain.Entities;
 using Abstractions;
-using DotnetProjectManagement.ProjectManagement.UseCases.DTOs;
+using Domain.Entities;
 using Exceptions;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using UseCases.DTOs;
 using UseCases.Project.Restore;
 using Xunit;
 using static FluentAssertions.FluentActions;
 
 public class ProjectRestoreUseCaseTests
 {
-    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<IActivityRepository> activityRepositoryMock = new();
-    private readonly Mock<ITransactionManager> transactionManagerMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
-    private readonly Mock<ITransaction> transactionMock = new();
+    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly ProjectRestoreUseCase projectRestoreUseCase;
+    private readonly Mock<TimeProvider> timeProviderMock = new();
+    private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectRestoreUseCaseTests() =>
         this.projectRestoreUseCase = new ProjectRestoreUseCase(

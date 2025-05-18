@@ -60,8 +60,7 @@ public class UserApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         page2.Size.Should().Be(2);
         page2.TotalElements.Should().Be(3);
         page2.TotalPages.Should().Be(2);
-        page2.Content.Should().SatisfyRespectively(
-            user =>
+        page2.Content.Should().SatisfyRespectively(user =>
             {
                 user.Id.ToString().Should().Be(keycloakUserC.Id);
                 user.FirstName.Should().Be(keycloakUserC.FirstName);

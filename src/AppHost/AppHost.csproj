@@ -15,10 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Gateway\Gateway.csproj" />
-    <ProjectReference Include="..\ProjectManagement.MigrationService\ProjectManagement.MigrationService.csproj" />
-    <ProjectReference Include="..\ProjectManagement.App\ProjectManagement.App.csproj" />
-    <ProjectReference Include="..\WebFrontend\WebFrontend.csproj" />
+    <ProjectReference Include="..\Gateway\Gateway.csproj"/>
+    <ProjectReference Include="..\ProjectManagement.MigrationService\ProjectManagement.MigrationService.csproj"/>
+    <ProjectReference Include="..\ProjectManagement.App\ProjectManagement.App.csproj"/>
+    <ProjectReference Include="..\WebFrontend\WebFrontend.csproj"/>
   </ItemGroup>
 
 </Project>

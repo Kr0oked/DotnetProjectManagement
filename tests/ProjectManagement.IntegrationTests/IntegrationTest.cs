@@ -13,20 +13,11 @@ using UserRepresentation = FS.Keycloak.RestApiClient.Model.UserRepresentation;
 public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<Program>>
 {
     protected const string DefaultUserId = "6cf3ee68-3e83-4705-acca-7a1301d1c010";
-    protected static readonly Guid DefaultUserGuid = new(DefaultUserId);
     protected const string DefaultAdminId = "562f0563-9a86-40fc-8411-11bc1f2684c7";
+    protected static readonly Guid DefaultUserGuid = new(DefaultUserId);
     protected static readonly Guid DefaultAdminGuid = new(DefaultAdminId);
 
     private readonly TestWebApplicationFactory<Program> webApplicationFactory;
-
-    protected UserClient UserClient { get; }
-    protected ProjectClient ProjectClient { get; }
-
-    protected List<UserRepresentation> KeycloakUsers
-    {
-        get => this.webApplicationFactory.UsersApiFake.Users;
-        set => this.webApplicationFactory.UsersApiFake.Users = value;
-    }
 
     protected IntegrationTest(TestWebApplicationFactory<Program> webApplicationFactory, ITestOutputHelper output)
     {
@@ -54,6 +45,15 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
             }
         ];
         this.ActAsUser();
+    }
+
+    protected UserClient UserClient { get; }
+    protected ProjectClient ProjectClient { get; }
+
+    protected List<UserRepresentation> KeycloakUsers
+    {
+        get => this.webApplicationFactory.UsersApiFake.Users;
+        set => this.webApplicationFactory.UsersApiFake.Users = value;
     }
 
     private void MigrateDatabase()

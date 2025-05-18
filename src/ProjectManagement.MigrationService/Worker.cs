@@ -1,8 +1,8 @@
 namespace DotnetProjectManagement.ProjectManagement.MigrationService;
 
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
 using Data.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 public class Worker(
     IServiceProvider serviceProvider,

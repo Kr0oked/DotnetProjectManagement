@@ -2,12 +2,6 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.DTOs;
 
 public record PageRequest
 {
-    public int Number { get; }
-
-    public int Size { get; }
-
-    public int Offset => this.Size * this.Number;
-
     public PageRequest(int number, int size)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(number);
@@ -16,4 +10,10 @@ public record PageRequest
         this.Number = number;
         this.Size = size;
     }
+
+    public int Number { get; }
+
+    public int Size { get; }
+
+    public int Offset => this.Size * this.Number;
 }

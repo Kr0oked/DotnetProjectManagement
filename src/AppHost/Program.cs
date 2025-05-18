@@ -2,15 +2,15 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var keycloakAdminUsername = builder.AddParameter("keycloakAdminUsername", secret: true);
-var keycloakAdminPassword = builder.AddParameter("keycloakAdminPassword", secret: true);
+var keycloakAdminUsername = builder.AddParameter("keycloakAdminUsername", true);
+var keycloakAdminPassword = builder.AddParameter("keycloakAdminPassword", true);
 var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keycloakAdminPassword)
     .WithExternalHttpEndpoints()
     .WithRealmImport("realms", true)
     .WithDataVolume();
 
-var postgresUsername = builder.AddParameter("postgresUsername", secret: true);
-var postgresPassword = builder.AddParameter("postgresPassword", secret: true);
+var postgresUsername = builder.AddParameter("postgresUsername", true);
+var postgresPassword = builder.AddParameter("postgresPassword", true);
 var postgres = builder.AddPostgres("postgres", postgresUsername, postgresPassword)
     .WithDataVolume()
     .WithPgAdmin();

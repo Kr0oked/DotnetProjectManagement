@@ -15,6 +15,12 @@ public class Project : IValidatableObject
 
     public required Dictionary<Guid, ProjectMemberRole> Members { get; set; }
 
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) =>
+        this.Members
+            .Where(member => !Enum.IsDefined(member.Value))
+            .Select(member =>
+                new ValidationResult($"The value {member.Value} is not a valid role.", [nameof(this.Members)]));
+
     public override string ToString() =>
         new StringBuilder()
             .Append(nameof(Project))
@@ -27,12 +33,6 @@ public class Project : IValidatableObject
             .ToString();
 
     private string MembersToString() => string.Join(", ", this.Members);
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) =>
-        this.Members
-            .Where(member => !Enum.IsDefined(member.Value))
-            .Select(member =>
-                new ValidationResult($"The value {member.Value} is not a valid role.", [nameof(this.Members)]));
 
     public ProjectMemberRole? GetRoleOfUser(Guid userId) =>
         this.Members.TryGetValue(userId, out var role) ? role : null;

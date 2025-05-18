@@ -1,17 +1,17 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Project.List;
 
-using Domain.Entities;
 using Abstractions;
-using DotnetProjectManagement.ProjectManagement.UseCases.DTOs;
+using Domain.Entities;
 using FluentAssertions;
 using Moq;
+using UseCases.DTOs;
 using UseCases.Project.List;
 using Xunit;
 
 public class ProjectListUseCaseTests
 {
-    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly ProjectListUseCase projectListUseCase;
+    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
 
     public ProjectListUseCaseTests() =>
         this.projectListUseCase = new ProjectListUseCase(this.projectRepositoryMock.Object);

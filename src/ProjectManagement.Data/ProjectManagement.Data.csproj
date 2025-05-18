@@ -6,16 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ProjectManagement.Domain\ProjectManagement.Domain.csproj" />
+    <ProjectReference Include="..\ProjectManagement.Domain\ProjectManagement.Domain.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20241226221653_InitialCreate.cs" />
-    <Compile Remove="Migrations\20241226221653_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\20241226221653_InitialCreate.cs"/>
+    <Compile Remove="Migrations\20241226221653_InitialCreate.Designer.cs"/>
   </ItemGroup>
 
 </Project>

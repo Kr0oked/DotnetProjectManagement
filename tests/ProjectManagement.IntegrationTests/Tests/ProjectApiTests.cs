@@ -124,13 +124,12 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         project.DisplayName.Should().Be("DisplayName");
         project.Archived.Should().BeFalse();
-        project.Members.Should().SatisfyRespectively(
-            member =>
-            {
-                var (memberUserId, memberRole) = member;
-                memberUserId.Should().Be(DefaultUserGuid);
-                memberRole.Should().Be(ProjectMemberRole.Manager);
-            });
+        project.Members.Should().SatisfyRespectively(member =>
+        {
+            var (memberUserId, memberRole) = member;
+            memberUserId.Should().Be(DefaultUserGuid);
+            memberRole.Should().Be(ProjectMemberRole.Manager);
+        });
     }
 
     [Fact]
@@ -312,13 +311,12 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         updatedProject.DisplayName.Should().Be("After");
         updatedProject.Archived.Should().BeFalse();
-        updatedProject.Members.Should().SatisfyRespectively(
-            member =>
-            {
-                var (memberUserId, memberRole) = member;
-                memberUserId.Should().Be(DefaultUserGuid);
-                memberRole.Should().Be(ProjectMemberRole.Guest);
-            });
+        updatedProject.Members.Should().SatisfyRespectively(member =>
+        {
+            var (memberUserId, memberRole) = member;
+            memberUserId.Should().Be(DefaultUserGuid);
+            memberRole.Should().Be(ProjectMemberRole.Guest);
+        });
 
         var projectDetailsAsync = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
 
@@ -350,13 +348,12 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         updatedProject.DisplayName.Should().Be("After");
         updatedProject.Archived.Should().BeFalse();
-        updatedProject.Members.Should().SatisfyRespectively(
-            member =>
-            {
-                var (memberUserId, memberRole) = member;
-                memberUserId.Should().Be(DefaultUserGuid);
-                memberRole.Should().Be(ProjectMemberRole.Guest);
-            });
+        updatedProject.Members.Should().SatisfyRespectively(member =>
+        {
+            var (memberUserId, memberRole) = member;
+            memberUserId.Should().Be(DefaultUserGuid);
+            memberRole.Should().Be(ProjectMemberRole.Guest);
+        });
 
         var projectDetailsAsync = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
 
@@ -531,13 +528,12 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         archivedProject.DisplayName.Should().Be("DisplayName");
         archivedProject.Archived.Should().BeTrue();
-        archivedProject.Members.Should().SatisfyRespectively(
-            member =>
-            {
-                var (memberUserId, memberRole) = member;
-                memberUserId.Should().Be(DefaultUserGuid);
-                memberRole.Should().Be(ProjectMemberRole.Manager);
-            });
+        archivedProject.Members.Should().SatisfyRespectively(member =>
+        {
+            var (memberUserId, memberRole) = member;
+            memberUserId.Should().Be(DefaultUserGuid);
+            memberRole.Should().Be(ProjectMemberRole.Manager);
+        });
     }
 
     [Fact]
@@ -558,13 +554,12 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         archivedProject.DisplayName.Should().Be("DisplayName");
         archivedProject.Archived.Should().BeTrue();
-        archivedProject.Members.Should().SatisfyRespectively(
-            member =>
-            {
-                var (memberUserId, memberRole) = member;
-                memberUserId.Should().Be(DefaultUserGuid);
-                memberRole.Should().Be(ProjectMemberRole.Manager);
-            });
+        archivedProject.Members.Should().SatisfyRespectively(member =>
+        {
+            var (memberUserId, memberRole) = member;
+            memberUserId.Should().Be(DefaultUserGuid);
+            memberRole.Should().Be(ProjectMemberRole.Manager);
+        });
     }
 
     [Fact]
