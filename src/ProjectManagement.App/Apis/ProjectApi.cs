@@ -1,6 +1,5 @@
 namespace DotnetProjectManagement.ProjectManagement.App.APIs;
 
-using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -247,9 +246,7 @@ public static class ProjectApi
             TotalElements = page.TotalElements,
             TotalPages = page.TotalPages,
             Number = page.Number,
-            Content = page.Content
-                .Select(project => project.ToWeb())
-                .ToImmutableList()
+            Content = [.. page.Content.Select(project => project.ToWeb())]
         };
 
     private static ProjectRepresentation ToWeb(this ProjectDto project) =>

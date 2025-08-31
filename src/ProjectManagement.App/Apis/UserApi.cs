@@ -1,6 +1,5 @@
 namespace DotnetProjectManagement.ProjectManagement.App.APIs;
 
-using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -63,9 +62,7 @@ public static class UserApi
             TotalElements = page.TotalElements,
             TotalPages = page.TotalPages,
             Number = page.Number,
-            Content = page.Content
-                .Select(user => user.ToWeb())
-                .ToImmutableList()
+            Content = [.. page.Content.Select(user => user.ToWeb())]
         };
 
     private static UserRepresentation ToWeb(this UserDto user) =>

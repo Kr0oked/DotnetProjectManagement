@@ -6,7 +6,7 @@ var keycloakAdminUsername = builder.AddParameter("keycloakAdminUsername", true);
 var keycloakAdminPassword = builder.AddParameter("keycloakAdminPassword", true);
 var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keycloakAdminPassword)
     .WithExternalHttpEndpoints()
-    .WithRealmImport("realms", true)
+    .WithRealmImport("realms")
     .WithDataVolume();
 
 var postgresUsername = builder.AddParameter("postgresUsername", true);

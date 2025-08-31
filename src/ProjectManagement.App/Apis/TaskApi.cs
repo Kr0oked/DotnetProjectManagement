@@ -1,6 +1,5 @@
 namespace DotnetProjectManagement.ProjectManagement.App.APIs;
 
-using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -283,9 +282,7 @@ public static class TaskApi
             TotalElements = page.TotalElements,
             TotalPages = page.TotalPages,
             Number = page.Number,
-            Content = page.Content
-                .Select(task => task.ToWeb())
-                .ToImmutableList()
+            Content = [.. page.Content.Select(task => task.ToWeb())]
         };
 
     private static TaskRepresentation ToWeb(this TaskDto task) =>
