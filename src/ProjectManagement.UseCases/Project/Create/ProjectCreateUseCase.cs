@@ -50,7 +50,6 @@ public class ProjectCreateUseCase(
     {
         var project = new Project
         {
-            Id = Guid.NewGuid(),
             DisplayName = command.DisplayName,
             Archived = false,
             Members = command.Members.ToDictionary()
@@ -58,8 +57,7 @@ public class ProjectCreateUseCase(
 
         Validator.ValidateObject(project, new ValidationContext(project), true);
 
-        await projectRepository.SaveAsync(project, cancellationToken);
-        return project;
+        return await projectRepository.SaveAsync(project, cancellationToken);
     }
 
     private async Task CreateActivityAsync(Actor actor, Project project, CancellationToken cancellationToken)

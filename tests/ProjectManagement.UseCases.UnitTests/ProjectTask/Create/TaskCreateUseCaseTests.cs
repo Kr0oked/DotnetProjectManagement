@@ -36,6 +36,7 @@ public class TaskCreateUseCaseTests
     [Fact]
     public async Task CreateTaskAsyncAsAdministrator()
     {
+        var taskId = new Guid("1ce8aedc-04ed-410b-821d-5556c3a18ccc");
         var projectId = new Guid("00aaba25-ffad-4564-bffc-57a3b85fc171");
         var userId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f");
         var actor = new Actor
@@ -75,7 +76,16 @@ public class TaskCreateUseCaseTests
 
         var capturedTasks = new List<ProjectTask>();
         this.taskRepositoryMock
-            .Setup(taskRepository => taskRepository.SaveAsync(Capture.In(capturedTasks), cancellationToken));
+            .Setup(taskRepository => taskRepository.SaveAsync(Capture.In(capturedTasks), cancellationToken))
+            .ReturnsAsync(new ProjectTask
+            {
+                Id = taskId,
+                DisplayName = "DisplayName",
+                Description = "Description",
+                Open = true,
+                Assignees = [userId],
+                ProjectId = projectId
+            });
 
         var capturedActivities = new List<TaskCreatedActivity>();
         this.activityRepositoryMock
@@ -89,6 +99,7 @@ public class TaskCreateUseCaseTests
 
         var taskDto = await this.taskCreateUseCase.CreateTaskAsync(actor, command, cancellationToken);
 
+        taskDto.Id.Should().Be(taskId);
         taskDto.DisplayName.Should().Be("DisplayName");
         taskDto.Description.Should().Be("Description");
         taskDto.Open.Should().BeTrue();
@@ -96,7 +107,7 @@ public class TaskCreateUseCaseTests
 
         capturedTasks.Should().SatisfyRespectively(capturedTask =>
         {
-            capturedTask.Id.Should().Be(taskDto.Id);
+            capturedTask.Id.Should().BeEmpty();
             capturedTask.DisplayName.Should().Be("DisplayName");
             capturedTask.Description.Should().Be("Description");
             capturedTask.Open.Should().BeTrue();
@@ -120,6 +131,7 @@ public class TaskCreateUseCaseTests
     [Fact]
     public async Task CreateTaskAsyncAsManager()
     {
+        var taskId = new Guid("1ce8aedc-04ed-410b-821d-5556c3a18ccc");
         var projectId = new Guid("00aaba25-ffad-4564-bffc-57a3b85fc171");
         var userId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f");
         var actor = new Actor
@@ -159,7 +171,16 @@ public class TaskCreateUseCaseTests
 
         var capturedTasks = new List<ProjectTask>();
         this.taskRepositoryMock
-            .Setup(taskRepository => taskRepository.SaveAsync(Capture.In(capturedTasks), cancellationToken));
+            .Setup(taskRepository => taskRepository.SaveAsync(Capture.In(capturedTasks), cancellationToken))
+            .ReturnsAsync(new ProjectTask
+            {
+                Id = taskId,
+                DisplayName = "DisplayName",
+                Description = "Description",
+                Open = true,
+                Assignees = [userId],
+                ProjectId = projectId
+            });
 
         var capturedActivities = new List<TaskCreatedActivity>();
         this.activityRepositoryMock
@@ -173,6 +194,7 @@ public class TaskCreateUseCaseTests
 
         var taskDto = await this.taskCreateUseCase.CreateTaskAsync(actor, command, cancellationToken);
 
+        taskDto.Id.Should().Be(taskId);
         taskDto.DisplayName.Should().Be("DisplayName");
         taskDto.Description.Should().Be("Description");
         taskDto.Open.Should().BeTrue();
@@ -180,7 +202,7 @@ public class TaskCreateUseCaseTests
 
         capturedTasks.Should().SatisfyRespectively(capturedTask =>
         {
-            capturedTask.Id.Should().Be(taskDto.Id);
+            capturedTask.Id.Should().BeEmpty();
             capturedTask.DisplayName.Should().Be("DisplayName");
             capturedTask.Description.Should().Be("Description");
             capturedTask.Open.Should().BeTrue();

@@ -16,5 +16,5 @@ public interface IProjectRepository
 
     public Task<Project?> FindOneAsync(Guid projectId, CancellationToken cancellationToken = default);
 
-    public Task SaveAsync(Project project, CancellationToken cancellationToken = default);
+    public Task<Project> SaveAsync(Project project, CancellationToken cancellationToken = default);
 }

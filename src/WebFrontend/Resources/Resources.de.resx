@@ -167,4 +167,7 @@
   <data name="TaskAssignees" xml:space="preserve">
     <value>Beauftragte</value>
   </data>
+  <data name="ActionNavigateToTasks" xml:space="preserve">
+    <value>Aufgaben öffnen</value>
+  </data>
 </root>

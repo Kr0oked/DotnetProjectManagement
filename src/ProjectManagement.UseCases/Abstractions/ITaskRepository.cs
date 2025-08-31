@@ -12,5 +12,5 @@ public interface ITaskRepository
         PageRequest pageRequest,
         CancellationToken cancellationToken = default);
 
-    public Task SaveAsync(ProjectTask task, CancellationToken cancellationToken);
+    public Task<ProjectTask> SaveAsync(ProjectTask task, CancellationToken cancellationToken);
 }

@@ -6,6 +6,7 @@ using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using UseCases.Abstractions;
 using UseCases.DTOs;
+using UseCases.Exceptions;
 using TaskEntity = Domain.Entities.ProjectTask;
 using TaskDb = Data.Models.ProjectTask;
 
@@ -39,25 +40,22 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
         return new Page<TaskEntity>(tasks, pageRequest, totalElements);
     }
 
-    public async Task SaveAsync(TaskEntity task, CancellationToken cancellationToken)
+    public async Task<TaskEntity> SaveAsync(TaskEntity task, CancellationToken cancellationToken)
     {
-        var existingTask = await dbContext.Tasks
-            .FindAsync([task.Id], cancellationToken);
-
-        if (existingTask is not null)
-        {
-            await this.UpdateTaskAsync(task, existingTask, cancellationToken);
-        }
-        else
-        {
-            await this.CreateTaskAsync(task, cancellationToken);
-        }
+        var taskDB = task.Id == Guid.Empty
+            ? await this.CreateTaskAsync(task, cancellationToken)
+            : await this.UpdateTaskAsync(task, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        return MapToEntity(taskDB);
     }
 
-    private async Task UpdateTaskAsync(TaskEntity task, TaskDb existingTask, CancellationToken cancellationToken)
+    private async Task<TaskDb> UpdateTaskAsync(TaskEntity task, CancellationToken cancellationToken)
     {
+        var existingTask = await dbContext.Tasks
+            .FindAsync([task.Id], cancellationToken) ?? throw new TaskNotFoundException(task.Id);
+
         existingTask.DisplayName = task.DisplayName;
         existingTask.Description = task.Description;
         existingTask.Open = task.Open;
@@ -85,9 +83,11 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
             var userAsync = await this.GetUserAsync(assigneeUserId, cancellationToken);
             existingTask.Assignees.Add(userAsync);
         }
+
+        return existingTask;
     }
 
-    private async Task CreateTaskAsync(TaskEntity task, CancellationToken cancellationToken)
+    private async Task<TaskDb> CreateTaskAsync(TaskEntity task, CancellationToken cancellationToken)
     {
         var taskDb = new TaskDb
         {
@@ -105,6 +105,8 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
         }
 
         dbContext.Tasks.Add(taskDb);
+
+        return taskDb;
     }
 
     private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken)

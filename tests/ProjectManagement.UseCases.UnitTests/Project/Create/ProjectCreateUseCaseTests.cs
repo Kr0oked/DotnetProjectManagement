@@ -35,6 +35,7 @@ public class ProjectCreateUseCaseTests
     [Fact]
     public async Task CreateProjectAsync()
     {
+        var projectId = new Guid("00aaba25-ffad-4564-bffc-57a3b85fc171");
         var userId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f");
         var actor = new Actor
         {
@@ -61,7 +62,14 @@ public class ProjectCreateUseCaseTests
         var capturedProjects = new List<Project>();
         this.projectRepositoryMock
             .Setup(projectRepository =>
-                projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken));
+                projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken))
+            .ReturnsAsync(new Project
+            {
+                Id = projectId,
+                DisplayName = "DisplayName",
+                Archived = false,
+                Members = new Dictionary<Guid, ProjectMemberRole> { { userId, ProjectMemberRole.Manager } }
+            });
 
         var capturedActivities = new List<ProjectCreatedActivity>();
         this.activityRepositoryMock
@@ -75,6 +83,7 @@ public class ProjectCreateUseCaseTests
 
         var projectDto = await this.projectCreateUseCase.CreateProjectAsync(actor, command, cancellationToken);
 
+        projectDto.Id.Should().Be(projectId);
         projectDto.DisplayName.Should().Be("DisplayName");
         projectDto.Archived.Should().BeFalse();
         projectDto.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
@@ -84,7 +93,7 @@ public class ProjectCreateUseCaseTests
 
         capturedProjects.Should().SatisfyRespectively(capturedProject =>
         {
-            capturedProject.Id.Should().Be(projectDto.Id);
+            capturedProject.Id.Should().BeEmpty();
             capturedProject.DisplayName.Should().Be("DisplayName");
             capturedProject.Archived.Should().BeFalse();
             capturedProject.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>

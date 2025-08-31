@@ -8,8 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 public abstract class Activity
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public Guid Id { get; set; } = Guid.NewGuid();
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; set; }
 
     public required Guid UserId { get; set; }
 

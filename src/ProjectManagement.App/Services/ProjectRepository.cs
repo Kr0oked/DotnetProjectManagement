@@ -6,6 +6,7 @@ using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using UseCases.Abstractions;
 using UseCases.DTOs;
+using UseCases.Exceptions;
 using ProjectEntity = Domain.Entities.Project;
 using ProjectDb = Data.Models.Project;
 
@@ -59,28 +60,48 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
             .Select(project => MapToEntity(project))
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task SaveAsync(ProjectEntity project, CancellationToken cancellationToken = default)
+    public async Task<ProjectEntity> SaveAsync(ProjectEntity project, CancellationToken cancellationToken = default)
     {
-        var existingProject = await dbContext.Projects
-            .FindAsync([project.Id], cancellationToken);
-
-        if (existingProject is not null)
-        {
-            await this.UpdateProjectAsync(project, existingProject, cancellationToken);
-        }
-        else
-        {
-            await this.CreateProjectAsync(project, cancellationToken);
-        }
+        var projectDb = project.Id == Guid.Empty
+            ? await this.CreateProjectAsync(project, cancellationToken)
+            : await this.UpdateProjectAsync(project, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        return MapToEntity(projectDb);
     }
 
-    private async Task UpdateProjectAsync(
-        ProjectEntity project,
-        ProjectDb existingProject,
-        CancellationToken cancellationToken)
+    private async Task<ProjectDb> CreateProjectAsync(ProjectEntity project, CancellationToken cancellationToken)
     {
+        var projectDb = new ProjectDb
+        {
+            Id = project.Id,
+            DisplayName = project.DisplayName,
+            Archived = project.Archived
+        };
+
+        foreach (var (memberUserId, memberRole) in project.Members)
+        {
+            projectDb.Members.Add(new ProjectMember
+            {
+                ProjectId = projectDb.Id,
+                Project = projectDb,
+                UserId = memberUserId,
+                User = await this.GetUserAsync(memberUserId, cancellationToken),
+                Role = memberRole
+            });
+        }
+
+        dbContext.Projects.Add(projectDb);
+
+        return projectDb;
+    }
+
+    private async Task<ProjectDb> UpdateProjectAsync(ProjectEntity project, CancellationToken cancellationToken)
+    {
+        var existingProject = await dbContext.Projects
+            .FindAsync([project.Id], cancellationToken) ?? throw new ProjectNotFoundException(project.Id);
+
         existingProject.DisplayName = project.DisplayName;
         existingProject.Archived = project.Archived;
 
@@ -113,30 +134,8 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
                 });
             }
         }
-    }
 
-    private async Task CreateProjectAsync(ProjectEntity project, CancellationToken cancellationToken)
-    {
-        var projectDb = new ProjectDb
-        {
-            Id = project.Id,
-            DisplayName = project.DisplayName,
-            Archived = project.Archived
-        };
-
-        foreach (var (memberUserId, memberRole) in project.Members)
-        {
-            projectDb.Members.Add(new ProjectMember
-            {
-                ProjectId = projectDb.Id,
-                Project = projectDb,
-                UserId = memberUserId,
-                User = await this.GetUserAsync(memberUserId, cancellationToken),
-                Role = memberRole
-            });
-        }
-
-        dbContext.Projects.Add(projectDb);
+        return existingProject;
     }
 
     private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken)

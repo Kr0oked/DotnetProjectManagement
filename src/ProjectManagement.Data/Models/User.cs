@@ -8,8 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 public class User
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public Guid Id { get; set; } = Guid.NewGuid();
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; set; }
 
     public ICollection<ProjectMember> ProjectMemberships { get; } = [];
 

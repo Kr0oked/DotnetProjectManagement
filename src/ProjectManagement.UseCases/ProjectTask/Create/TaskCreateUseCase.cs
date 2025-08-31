@@ -67,8 +67,7 @@ public class TaskCreateUseCase(
 
         Validator.ValidateObject(task, new ValidationContext(task), true);
 
-        await taskRepository.SaveAsync(task, cancellationToken);
-        return task;
+        return await taskRepository.SaveAsync(task, cancellationToken);
     }
 
     private async Task CreateActivityAsync(Actor actor, ProjectTask task, CancellationToken cancellationToken)

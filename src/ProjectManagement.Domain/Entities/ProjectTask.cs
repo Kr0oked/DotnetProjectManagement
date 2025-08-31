@@ -1,11 +1,13 @@
 namespace DotnetProjectManagement.ProjectManagement.Domain.Entities;
 
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class ProjectTask
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     [Required(AllowEmptyStrings = false)]
     [StringLength(Constants.Text.DisplayNameMaxLength)]

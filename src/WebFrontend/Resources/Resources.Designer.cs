@@ -344,5 +344,11 @@ namespace DotnetProjectManagement.WebFrontend.Resources {
                 return ResourceManager.GetString("TaskAssignees", resourceCulture);
             }
         }
+        
+        internal static string ActionNavigateToTasks {
+            get {
+                return ResourceManager.GetString("ActionNavigateToTasks", resourceCulture);
+            }
+        }
     }
 }

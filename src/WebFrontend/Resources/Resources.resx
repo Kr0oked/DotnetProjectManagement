@@ -173,4 +173,7 @@
   <data name="TaskAssignees" xml:space="preserve">
     <value>Assignees</value>
   </data>
+  <data name="ActionNavigateToTasks" xml:space="preserve">
+    <value>Open tasks</value>
+  </data>
 </root>

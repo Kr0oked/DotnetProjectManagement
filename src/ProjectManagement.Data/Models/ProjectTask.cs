@@ -10,8 +10,8 @@ using Domain;
 public class ProjectTask
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public Guid Id { get; set; } = Guid.NewGuid();
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; set; }
 
     [Required(AllowEmptyStrings = false)]
     [StringLength(Constants.Text.DisplayNameMaxLength)]
