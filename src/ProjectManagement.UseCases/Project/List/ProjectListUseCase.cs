@@ -3,7 +3,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.Project.List;
 using Abstractions;
 using Domain.Entities;
 using DTOs;
-using Mappers;
+using Extensions;
 
 public class ProjectListUseCase(IProjectRepository projectRepository)
 {

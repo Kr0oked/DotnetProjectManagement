@@ -1,11 +1,8 @@
 ﻿@page "/projects"
-@inject IStringLocalizer<Resources> Localizer
-@inject ProjectClient ProjectClient
-@inject UserClient UserClient
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Collections.Immutable
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
+@using DotnetProjectManagement.ProjectManagement.Domain
 @using DotnetProjectManagement.ProjectManagement.Domain.Entities
 @using DotnetProjectManagement.ProjectManagement.Web.Clients
 @using DotnetProjectManagement.ProjectManagement.Web.Models
@@ -13,6 +10,11 @@
 @using Microsoft.Extensions.Localization
 @implements IDisposable
 @attribute [Authorize]
+@inject IStringLocalizer<Resources> Localizer
+@inject NavigationManager NavigationManager
+@inject ProjectClient ProjectClient
+@inject UserClient UserClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@Localizer["Projects"]</PageTitle>
 
@@ -47,9 +49,15 @@ else
 
         <GridColumn TItem="ProjectRepresentation" HeaderText="@Localizer["Actions"]">
             <Button Color="ButtonColor.Primary"
+                    TooltipTitle="@Localizer["ActionNavigateToTasks"]"
+                    Class="mx-1"
+                    @onclick="() => NavigateToTasks(context.Id)">
+                <Icon Name="IconName.ListTask"></Icon>
+            </Button>
+            <Button Color="ButtonColor.Primary"
                     Disabled="@((!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager)) || context.Archived)"
                     TooltipTitle="@Localizer["ActionEdit"]"
-                    Class="mx-2"
+                    Class="mx-1"
                     @onclick="() => StartEditProject(context)">
                 <Icon Name="IconName.Pencil"></Icon>
             </Button>
@@ -58,6 +66,7 @@ else
                 <Button Color="ButtonColor.Primary"
                         Disabled="@(!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager))"
                         TooltipTitle="@Localizer["ActionRestore"]"
+                        Class="mx-1"
                         @onclick="() => RestoreProject(context.Id)">
                     <Icon Name="IconName.Reply"></Icon>
                 </Button>
@@ -67,21 +76,19 @@ else
                 <Button Color="ButtonColor.Warning"
                         Disabled="@(!IsUserAdmin() && !IsProjectRole(context, ProjectMemberRole.Manager))"
                         TooltipTitle="@Localizer["ActionArchive"]"
+                        Class="mx-1"
                         @onclick="() => ArchiveProject(context.Id)">
                     <Icon Name="IconName.Archive"></Icon>
                 </Button>
             }
         </GridColumn>
-        <GridColumn TItem="ProjectRepresentation"
-                    HeaderText="@Localizer["ProjectName"]">
+        <GridColumn TItem="ProjectRepresentation" HeaderText="@Localizer["ProjectName"]">
             @context.DisplayName
         </GridColumn>
-        <GridColumn TItem="ProjectRepresentation"
-                    HeaderText="@Localizer["ProjectMembersCount"]">
+        <GridColumn TItem="ProjectRepresentation" HeaderText="@Localizer["ProjectMembersCount"]">
             @context.Members.Count
         </GridColumn>
-        <GridColumn TItem="ProjectRepresentation"
-                    HeaderText="@Localizer["ProjectArchived"]">
+        <GridColumn TItem="ProjectRepresentation" HeaderText="@Localizer["ProjectArchived"]">
             @(context.Archived ? Localizer["StateYes"] : Localizer["StateNo"])
         </GridColumn>
     </Grid>
@@ -91,14 +98,14 @@ else
             <EditForm EditContext="@editContext">
                 <DataAnnotationsValidator/>
                 <div class="form-group row">
-                    <label class="col-md-2 col-form-label">Name</label>
+                    <label class="col-md-2 col-form-label">@Localizer["ProjectName"]</label>
                     <div class="col-md-10">
                         <TextInput @bind-Value="@projectModel.DisplayName"
                                    Placeholder="@Localizer["ProjectNamePlaceholder"]"/>
                         <ValidationMessage For="@(() => projectModel.DisplayName)"/>
                     </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-3 mt-1">
                     <div class="col-md-12">
                         <Grid TItem="UserRepresentation"
                               Class="table table-hover"
@@ -107,7 +114,7 @@ else
                               Responsive="true">
 
                             <GridColumn TItem="UserRepresentation"
-                                        HeaderText="@Localizer["ProjectName"]"
+                                        HeaderText="@Localizer["UserName"]"
                                         Context="item">
                                 @item.FirstName @item.LastName
                             </GridColumn>
@@ -168,31 +175,16 @@ else
         user = authenticationState.User;
     }
 
-    private bool IsUserAdmin()
-    {
-        return user?.IsAdmin() ?? false;
-    }
+    private bool IsUserAdmin() => user?.IsAdmin() ?? false;
 
     private bool IsProjectRole(ProjectRepresentation projectRepresentation, ProjectMemberRole role)
     {
-        if (user?.Id() is { } id)
+        if (user?.Id() is { } userId)
         {
-            return projectRepresentation.Members[id] == role;
+            return projectRepresentation.Members[userId] == role;
         }
 
         return false;
-    }
-
-    private async Task ArchiveProject(Guid projectId)
-    {
-        await ProjectClient.ArchiveProjectAsync(projectId, cancellationTokenSource.Token);
-        await grid.RefreshDataAsync(cancellationTokenSource.Token);
-    }
-
-    private async Task RestoreProject(Guid projectId)
-    {
-        await ProjectClient.RestoreProjectAsync(projectId, cancellationTokenSource.Token);
-        await grid.RefreshDataAsync(cancellationTokenSource.Token);
     }
 
     private async Task<GridDataProviderResult<ProjectRepresentation>> ProjectsDataProvider(
@@ -219,6 +211,20 @@ else
             Data = page.Content,
             TotalCount = (int)page.TotalElements
         };
+    }
+
+    private void NavigateToTasks(Guid projectId) => NavigationManager.NavigateTo($"/projects/{projectId}/tasks");
+
+    private async Task ArchiveProject(Guid projectId)
+    {
+        await ProjectClient.ArchiveProjectAsync(projectId, cancellationTokenSource.Token);
+        await grid.RefreshDataAsync(cancellationTokenSource.Token);
+    }
+
+    private async Task RestoreProject(Guid projectId)
+    {
+        await ProjectClient.RestoreProjectAsync(projectId, cancellationTokenSource.Token);
+        await grid.RefreshDataAsync(cancellationTokenSource.Token);
     }
 
     private async Task StartNewProject()
@@ -284,11 +290,11 @@ else
         [Required(
             AllowEmptyStrings = false,
             ErrorMessageResourceType = typeof(Resources),
-            ErrorMessageResourceName = "ProjectNameErrorRequired")]
+            ErrorMessageResourceName = "FieldErrorRequired")]
         [StringLength(
-            255,
+            Constants.Text.DisplayNameMaxLength,
             ErrorMessageResourceType = typeof(Resources),
-            ErrorMessageResourceName = "ProjectNameErrorStringLength")]
+            ErrorMessageResourceName = "DisplayNameErrorStringLength")]
         public string DisplayName { get; set; } = "";
 
         public Dictionary<Guid, ProjectMemberRole> Members { get; set; } = [];

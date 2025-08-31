@@ -31,13 +31,13 @@ Feature: Manage milestones
         And I provide a display name
         Then the milestone gets created
 
-    Scenario: Update task display name
+    Scenario: Update milestone display name
         Given I am logged in with a user that is manager in a project
         When I try to update the display name of an active milestone
         And I provide a display name
         Then the display name gets updated
 
-    Scenario: Update task dates
+    Scenario: Update milestone dates
         Given I am logged in with a user that is manager in a project
         When I try to update the start and end date of an active milestone
         And I provide a start date
@@ -49,4 +49,13 @@ Feature: Manage milestones
         And the project contains an active milestone
         When I try to delete the milestone
         Then the milestone gets marked as deleted
-        And all tasks that were previously associated with this milestone are
+        And all tasks that were previously associated with this milestone are not related to a milestone anymore
+
+    Scenario: View milestones
+        Given I am logged in with a user
+        And there exists for projects called "A", "B", "C" and "D"
+        And the user is guest in the project "A"
+        And the user is worker in the project "B"
+        And the user is manager in the project "C"
+        And the user is not meberthe project "D"
+        Then I can see a project list that contains only "A", "B", "C"

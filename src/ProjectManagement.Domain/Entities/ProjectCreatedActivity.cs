@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 public class ProjectCreatedActivity : ProjectActivity
 {
     [Required(AllowEmptyStrings = false)]
-    [StringLength(255)]
+    [StringLength(Constants.Text.DisplayNameMaxLength)]
     public required string DisplayName { get; init; }
 
     public required ImmutableDictionary<Guid, ProjectMemberRole> Members { get; init; }

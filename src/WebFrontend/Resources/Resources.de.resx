@@ -92,10 +92,10 @@
   <data name="ActionSave" xml:space="preserve">
     <value>Speichern</value>
   </data>
-  <data name="ProjectNameErrorRequired" xml:space="preserve">
-    <value>Name ist erforderlich.</value>
+  <data name="FieldErrorRequired" xml:space="preserve">
+    <value>Das Feld ist erforderlich.</value>
   </data>
-  <data name="ProjectNameErrorStringLength" xml:space="preserve">
+  <data name="DisplayNameErrorStringLength" xml:space="preserve">
     <value>Maximal 255 Buchstaben.</value>
   </data>
   <data name="UsersDescription" xml:space="preserve">
@@ -127,5 +127,44 @@
   </data>
   <data name="AppHello" xml:space="preserve">
     <value>Hallo, {0}</value>
+  </data>
+  <data name="DescriptionErrorStringLength" xml:space="preserve">
+    <value>Maximal 8191 Buchstaben.</value>
+  </data>
+  <data name="TasksDescription" xml:space="preserve">
+    <value>Greife auf die Aufgaben dieses Projekts zu und verwalte sie.</value>
+  </data>
+  <data name="TaskCreateTooltip" xml:space="preserve">
+    <value>Erstelle eine neue Aufgabe</value>
+  </data>
+  <data name="ActionClose" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="ActionReopen" xml:space="preserve">
+    <value>Wieder öffnen</value>
+  </data>
+  <data name="TaskName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TaskOpen" xml:space="preserve">
+    <value>Offen</value>
+  </data>
+  <data name="TaskSaveTitle" xml:space="preserve">
+    <value>Aufgabe speichern</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>Aufgaben</value>
+  </data>
+  <data name="TaskAssigneesCount" xml:space="preserve">
+    <value>Anzahl der Beauftragten</value>
+  </data>
+  <data name="TaskNamePlaceholder" xml:space="preserve">
+    <value>Namen eingeben</value>
+  </data>
+  <data name="TaskDescriptionPlaceholder" xml:space="preserve">
+    <value>Beschreibung eingeben</value>
+  </data>
+  <data name="TaskAssignees" xml:space="preserve">
+    <value>Beauftragte</value>
   </data>
 </root>

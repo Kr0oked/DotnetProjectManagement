@@ -1,5 +1,6 @@
 namespace DotnetProjectManagement.ProjectManagement.IntegrationTests;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Xunit.Abstractions;
 using UserRepresentation = FS.Keycloak.RestApiClient.Model.UserRepresentation;
 
 [Collection("IntegrationTests")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<Program>>
 {
     protected const string DefaultUserId = "6cf3ee68-3e83-4705-acca-7a1301d1c010";
@@ -26,6 +28,7 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
 
         this.UserClient = new UserClient(this.webApplicationFactory.CreateClient());
         this.ProjectClient = new ProjectClient(this.webApplicationFactory.CreateClient());
+        this.TaskClient = new TaskClient(this.webApplicationFactory.CreateClient());
 
         this.MigrateDatabase();
         this.CleanupDatabase();
@@ -49,6 +52,7 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
 
     protected UserClient UserClient { get; }
     protected ProjectClient ProjectClient { get; }
+    protected TaskClient TaskClient { get; }
 
     protected List<UserRepresentation> KeycloakUsers
     {

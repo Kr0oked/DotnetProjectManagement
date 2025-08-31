@@ -3,9 +3,9 @@
 @using DotnetProjectManagement.ProjectManagement.Web.Models
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Localization
+@attribute [Authorize]
 @inject IStringLocalizer<Resources> Localizer
 @inject UserClient UserClient
-@attribute [Authorize]
 
 <PageTitle>@Localizer["Users"]</PageTitle>
 

@@ -51,7 +51,7 @@ public class ProjectListUseCaseTests
         {
             projectDto.Id.Should().Be(projectId);
             projectDto.DisplayName.Should().Be("DisplayName");
-            project.Archived.Should().Be(true);
+            projectDto.Archived.Should().Be(true);
             projectDto.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
             {
                 { userId, ProjectMemberRole.Guest }
@@ -93,7 +93,7 @@ public class ProjectListUseCaseTests
         {
             projectDto.Id.Should().Be(projectId);
             projectDto.DisplayName.Should().Be("DisplayName");
-            project.Archived.Should().Be(true);
+            projectDto.Archived.Should().Be(true);
             projectDto.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
             {
                 { userId, ProjectMemberRole.Guest }

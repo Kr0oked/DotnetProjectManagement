@@ -3,7 +3,8 @@ left to right direction
 
 package Project {
     usecase "Mange Tasks" as manageTasks
-    usecase "Process Tasks" as processTasks
+    usecase "Assign Tasks to others" as assignTasksToOthers
+    usecase "Assign Tasks to yourself" as assignTasksToYourself
     usecase "Read Tasks" as readTasks
 }
 
@@ -13,15 +14,17 @@ package Project {
 :Guest: as guest
 
 admin --> manageTasks
-admin --> processTasks
+admin --> assignTasksToOthers
+admin --> assignTasksToYourself
 admin --> readTasks
 
 manager --> manageTasks
-manager --> processTasks
+manager --> assignTasksToOthers
+manager --> assignTasksToYourself
 manager --> readTasks
 
 worker --> readTasks
-worker --> processTasks
+worker --> assignTasksToYourself
 
 guest --> readTasks
 

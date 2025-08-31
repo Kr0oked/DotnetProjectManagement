@@ -1,5 +1,6 @@
 namespace DotnetProjectManagement.ProjectManagement.IntegrationTests;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using App.Keycloak;
 using Fakes;
@@ -17,14 +18,13 @@ using Testcontainers.PostgreSql;
 using Xunit;
 using Xunit.Abstractions;
 
-// ReSharper disable once ClassNeverInstantiated.Global
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>, IAsyncLifetime,
     ITestOutputHelperAccessor
     where TProgram : class
 {
     private readonly PostgreSqlContainer postgreSqlContainer = new PostgreSqlBuilder()
         .WithImage("postgres:17.0")
-        .WithCleanUp(true)
         .Build();
 
     public ClaimsProvider ClaimsProvider { get; } = new();

@@ -86,6 +86,10 @@ app.MapProjectApi()
     .WithOpenApi()
     .RequireAuthorization();
 
+app.MapTaskApi()
+    .WithOpenApi()
+    .RequireAuthorization();
+
 app.MapUserApi()
     .WithOpenApi()
     .RequireAuthorization();

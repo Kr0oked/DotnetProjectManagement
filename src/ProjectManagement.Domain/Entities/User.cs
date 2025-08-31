@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class User
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; init; } = Guid.NewGuid();
 
     public string? FirstName { get; set; }
 

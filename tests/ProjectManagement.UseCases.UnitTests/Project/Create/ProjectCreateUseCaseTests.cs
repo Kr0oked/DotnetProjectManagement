@@ -15,13 +15,13 @@ using static FluentAssertions.FluentActions;
 
 public class ProjectCreateUseCaseTests
 {
-    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly ProjectCreateUseCase projectCreateUseCase;
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
-    private readonly Mock<ITransactionManager> transactionManagerMock = new();
-    private readonly Mock<ITransaction> transactionMock = new();
     private readonly Mock<IUserRepository> userRepositoryMock = new();
+    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
+    private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<TimeProvider> timeProviderMock = new();
+    private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectCreateUseCaseTests() =>
         this.projectCreateUseCase = new ProjectCreateUseCase(
@@ -118,7 +118,7 @@ public class ProjectCreateUseCaseTests
         };
         var command = new ProjectCreateCommand
         {
-            DisplayName = "",
+            DisplayName = string.Concat(Enumerable.Repeat("a", 256)),
             Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
         };
         var cancellationToken = CancellationToken.None;
@@ -129,7 +129,7 @@ public class ProjectCreateUseCaseTests
 
         await Invoking(() => this.projectCreateUseCase.CreateProjectAsync(actor, command, cancellationToken))
             .Should().ThrowAsync<ValidationException>()
-            .WithMessage("The DisplayName field is required.");
+            .WithMessage("The field DisplayName must be a string with a maximum length of 255.");
     }
 
     [Fact]

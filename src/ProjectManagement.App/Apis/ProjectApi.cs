@@ -91,7 +91,7 @@ public static class ProjectApi
                 Members = body.Members
             };
             var project = await useCase.CreateProjectAsync(actor, command, cancellationToken);
-            return TypedResults.Created($"api/projects/{project.Id}", project.ToWeb());
+            return TypedResults.Created($"projects/{project.Id}", project.ToWeb());
         }
         catch (UserNotFoundException exception)
         {
@@ -195,7 +195,7 @@ public static class ProjectApi
             var project = await projectArchiveUseCase.ArchiveProjectAsync(actor, projectId, cancellationToken);
             return TypedResults.Ok(project.ToWeb());
         }
-        catch (ProjectAlreadyArchivedException exception)
+        catch (ProjectArchivedException exception)
         {
             return TypedResults.BadRequest(new ProblemDetails { Detail = exception.Message });
         }

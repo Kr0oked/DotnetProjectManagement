@@ -1,5 +1,6 @@
 namespace DotnetProjectManagement.AppHost.IntegrationTests;
 
+using System.Diagnostics.CodeAnalysis;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Projects;
 using Xunit;
 
-// ReSharper disable once ClassNeverInstantiated.Global
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class AppFixture : IAsyncLifetime
 {
     private DistributedApplication distributedApplication = null!;

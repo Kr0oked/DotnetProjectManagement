@@ -3,13 +3,14 @@ namespace DotnetProjectManagement.ProjectManagement.Web.Models;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Domain;
 using Domain.Entities;
 
 public record ProjectSaveRequest : IValidatableObject
 {
     [Description("Name of the project.")]
     [Required(AllowEmptyStrings = false)]
-    [StringLength(255)]
+    [StringLength(Constants.Text.DisplayNameMaxLength)]
     public required string DisplayName { get; init; }
 
     [Description("Dictionary of project members. Maps the user ID to the corresponding role.")]

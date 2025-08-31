@@ -4,5 +4,5 @@ using FS.Keycloak.RestApiClient.Api;
 
 public interface IKeycloakClientFactory
 {
-    IUsersApi GetUsersApi();
+    public IUsersApi GetUsersApi();
 }

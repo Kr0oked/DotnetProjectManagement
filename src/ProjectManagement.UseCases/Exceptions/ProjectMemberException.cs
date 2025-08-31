@@ -1,6 +1,4 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.Exceptions;
 
-using DTOs;
-
-public class ProjectMemberException(Actor actor, Guid projectId)
-    : Exception($"User {actor.UserId} is not a member of project {projectId}");
+public class ProjectMemberException(Guid userId, Guid projectId)
+    : Exception($"User {userId} is not a member of project {projectId}");

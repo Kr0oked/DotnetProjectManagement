@@ -8,7 +8,7 @@ public class Project : IValidatableObject
     public Guid Id { get; init; } = Guid.NewGuid();
 
     [Required(AllowEmptyStrings = false)]
-    [StringLength(255)]
+    [StringLength(Constants.Text.DisplayNameMaxLength)]
     public required string DisplayName { get; set; }
 
     public required bool Archived { get; set; }
@@ -32,7 +32,7 @@ public class Project : IValidatableObject
             .Append(" }")
             .ToString();
 
-    private string MembersToString() => string.Join(", ", this.Members);
+    private string MembersToString() => string.Join(", ", this.Members.OrderBy(member => member.Key));
 
     public ProjectMemberRole? GetRoleOfUser(Guid userId) =>
         this.Members.TryGetValue(userId, out var role) ? role : null;

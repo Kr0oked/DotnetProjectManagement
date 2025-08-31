@@ -7,7 +7,7 @@ using Xunit;
 public class ProjectTests
 {
     [Fact]
-    public void CanCreateProject()
+    public void ToStringShouldContainFields()
     {
         var project = new Project
         {
@@ -29,8 +29,8 @@ public class ProjectTests
             "DisplayName = DisplayName, " +
             "Archived = True, " +
             "Members = { " +
-            "[fd9f45e1-48f0-42ae-a390-2f4d1653451f, Guest], " +
-            "[4ccdd441-fd29-42f5-a588-446fb9c94640, Worker] " +
+            "[4ccdd441-fd29-42f5-a588-446fb9c94640, Worker], " +
+            "[fd9f45e1-48f0-42ae-a390-2f4d1653451f, Guest] " +
             "} " +
             "}");
     }

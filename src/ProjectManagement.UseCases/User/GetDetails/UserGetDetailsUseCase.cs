@@ -4,7 +4,7 @@ using Abstractions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
-using Mappers;
+using Extensions;
 
 public class UserGetDetailsUseCase(IUserRepository userRepository)
 {

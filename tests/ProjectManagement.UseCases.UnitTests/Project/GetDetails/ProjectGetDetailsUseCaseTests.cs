@@ -34,7 +34,7 @@ public class ProjectGetDetailsUseCaseTests
             Id = projectId,
             DisplayName = "DisplayName",
             Archived = true,
-            Members = new Dictionary<Guid, ProjectMemberRole> { { userId, ProjectMemberRole.Guest } }
+            Members = new Dictionary<Guid, ProjectMemberRole> { { userId, ProjectMemberRole.Worker } }
         };
 
         this.projectRepositoryMock
@@ -49,7 +49,7 @@ public class ProjectGetDetailsUseCaseTests
         projectDto.Archived.Should().Be(true);
         projectDto.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
         {
-            { userId, ProjectMemberRole.Guest }
+            { userId, ProjectMemberRole.Worker }
         });
     }
 

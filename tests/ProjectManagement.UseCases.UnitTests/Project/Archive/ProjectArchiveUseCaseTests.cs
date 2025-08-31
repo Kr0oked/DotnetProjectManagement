@@ -13,11 +13,11 @@ using static FluentAssertions.FluentActions;
 
 public class ProjectArchiveUseCaseTests
 {
-    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly ProjectArchiveUseCase projectArchiveUseCase;
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
+    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<TimeProvider> timeProviderMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectArchiveUseCaseTests() =>
@@ -180,8 +180,8 @@ public class ProjectArchiveUseCaseTests
             .ReturnsAsync(project);
 
         await Invoking(() => this.projectArchiveUseCase.ArchiveProjectAsync(actor, projectId, cancellationToken))
-            .Should().ThrowAsync<ProjectAlreadyArchivedException>()
-            .WithMessage($"Project {projectId} is already archived");
+            .Should().ThrowAsync<ProjectArchivedException>()
+            .WithMessage($"Project {projectId} is archived");
     }
 
     [Fact]

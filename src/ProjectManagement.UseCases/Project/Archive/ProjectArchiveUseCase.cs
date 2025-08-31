@@ -4,7 +4,7 @@ using Abstractions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
-using Mappers;
+using Extensions;
 using Microsoft.Extensions.Logging;
 
 public class ProjectArchiveUseCase(
@@ -23,8 +23,8 @@ public class ProjectArchiveUseCase(
         await using var transaction = await transactionManager.BeginTransactionAsync(cancellationToken);
         var project = await this.GetProject(projectId, cancellationToken);
 
-        VerifyAuthorization(actor, projectId, project);
-        VerifyProjectState(projectId, project);
+        actor.VerifyIsManager(project);
+        project.VerifyProjectIsNotArchived();
 
         project.Archived = true;
 
@@ -40,22 +40,6 @@ public class ProjectArchiveUseCase(
     private async Task<Project> GetProject(Guid projectId, CancellationToken cancellationToken) =>
         await projectRepository.FindOneAsync(projectId, cancellationToken)
         ?? throw new ProjectNotFoundException(projectId);
-
-    private static void VerifyAuthorization(Actor actor, Guid projectId, Project project)
-    {
-        if (!actor.IsAdministrator && project.GetRoleOfUser(actor.UserId) != ProjectMemberRole.Manager)
-        {
-            throw new ManagerRequiredException(actor, projectId);
-        }
-    }
-
-    private static void VerifyProjectState(Guid projectId, Project project)
-    {
-        if (project.Archived)
-        {
-            throw new ProjectAlreadyArchivedException(projectId);
-        }
-    }
 
     private async Task CreateActivityAsync(Actor actor, Guid projectId, CancellationToken cancellationToken)
     {

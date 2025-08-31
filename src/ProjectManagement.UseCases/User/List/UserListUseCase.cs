@@ -2,7 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.User.List;
 
 using Abstractions;
 using DTOs;
-using Mappers;
+using Extensions;
 
 public class UserListUseCase(IUserRepository userRepository)
 {

@@ -11,4 +11,12 @@ public interface IActivityRepository
     public Task SaveAsync(ProjectArchivedActivity activity, CancellationToken cancellationToken = default);
 
     public Task SaveAsync(ProjectRestoredActivity activity, CancellationToken cancellationToken = default);
+
+    public Task SaveAsync(TaskCreatedActivity activity, CancellationToken cancellationToken = default);
+
+    public Task SaveAsync(TaskUpdatedActivity activity, CancellationToken cancellationToken = default);
+
+    public Task SaveAsync(TaskClosedActivity activity, CancellationToken cancellationToken = default);
+
+    public Task SaveAsync(TaskReopenedActivity activity, CancellationToken cancellationToken = default);
 }

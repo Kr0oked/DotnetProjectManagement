@@ -6,7 +6,7 @@ using Abstractions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
-using Mappers;
+using Extensions;
 using Microsoft.Extensions.Logging;
 
 public class ProjectCreateUseCase(
@@ -22,24 +22,17 @@ public class ProjectCreateUseCase(
         ProjectCreateCommand command,
         CancellationToken cancellationToken = default)
     {
-        VerifyAuthorization(actor);
+        await using var transaction = await transactionManager.BeginTransactionAsync(cancellationToken);
+
+        actor.VerifyIsAdministrator();
         await this.VerifyUsersExist(command, cancellationToken);
 
-        await using var transaction = await transactionManager.BeginTransactionAsync(cancellationToken);
         var project = await this.CreateProjectAsync(command, cancellationToken);
         await this.CreateActivityAsync(actor, project, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         logger.LogProjectCreated(actor.UserId, project);
         return project.ToDto();
-    }
-
-    private static void VerifyAuthorization(Actor actor)
-    {
-        if (!actor.IsAdministrator)
-        {
-            throw new AdministratorRequiredException(actor);
-        }
     }
 
     private async Task VerifyUsersExist(ProjectCreateCommand command, CancellationToken cancellationToken)
@@ -63,7 +56,7 @@ public class ProjectCreateUseCase(
             Members = command.Members.ToDictionary()
         };
 
-        Validator.ValidateObject(project, new ValidationContext(project));
+        Validator.ValidateObject(project, new ValidationContext(project), true);
 
         await projectRepository.SaveAsync(project, cancellationToken);
         return project;

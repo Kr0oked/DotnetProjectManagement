@@ -1,4 +1,4 @@
-namespace DotnetProjectManagement.ProjectManagement.UseCases.Mappers;
+namespace DotnetProjectManagement.ProjectManagement.UseCases.Extensions;
 
 using Domain.Entities;
 using DTOs;

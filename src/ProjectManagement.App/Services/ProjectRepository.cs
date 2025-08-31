@@ -16,7 +16,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         CancellationToken cancellationToken = default)
     {
         var queryable = dbContext.Projects
-            .OrderBy(project => project.DisplayName);
+            .OrderBy(project => project.CreatedAt);
 
         var totalElements = await queryable.LongCountAsync(cancellationToken);
 
@@ -38,7 +38,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         var queryable = dbContext.Projects
             .Where(project => !project.Archived)
             .Where(project => project.Members.Any(member => member.UserId == userId))
-            .OrderBy(project => project.DisplayName);
+            .OrderBy(project => project.CreatedAt);
 
         var totalElements = await queryable.LongCountAsync(cancellationToken);
 
@@ -93,13 +93,13 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
             .ToImmutableList();
         dbContext.ProjectMembers.RemoveRange(obsoleteMembers);
 
-        foreach (var (userId, role) in project.Members)
+        foreach (var (memberUserId, memberRole) in project.Members)
         {
-            var existingMember = existingProject.Members.FirstOrDefault(member => member.UserId == userId);
+            var existingMember = existingProject.Members.FirstOrDefault(member => member.UserId == memberUserId);
 
             if (existingMember is not null)
             {
-                existingMember.Role = role;
+                existingMember.Role = memberRole;
             }
             else
             {
@@ -107,14 +107,12 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
                 {
                     ProjectId = existingProject.Id,
                     Project = existingProject,
-                    UserId = userId,
-                    User = await this.GetUserAsync(userId, cancellationToken),
-                    Role = role
+                    UserId = memberUserId,
+                    User = await this.GetUserAsync(memberUserId, cancellationToken),
+                    Role = memberRole
                 });
             }
         }
-
-        dbContext.Projects.Update(existingProject);
     }
 
     private async Task CreateProjectAsync(ProjectEntity project, CancellationToken cancellationToken)
@@ -126,15 +124,15 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
             Archived = project.Archived
         };
 
-        foreach (var (userId, role) in project.Members)
+        foreach (var (memberUserId, memberRole) in project.Members)
         {
             projectDb.Members.Add(new ProjectMember
             {
                 ProjectId = projectDb.Id,
                 Project = projectDb,
-                UserId = userId,
-                User = await this.GetUserAsync(userId, cancellationToken),
-                Role = role
+                UserId = memberUserId,
+                User = await this.GetUserAsync(memberUserId, cancellationToken),
+                Role = memberRole
             });
         }
 

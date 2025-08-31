@@ -1,0 +1,61 @@
+@startuml
+
+package "Frameworks and Drivers" {
+
+    map "ProjectManagement.App" as ProjectManagementApp {
+    }
+
+    map "ProjectManagement.MigrationService" as ProjectManagementMigrationService {
+    }
+
+    map WebFrontend {
+    }
+
+    map Gateway {
+    }
+
+    map ServiceDefaults {
+    }
+
+    package "Interface Adapters" {
+
+        map "ProjectManagement.Web" as ProjectManagementWeb {
+        }
+
+        map "ProjectManagement.Data" as ProjectManagementData {
+        }
+
+        package "Application Business Rules" {
+
+            map "ProjectManagement.UseCases" as ProjectManagementUseCases {
+            }
+
+            package "Enterprise Business Rules" {
+
+                map "ProjectManagement.Domain" as ProjectManagementDomain {
+                }
+
+            }
+
+        }
+    }
+}
+
+ProjectManagementApp --> ProjectManagementUseCases
+ProjectManagementApp --> ProjectManagementMigrationService
+ProjectManagementApp --> ProjectManagementWeb
+
+ProjectManagementUseCases --> ProjectManagementDomain
+
+ProjectManagementMigrationService --> ProjectManagementData
+ProjectManagementMigrationService --> ServiceDefaults
+
+ProjectManagementWeb --> ProjectManagementDomain
+
+ProjectManagementData --> ProjectManagementDomain
+
+WebFrontend --> ProjectManagementWeb
+
+Gateway --> ServiceDefaults
+
+@enduml

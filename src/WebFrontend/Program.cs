@@ -25,6 +25,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
 
 builder.Services.AddTransient<CustomAuthorizationMessageHandler>();
 builder.Services.AddTransient<ProjectClient>();
+builder.Services.AddTransient<TaskClient>();
 builder.Services.AddTransient<UserClient>();
 
 builder.Services.AddBlazorBootstrap();

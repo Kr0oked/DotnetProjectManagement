@@ -4,7 +4,7 @@ using Abstractions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
-using Mappers;
+using Extensions;
 
 public class ProjectGetDetailsUseCase(IProjectRepository projectRepository)
 {
@@ -14,22 +14,11 @@ public class ProjectGetDetailsUseCase(IProjectRepository projectRepository)
         CancellationToken cancellationToken = default)
     {
         var project = await this.GetProject(projectId, cancellationToken);
-        VerifyAuthorization(actor, projectId, project);
+        actor.VerifyIsProjectMember(project);
         return project.ToDto();
     }
 
-    private async Task<Project> GetProject(Guid projectId, CancellationToken cancellationToken)
-    {
-        var project = await projectRepository.FindOneAsync(projectId, cancellationToken)
-                      ?? throw new ProjectNotFoundException(projectId);
-        return project;
-    }
-
-    private static void VerifyAuthorization(Actor actor, Guid projectId, Project project)
-    {
-        if (!actor.IsAdministrator && project.GetRoleOfUser(actor.UserId) is null)
-        {
-            throw new ProjectMemberException(actor, projectId);
-        }
-    }
+    private async Task<Project> GetProject(Guid projectId, CancellationToken cancellationToken) =>
+        await projectRepository.FindOneAsync(projectId, cancellationToken)
+        ?? throw new ProjectNotFoundException(projectId);
 }

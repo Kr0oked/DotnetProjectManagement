@@ -1,0 +1,331 @@
+@page "/projects/{projectId:guid}/tasks"
+@using System.Collections.Immutable
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using DotnetProjectManagement.ProjectManagement.Domain
+@using DotnetProjectManagement.ProjectManagement.Domain.Entities
+@using DotnetProjectManagement.ProjectManagement.Web.Clients
+@using DotnetProjectManagement.ProjectManagement.Web.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@implements IDisposable
+@attribute [Authorize]
+@inject IStringLocalizer<Resources> Localizer
+@inject ProjectClient ProjectClient
+@inject TaskClient TaskClient
+@inject UserClient UserClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>@Localizer["Tasks"]</PageTitle>
+
+<h1>@Localizer["Tasks"]</h1>
+
+<p>@Localizer["TasksDescription"]</p>
+
+@if (user is null || project is null)
+{
+    <div class="d-flex justify-content-center">
+        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge"/>
+    </div>
+}
+else
+{
+    @if (IsUserAdmin() || IsProjectRole(project, ProjectMemberRole.Manager))
+    {
+        <Button Color="ButtonColor.Primary"
+                Disabled="@project.Archived"
+                TooltipTitle="@Localizer["TaskCreateTooltip"]"
+                @onclick="StartNewTask">
+            <Icon Name="IconName.Plus"></Icon>
+        </Button>
+    }
+
+    <Grid @ref="grid"
+          TItem="TaskRepresentation"
+          Class="table table-hover"
+          DataProvider="TasksDataProvider"
+          AllowPaging="true"
+          Responsive="true"
+          PaginationItemsTextFormat="@Localizer["GridPaginationItemsTextFormat"]">
+
+        <GridColumn TItem="TaskRepresentation" HeaderText="@Localizer["Actions"]">
+            <Button Color="ButtonColor.Primary"
+                    Disabled="@((!IsUserAdmin() && !IsProjectRole(project, ProjectMemberRole.Manager)) || project.Archived)"
+                    TooltipTitle="@Localizer["ActionEdit"]"
+                    Class="mx-1"
+                    @onclick="() => StartEditTask(context)">
+                <Icon Name="IconName.Pencil"></Icon>
+            </Button>
+            @if (context.Open)
+            {
+                <Button Color="ButtonColor.Warning"
+                        Disabled="@(!IsUserAdmin() && !IsProjectRole(project, ProjectMemberRole.Manager) && !IsAssignee(context) || project.Archived)"
+                        TooltipTitle="@Localizer["ActionClose"]"
+                        Class="mx-1"
+                        @onclick="() => CloseTask(context.Id)">
+                    <Icon Name="IconName.Check"></Icon>
+                </Button>
+            }
+            else
+            {
+                <Button Color="ButtonColor.Primary"
+                        Disabled="@(!IsUserAdmin() && !IsProjectRole(project, ProjectMemberRole.Manager) && !IsAssignee(context) || project.Archived)"
+                        TooltipTitle="@Localizer["ActionReopen"]"
+                        Class="mx-1"
+                        @onclick="() => ReopenTask(context.Id)">
+                    <Icon Name="IconName.ArrowCounterclockwise"></Icon>
+                </Button>
+            }
+        </GridColumn>
+        <GridColumn TItem="TaskRepresentation" HeaderText="@Localizer["TaskName"]">
+            @context.DisplayName
+        </GridColumn>
+        <GridColumn TItem="TaskRepresentation" HeaderText="@Localizer["TaskAssigneesCount"]">
+            @context.Assignees.Count
+        </GridColumn>
+        <GridColumn TItem="TaskRepresentation" HeaderText="@Localizer["TaskOpen"]">
+            @(context.Open ? Localizer["StateYes"] : Localizer["StateNo"])
+        </GridColumn>
+    </Grid>
+
+    <Modal @ref="modal" Title="@Localizer["TaskSaveTitle"]" Size="ModalSize.Large" UseStaticBackdrop="true">
+        <BodyTemplate>
+            <EditForm EditContext="@editContext">
+                <DataAnnotationsValidator/>
+                <div class="form-group row">
+                    <label class="col-md-2 col-form-label">@Localizer["TaskName"]</label>
+                    <div class="col-md-10">
+                        <TextInput @bind-Value="@taskModel.DisplayName"
+                                   Placeholder="@Localizer["TaskNamePlaceholder"]"/>
+                        <ValidationMessage For="@(() => taskModel.DisplayName)"/>
+                    </div>
+                </div>
+                <div class="form-group row mt-1">
+                    <label class="col-md-2 col-form-label">@Localizer["TaskDescription"]</label>
+                    <div class="col-md-10">
+                        <TextAreaInput @bind-Value="@taskModel.Description"
+                                       Placeholder="@Localizer["TaskDescriptionPlaceholder"]"/>
+                        <ValidationMessage For="@(() => taskModel.Description)"/>
+                    </div>
+                </div>
+                <div class="row mb-3 mt-1">
+                    <div class="col-md-12">
+                        <Grid TItem="UserRepresentation"
+                              Class="table table-hover"
+                              DataProvider="UsersDataProvider"
+                              AllowPaging="true"
+                              Responsive="true">
+
+                            <GridColumn TItem="UserRepresentation"
+                                        HeaderText="@Localizer["UserName"]"
+                                        Context="item">
+                                @item.FirstName @item.LastName
+                            </GridColumn>
+
+                            <GridColumn TItem="UserRepresentation"
+                                        HeaderText="@Localizer["TaskAssignees"]"
+                                        Context="item">
+                                @{
+                                    var assigned = taskModel.Assignees.Contains(item.Id);
+                                }
+                                <InputSelect Value="assigned"
+                                             ValueExpression="() => assigned"
+                                             ValueChanged="(bool selectedAssigned) => SetAssignee(item.Id, selectedAssigned)"
+                                             class="form-select">
+                                    <option value="false">no</option>
+                                    <option value="true">yes</option>
+                                </InputSelect>
+                            </GridColumn>
+
+                        </Grid>
+                    </div>
+                </div>
+            </EditForm>
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button Color="ButtonColor.Secondary" @onclick="modal.HideAsync">@Localizer["ActionCancel"]</Button>
+            <Button Color="ButtonColor.Primary" @onclick="SaveTAsk">@Localizer["ActionSave"]</Button>
+        </FooterTemplate>
+    </Modal>
+}
+
+@code {
+
+    [Parameter]
+    public Guid ProjectId { get; set; }
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private ClaimsPrincipal? user;
+    private Grid<TaskRepresentation> grid = null!;
+    private Modal modal = null!;
+    private EditContext editContext = null!;
+    private ProjectRepresentation? project;
+    private readonly TaskModel taskModel = new();
+    private Guid? saveTaskId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(taskModel);
+
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authenticationState.User;
+
+        project = await ProjectClient.GetProjectDetailsAsync(ProjectId, cancellationTokenSource.Token);
+    }
+
+    private bool IsUserAdmin() => user?.IsAdmin() ?? false;
+
+    private bool IsProjectRole(ProjectRepresentation projectRepresentation, ProjectMemberRole role)
+    {
+        if (user?.Id() is { } userId)
+        {
+            return projectRepresentation.Members[userId] == role;
+        }
+
+        return false;
+    }
+
+    private bool IsAssignee(TaskRepresentation taskRepresentation)
+    {
+        if (user?.Id() is { } userId)
+        {
+            return taskRepresentation.Assignees.Contains(userId);
+        }
+
+        return false;
+    }
+
+    private async Task<GridDataProviderResult<TaskRepresentation>> TasksDataProvider(
+        GridDataProviderRequest<TaskRepresentation> request)
+    {
+        var page = await TaskClient
+            .ListTasksForProjectAsync(ProjectId, request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+        return new GridDataProviderResult<TaskRepresentation>
+        {
+            Data = page.Content,
+            TotalCount = (int)page.TotalElements
+        };
+    }
+
+    private async Task<GridDataProviderResult<UserRepresentation>> UsersDataProvider(
+        GridDataProviderRequest<UserRepresentation> request)
+    {
+        var page = await UserClient
+            .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+        return new GridDataProviderResult<UserRepresentation>
+        {
+            Data = page.Content,
+            TotalCount = (int)page.TotalElements
+        };
+    }
+
+    private async Task CloseTask(Guid taskId)
+    {
+        await TaskClient.CloseTaskAsync(taskId, cancellationTokenSource.Token);
+        await grid.RefreshDataAsync(cancellationTokenSource.Token);
+    }
+
+    private async Task ReopenTask(Guid taskId)
+    {
+        await TaskClient.ReopenTaskAsync(taskId, cancellationTokenSource.Token);
+        await grid.RefreshDataAsync(cancellationTokenSource.Token);
+    }
+
+    private async Task StartNewTask()
+    {
+        saveTaskId = null;
+        taskModel.DisplayName = "";
+        taskModel.Description = "";
+        taskModel.Assignees = [];
+        await modal.ShowAsync();
+    }
+
+    private async Task StartEditTask(TaskRepresentation task)
+    {
+        saveTaskId = task.Id;
+        taskModel.DisplayName = task.DisplayName;
+        taskModel.Description = task.Description;
+        taskModel.Assignees = task.Assignees.ToHashSet();
+        await modal.ShowAsync();
+    }
+
+    private void SetAssignee(Guid userId, bool assigned)
+    {
+        if (assigned)
+        {
+            taskModel.Assignees.Add(userId);
+        }
+        else
+        {
+            taskModel.Assignees.Remove(userId);
+        }
+    }
+
+    private async Task SaveTAsk()
+    {
+        if (editContext.Validate())
+        {
+            if (saveTaskId is { } taskId)
+            {
+                await TaskClient.UpdateTaskAsync(
+                    taskId,
+                    new TaskUpdateRequest
+                    {
+                        DisplayName = taskModel.DisplayName,
+                        Description = taskModel.Description,
+                        Assignees = taskModel.Assignees.ToImmutableHashSet()
+                    },
+                    cancellationTokenSource.Token);
+            }
+            else
+            {
+                await TaskClient.CreateTaskAsync(
+                    new TaskCreateRequest
+                    {
+                        ProjectId = ProjectId,
+                        DisplayName = taskModel.DisplayName,
+                        Description = taskModel.Description,
+                        Assignees = taskModel.Assignees.ToImmutableHashSet()
+                    },
+                    cancellationTokenSource.Token);
+            }
+
+            await modal.HideAsync();
+            await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        }
+    }
+
+    public void Dispose()
+    {
+        cancellationTokenSource.Cancel();
+        cancellationTokenSource.Dispose();
+    }
+
+    private class TaskModel
+    {
+        [Required(
+            AllowEmptyStrings = false,
+            ErrorMessageResourceType = typeof(Resources),
+            ErrorMessageResourceName = "FieldErrorRequired")]
+        [StringLength(
+            Constants.Text.DisplayNameMaxLength,
+            ErrorMessageResourceType = typeof(Resources),
+            ErrorMessageResourceName = "DisplayNameErrorStringLength")]
+        public string DisplayName { get; set; } = "";
+
+        [Required(
+            AllowEmptyStrings = false,
+            ErrorMessageResourceType = typeof(Resources),
+            ErrorMessageResourceName = "FieldErrorRequired")]
+        [StringLength(
+            Constants.Text.DisplayNameMaxLength,
+            ErrorMessageResourceType = typeof(Resources),
+            ErrorMessageResourceName = "DisplayNameErrorStringLength")]
+        public string Description { get; set; } = "";
+
+        public HashSet<Guid> Assignees { get; set; } = [];
+    }
+
+}

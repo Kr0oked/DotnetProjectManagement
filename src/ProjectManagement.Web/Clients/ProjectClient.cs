@@ -8,11 +8,13 @@ public class ProjectClient(HttpClient httpClient)
     public async Task<PageRepresentation<ProjectRepresentation>> ListProjectsAsync(
         int pageNumber,
         int pageSize,
-        CancellationToken cancellationToken = default) =>
-        (await httpClient
-            .GetFromJsonAsync<PageRepresentation<ProjectRepresentation>>(
-                $"projects?pageNumber={pageNumber}&pageSize={pageSize}",
-                cancellationToken))!;
+        CancellationToken cancellationToken = default)
+    {
+        var page = await httpClient.GetFromJsonAsync<PageRepresentation<ProjectRepresentation>>(
+            $"projects?pageNumber={pageNumber}&pageSize={pageSize}",
+            cancellationToken);
+        return page!;
+    }
 
     public async Task<ProjectRepresentation> CreateProjectAsync(
         ProjectSaveRequest request,
@@ -26,11 +28,12 @@ public class ProjectClient(HttpClient httpClient)
 
     public async Task<ProjectRepresentation> GetProjectDetailsAsync(
         Guid projectId,
-        CancellationToken cancellationToken = default) =>
-        (await httpClient
-            .GetFromJsonAsync<ProjectRepresentation>(
-                $"projects/{projectId}",
-                cancellationToken))!;
+        CancellationToken cancellationToken = default)
+    {
+        var project = await httpClient
+            .GetFromJsonAsync<ProjectRepresentation>($"projects/{projectId}", cancellationToken);
+        return project!;
+    }
 
     public async Task<ProjectRepresentation> UpdateProjectAsync(
         Guid projectId,

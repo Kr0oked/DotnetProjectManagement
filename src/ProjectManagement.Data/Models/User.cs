@@ -13,13 +13,17 @@ public class User
 
     public ICollection<ProjectMember> ProjectMemberships { get; } = [];
 
+    public ICollection<ProjectTask> AssignedTasks { get; } = [];
+
+    public ICollection<Activity> History { get; } = [];
+
     public ICollection<ProjectCreatedActivityMember> ProjectCreatedActivityMemberships { get; } = [];
 
     public ICollection<ProjectUpdatedActivityMember> ProjectUpdatedActivityMemberships { get; } = [];
 
-    public ICollection<Activity> Activities { get; } = [];
+    public ICollection<TaskUpdatedActivity> TaskUpdatedActivityNewAssignees { get; } = [];
 
-    public ICollection<Document> Documents { get; } = [];
+    public ICollection<TaskUpdatedActivity> TaskUpdatedActivityOldAssignees { get; } = [];
 
     [Timestamp]
     public uint Version { get; set; }

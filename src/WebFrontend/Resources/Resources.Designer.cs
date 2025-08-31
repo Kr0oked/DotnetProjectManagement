@@ -195,15 +195,15 @@ namespace DotnetProjectManagement.WebFrontend.Resources {
             }
         }
         
-        internal static string ProjectNameErrorRequired {
+        internal static string FieldErrorRequired {
             get {
-                return ResourceManager.GetString("ProjectNameErrorRequired", resourceCulture);
+                return ResourceManager.GetString("FieldErrorRequired", resourceCulture);
             }
         }
         
-        internal static string ProjectNameErrorStringLength {
+        internal static string DisplayNameErrorStringLength {
             get {
-                return ResourceManager.GetString("ProjectNameErrorStringLength", resourceCulture);
+                return ResourceManager.GetString("DisplayNameErrorStringLength", resourceCulture);
             }
         }
         
@@ -264,6 +264,84 @@ namespace DotnetProjectManagement.WebFrontend.Resources {
         internal static string AppHello {
             get {
                 return ResourceManager.GetString("AppHello", resourceCulture);
+            }
+        }
+        
+        internal static string DescriptionErrorStringLength {
+            get {
+                return ResourceManager.GetString("DescriptionErrorStringLength", resourceCulture);
+            }
+        }
+        
+        internal static string Tasks {
+            get {
+                return ResourceManager.GetString("Tasks", resourceCulture);
+            }
+        }
+        
+        internal static string TasksDescription {
+            get {
+                return ResourceManager.GetString("TasksDescription", resourceCulture);
+            }
+        }
+        
+        internal static string TaskCreateTooltip {
+            get {
+                return ResourceManager.GetString("TaskCreateTooltip", resourceCulture);
+            }
+        }
+        
+        internal static string ActionClose {
+            get {
+                return ResourceManager.GetString("ActionClose", resourceCulture);
+            }
+        }
+        
+        internal static string ActionReopen {
+            get {
+                return ResourceManager.GetString("ActionReopen", resourceCulture);
+            }
+        }
+        
+        internal static string TaskName {
+            get {
+                return ResourceManager.GetString("TaskName", resourceCulture);
+            }
+        }
+        
+        internal static string TaskAssigneesCount {
+            get {
+                return ResourceManager.GetString("TaskAssigneesCount", resourceCulture);
+            }
+        }
+        
+        internal static string TaskOpen {
+            get {
+                return ResourceManager.GetString("TaskOpen", resourceCulture);
+            }
+        }
+        
+        internal static string TaskSaveTitle {
+            get {
+                return ResourceManager.GetString("TaskSaveTitle", resourceCulture);
+            }
+        }
+        
+        internal static string TaskNamePlaceholder {
+            get {
+                return ResourceManager.GetString("TaskNamePlaceholder", resourceCulture);
+            }
+        }
+        
+        internal static string TaskDescriptionPlaceholder {
+            get {
+                return ResourceManager.GetString("TaskDescriptionPlaceholder", resourceCulture);
+            }
+        }
+        
+        internal static string TaskAssignees {
+            get {
+                return ResourceManager.GetString("TaskAssignees", resourceCulture);
             }
         }
     }

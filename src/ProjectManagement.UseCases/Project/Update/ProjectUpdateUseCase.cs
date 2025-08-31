@@ -6,7 +6,7 @@ using Abstractions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
-using Mappers;
+using Extensions;
 using Microsoft.Extensions.Logging;
 
 public class ProjectUpdateUseCase(
@@ -26,8 +26,8 @@ public class ProjectUpdateUseCase(
         var project = await this.GetProject(command, cancellationToken);
 
         await this.VerifyUsersExist(command, cancellationToken);
-        VerifyAuthorization(actor, command, project);
-        VerifyProjectNotArchived(command, project);
+        actor.VerifyIsManager(project);
+        project.VerifyProjectIsNotArchived();
 
         await this.CreateActivityAsync(actor, command, project, cancellationToken);
         await this.UpdateProjectAsync(command, project, cancellationToken);
@@ -52,22 +52,6 @@ public class ProjectUpdateUseCase(
         }
     }
 
-    private static void VerifyAuthorization(Actor actor, ProjectUpdateCommand command, Project project)
-    {
-        if (!actor.IsAdministrator && project.GetRoleOfUser(actor.UserId) != ProjectMemberRole.Manager)
-        {
-            throw new ManagerRequiredException(actor, command.ProjectId);
-        }
-    }
-
-    private static void VerifyProjectNotArchived(ProjectUpdateCommand command, Project project)
-    {
-        if (project.Archived)
-        {
-            throw new ProjectArchivedException(command.ProjectId);
-        }
-    }
-
     private async Task CreateActivityAsync(
         Actor actor,
         ProjectUpdateCommand update,
@@ -79,10 +63,10 @@ public class ProjectUpdateUseCase(
             UserId = actor.UserId,
             Timestamp = timeProvider.GetUtcNow(),
             ProjectId = project.Id,
-            OldDisplayName = project.DisplayName,
             NewDisplayName = update.DisplayName,
-            OldMembers = project.Members.ToImmutableDictionary(),
-            NewMembers = update.Members
+            OldDisplayName = project.DisplayName,
+            NewMembers = update.Members,
+            OldMembers = project.Members.ToImmutableDictionary()
         };
 
         await activityRepository.SaveAsync(activity, cancellationToken);
@@ -96,7 +80,7 @@ public class ProjectUpdateUseCase(
         project.DisplayName = command.DisplayName;
         project.Members = command.Members.ToDictionary();
 
-        Validator.ValidateObject(project, new ValidationContext(project));
+        Validator.ValidateObject(project, new ValidationContext(project), true);
 
         await projectRepository.SaveAsync(project, cancellationToken);
     }

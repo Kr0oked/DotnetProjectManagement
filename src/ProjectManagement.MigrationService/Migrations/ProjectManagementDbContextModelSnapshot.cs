@@ -17,7 +17,7 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -55,35 +55,6 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.Document", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.ToTable("Document");
-                });
-
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.Project", b =>
                 {
                     b.Property<Guid>("Id")
@@ -91,6 +62,10 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
 
                     b.Property<bool>("Archived")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
@@ -156,6 +131,44 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.ToTable("ProjectMembers");
                 });
 
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(8191)
+                        .HasColumnType("character varying(8191)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("Open")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Tasks");
+                });
+
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectUpdatedActivityMember", b =>
                 {
                     b.Property<Guid>("ProjectUpdatedActivityId")
@@ -188,6 +201,9 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("TaskCreatedActivityId")
+                        .HasColumnType("uuid");
+
                     b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -196,7 +212,54 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TaskCreatedActivityId");
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ProjectTaskUser", b =>
+                {
+                    b.Property<Guid>("AssignedTasksId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssigneesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AssignedTasksId", "AssigneesId");
+
+                    b.HasIndex("AssigneesId");
+
+                    b.ToTable("ProjectTaskUser");
+                });
+
+            modelBuilder.Entity("TaskUpdatedActivityUser", b =>
+                {
+                    b.Property<Guid>("NewAssigneesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TaskUpdatedActivityNewAssigneesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("NewAssigneesId", "TaskUpdatedActivityNewAssigneesId");
+
+                    b.HasIndex("TaskUpdatedActivityNewAssigneesId");
+
+                    b.ToTable("TaskUpdatedActivityUser");
+                });
+
+            modelBuilder.Entity("TaskUpdatedActivityUser1", b =>
+                {
+                    b.Property<Guid>("OldAssigneesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TaskUpdatedActivityOldAssigneesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("OldAssigneesId", "TaskUpdatedActivityOldAssigneesId");
+
+                    b.HasIndex("TaskUpdatedActivityOldAssigneesId");
+
+                    b.ToTable("TaskUpdatedActivityUser1");
                 });
 
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectActivity", b =>
@@ -209,6 +272,18 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.HasIndex("ProjectId");
 
                     b.HasDiscriminator().HasValue("ProjectActivity");
+                });
+
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.TaskActivity", b =>
+                {
+                    b.HasBaseType("DotnetProjectManagement.ProjectManagement.Data.Models.Activity");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasDiscriminator().HasValue("TaskActivity");
                 });
 
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectArchivedActivity", b =>
@@ -254,26 +329,88 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.HasDiscriminator().HasValue("ProjectUpdatedActivity");
                 });
 
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.TaskClosedActivity", b =>
+                {
+                    b.HasBaseType("DotnetProjectManagement.ProjectManagement.Data.Models.TaskActivity");
+
+                    b.HasDiscriminator().HasValue("TaskClosedActivity");
+                });
+
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.TaskCreatedActivity", b =>
+                {
+                    b.HasBaseType("DotnetProjectManagement.ProjectManagement.Data.Models.TaskActivity");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(8191)
+                        .HasColumnType("character varying(8191)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.ToTable("Activities", t =>
+                        {
+                            t.Property("DisplayName")
+                                .HasColumnName("TaskCreatedActivity_DisplayName");
+                        });
+
+                    b.HasDiscriminator().HasValue("TaskCreatedActivity");
+                });
+
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.TaskReopenedActivity", b =>
+                {
+                    b.HasBaseType("DotnetProjectManagement.ProjectManagement.Data.Models.TaskActivity");
+
+                    b.HasDiscriminator().HasValue("TaskReopenedActivity");
+                });
+
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.TaskUpdatedActivity", b =>
+                {
+                    b.HasBaseType("DotnetProjectManagement.ProjectManagement.Data.Models.TaskActivity");
+
+                    b.Property<string>("NewDescription")
+                        .IsRequired()
+                        .HasMaxLength(8191)
+                        .HasColumnType("character varying(8191)");
+
+                    b.Property<string>("NewDisplayName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("OldDescription")
+                        .IsRequired()
+                        .HasMaxLength(8191)
+                        .HasColumnType("character varying(8191)");
+
+                    b.Property<string>("OldDisplayName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.ToTable("Activities", t =>
+                        {
+                            t.Property("NewDisplayName")
+                                .HasColumnName("TaskUpdatedActivity_NewDisplayName");
+
+                            t.Property("OldDisplayName")
+                                .HasColumnName("TaskUpdatedActivity_OldDisplayName");
+                        });
+
+                    b.HasDiscriminator().HasValue("TaskUpdatedActivity");
+                });
+
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.Activity", b =>
                 {
                     b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.User", "User")
-                        .WithMany("Activities")
+                        .WithMany("History")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.Document", b =>
-                {
-                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.User", "CreatedByUser")
-                        .WithMany("Documents")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectCreatedActivityMember", b =>
@@ -314,6 +451,17 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectTask", b =>
+                {
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.Project", "Project")
+                        .WithMany("Tasks")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectUpdatedActivityMember", b =>
                 {
                     b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectUpdatedActivity", "ProjectUpdatedActivity")
@@ -333,10 +481,62 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.User", b =>
+                {
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.TaskCreatedActivity", null)
+                        .WithMany("Assignees")
+                        .HasForeignKey("TaskCreatedActivityId");
+                });
+
+            modelBuilder.Entity("ProjectTaskUser", b =>
+                {
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectTask", null)
+                        .WithMany()
+                        .HasForeignKey("AssignedTasksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("AssigneesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TaskUpdatedActivityUser", b =>
+                {
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("NewAssigneesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.TaskUpdatedActivity", null)
+                        .WithMany()
+                        .HasForeignKey("TaskUpdatedActivityNewAssigneesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TaskUpdatedActivityUser1", b =>
+                {
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("OldAssigneesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.TaskUpdatedActivity", null)
+                        .WithMany()
+                        .HasForeignKey("TaskUpdatedActivityOldAssigneesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectActivity", b =>
                 {
                     b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.Project", "Project")
-                        .WithMany()
+                        .WithMany("History")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -344,16 +544,34 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.TaskActivity", b =>
+                {
+                    b.HasOne("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectTask", "Task")
+                        .WithMany("Activities")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.Project", b =>
                 {
+                    b.Navigation("History");
+
                     b.Navigation("Members");
+
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectTask", b =>
+                {
+                    b.Navigation("Activities");
                 });
 
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.User", b =>
                 {
-                    b.Navigation("Activities");
-
-                    b.Navigation("Documents");
+                    b.Navigation("History");
 
                     b.Navigation("ProjectCreatedActivityMemberships");
 
@@ -370,6 +588,11 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
             modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.ProjectUpdatedActivity", b =>
                 {
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("DotnetProjectManagement.ProjectManagement.Data.Models.TaskCreatedActivity", b =>
+                {
+                    b.Navigation("Assignees");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,8 +1,8 @@
-namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Mappers;
+namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Extensions;
 
 using Domain.Entities;
 using FluentAssertions;
-using UseCases.Mappers;
+using UseCases.Extensions;
 using Xunit;
 
 public class UserExtensionsTests

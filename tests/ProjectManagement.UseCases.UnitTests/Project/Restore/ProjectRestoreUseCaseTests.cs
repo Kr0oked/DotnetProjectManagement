@@ -13,11 +13,11 @@ using static FluentAssertions.FluentActions;
 
 public class ProjectRestoreUseCaseTests
 {
-    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
-    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly ProjectRestoreUseCase projectRestoreUseCase;
-    private readonly Mock<TimeProvider> timeProviderMock = new();
+    private readonly Mock<IProjectRepository> projectRepositoryMock = new();
+    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<TimeProvider> timeProviderMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectRestoreUseCaseTests() =>

@@ -221,9 +221,9 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 .ToImmutableDictionary()
         });
 
-        var projectDetailsAsync = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
+        var projectDetails = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
 
-        projectDetailsAsync.Should().Be(project);
+        projectDetails.Should().Be(project);
     }
 
     [Fact]
@@ -240,9 +240,9 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         this.ActAsUser();
 
-        var projectDetailsAsync = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
+        var projectDetails = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
 
-        projectDetailsAsync.Should().Be(project);
+        projectDetails.Should().Be(project);
     }
 
     [Fact]
@@ -259,9 +259,9 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         var archiveProject = await this.ProjectClient.ArchiveProjectAsync(project.Id);
 
-        var projectDetailsAsync = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
+        var projectDetails = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
 
-        projectDetailsAsync.Should().Be(archiveProject);
+        projectDetails.Should().Be(archiveProject);
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
-            DisplayName = "Before",
+            DisplayName = "DisplayNameBefore",
             Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Manager } }
                 .ToImmutableDictionary()
         });
@@ -304,12 +304,12 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             project.Id,
             new ProjectSaveRequest
             {
-                DisplayName = "After",
+                DisplayName = "DisplayNameAfter",
                 Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Guest } }
                     .ToImmutableDictionary()
             });
 
-        updatedProject.DisplayName.Should().Be("After");
+        updatedProject.DisplayName.Should().Be("DisplayNameAfter");
         updatedProject.Archived.Should().BeFalse();
         updatedProject.Members.Should().SatisfyRespectively(member =>
         {
@@ -318,9 +318,9 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             memberRole.Should().Be(ProjectMemberRole.Guest);
         });
 
-        var projectDetailsAsync = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
+        var projectDetails = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
 
-        projectDetailsAsync.Should().Be(updatedProject);
+        projectDetails.Should().Be(updatedProject);
     }
 
     [Fact]
@@ -330,7 +330,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
 
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
-            DisplayName = "Before",
+            DisplayName = "DisplayNameBefore",
             Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Manager } }
                 .ToImmutableDictionary()
         });
@@ -341,12 +341,12 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             project.Id,
             new ProjectSaveRequest
             {
-                DisplayName = "After",
+                DisplayName = "DisplayNameAfter",
                 Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Guest } }
                     .ToImmutableDictionary()
             });
 
-        updatedProject.DisplayName.Should().Be("After");
+        updatedProject.DisplayName.Should().Be("DisplayNameAfter");
         updatedProject.Archived.Should().BeFalse();
         updatedProject.Members.Should().SatisfyRespectively(member =>
         {
@@ -355,9 +355,9 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             memberRole.Should().Be(ProjectMemberRole.Guest);
         });
 
-        var projectDetailsAsync = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
+        var projectDetails = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
 
-        projectDetailsAsync.Should().Be(updatedProject);
+        projectDetails.Should().Be(updatedProject);
     }
 
     [Fact]

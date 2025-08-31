@@ -1,0 +1,96 @@
+namespace DotnetProjectManagement.ProjectManagement.UseCases.ProjectTask.Update;
+
+using System.ComponentModel.DataAnnotations;
+using Abstractions;
+using Domain.Entities;
+using DTOs;
+using Exceptions;
+using Extensions;
+using Microsoft.Extensions.Logging;
+
+public class TaskUpdateUseCase(
+    ITaskRepository taskRepository,
+    IProjectRepository projectRepository,
+    IUserRepository userRepository,
+    IActivityRepository activityRepository,
+    ITransactionManager transactionManager,
+    TimeProvider timeProvider,
+    ILogger<TaskUpdateUseCase> logger)
+{
+    public async Task<TaskDto> UpdateTaskAsync(
+        Actor actor,
+        TaskUpdateCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await transactionManager.BeginTransactionAsync(cancellationToken);
+
+        var task = await this.GetTask(command.TaskId, cancellationToken);
+        var project = await this.GetProject(task, cancellationToken);
+
+        await this.VerifyUsersExist(command, cancellationToken);
+        actor.VerifyIsManager(project);
+        project.VerifyProjectIsNotArchived();
+
+        await this.CreateActivityAsync(actor, command, task, cancellationToken);
+        await this.UpdateTaskAsync(command, task, cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
+        logger.LogTaskUpdated(actor.UserId, task);
+        return task.ToDto();
+    }
+
+    private async Task<ProjectTask> GetTask(Guid taskId, CancellationToken cancellationToken) =>
+        await taskRepository.FindOneAsync(taskId, cancellationToken)
+        ?? throw new TaskNotFoundException(taskId);
+
+    private async Task<Project> GetProject(ProjectTask task, CancellationToken cancellationToken) =>
+        await projectRepository.FindOneAsync(task.ProjectId, cancellationToken)
+        ?? throw new ProjectNotFoundException(task.ProjectId);
+
+    private async Task VerifyUsersExist(TaskUpdateCommand command, CancellationToken cancellationToken)
+    {
+        foreach (var assignee in command.Assignees)
+        {
+            if (!await userRepository.ExistsAsync(assignee, cancellationToken))
+            {
+                throw new UserNotFoundException(assignee);
+            }
+        }
+    }
+
+    private async Task CreateActivityAsync(
+        Actor actor,
+        TaskUpdateCommand update,
+        ProjectTask task,
+        CancellationToken cancellationToken)
+    {
+        var activity = new TaskUpdatedActivity
+        {
+            UserId = actor.UserId,
+            Timestamp = timeProvider.GetUtcNow(),
+            TaskId = task.Id,
+            NewDisplayName = update.DisplayName,
+            OldDisplayName = task.DisplayName,
+            NewDescription = update.Description,
+            OldDescription = task.Description,
+            NewAssignees = [.. update.Assignees],
+            OldAssignees = [.. task.Assignees]
+        };
+
+        await activityRepository.SaveAsync(activity, cancellationToken);
+    }
+
+    private async Task UpdateTaskAsync(
+        TaskUpdateCommand command,
+        ProjectTask task,
+        CancellationToken cancellationToken)
+    {
+        task.DisplayName = command.DisplayName;
+        task.Description = command.Description;
+        task.Assignees = [.. command.Assignees];
+
+        Validator.ValidateObject(task, new ValidationContext(task), true);
+
+        await taskRepository.SaveAsync(task, cancellationToken);
+    }
+}
