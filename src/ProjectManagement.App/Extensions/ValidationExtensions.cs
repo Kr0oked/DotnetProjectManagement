@@ -1,18 +1,9 @@
-namespace DotnetProjectManagement.ProjectManagement.App.APIs;
+namespace DotnetProjectManagement.ProjectManagement.App.Extensions;
 
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using UseCases.DTOs;
 
-internal static class Extensions
+internal static class ValidationExtensions
 {
-    public static Actor ToActor(this ClaimsPrincipal principal) =>
-        new()
-        {
-            UserId = new Guid(principal.Identity?.Name ?? throw new PrincipalNameMissingException()),
-            IsAdministrator = principal.IsInRole("app_admin")
-        };
-
     public static Dictionary<string, string[]> ToErrorDictionary(this ICollection<ValidationResult> validationResults)
     {
         var errorDictionary = new Dictionary<string, string[]>();

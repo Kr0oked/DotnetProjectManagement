@@ -40,6 +40,8 @@ public class ProjectCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectCreateCommand
@@ -55,8 +57,7 @@ public class ProjectCreateUseCaseTests
             .ReturnsAsync(this.transactionMock.Object);
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(true);
 
         var capturedProjects = new List<Project>();
@@ -123,6 +124,8 @@ public class ProjectCreateUseCaseTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectCreateCommand
@@ -148,6 +151,8 @@ public class ProjectCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectCreateCommand
@@ -159,8 +164,7 @@ public class ProjectCreateUseCaseTests
         var cancellationToken = CancellationToken.None;
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(false);
 
         await Invoking(() => this.projectCreateUseCase.CreateProjectAsync(actor, command, cancellationToken))
@@ -175,6 +179,8 @@ public class ProjectCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var command = new ProjectCreateCommand

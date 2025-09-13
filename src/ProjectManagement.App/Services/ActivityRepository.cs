@@ -3,6 +3,7 @@ namespace DotnetProjectManagement.ProjectManagement.App.Services;
 using Data.Contexts;
 using Data.Models;
 using UseCases.Abstractions;
+using UseCases.Exceptions;
 using ProjectArchivedActivityEntity = Domain.Entities.ProjectArchivedActivity;
 using ProjectCreatedActivityEntity = Domain.Entities.ProjectCreatedActivity;
 using ProjectRestoredActivityEntity = Domain.Entities.ProjectRestoredActivity;
@@ -191,17 +192,6 @@ public class ActivityRepository(ProjectManagementDbContext dbContext) : IActivit
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var existingUser = await dbContext.Users.FindAsync([userId], cancellationToken);
-
-        if (existingUser is not null)
-        {
-            return existingUser;
-        }
-
-        var user = new User { Id = userId };
-        dbContext.Users.Add(user);
-        return user;
-    }
+    private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken) =>
+        await dbContext.Users.FindAsync([userId], cancellationToken) ?? throw new UserNotFoundException(userId);
 }

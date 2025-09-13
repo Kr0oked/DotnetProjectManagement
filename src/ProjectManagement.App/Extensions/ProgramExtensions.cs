@@ -1,6 +1,5 @@
 namespace DotnetProjectManagement.ProjectManagement.App.Extensions;
 
-using Keycloak;
 using Services;
 using UseCases.Abstractions;
 using UseCases.Project.Archive;
@@ -16,6 +15,7 @@ using UseCases.ProjectTask.ListForProject;
 using UseCases.ProjectTask.Reopen;
 using UseCases.ProjectTask.Update;
 using UseCases.User.GetDetails;
+using UseCases.User.Initialization;
 using UseCases.User.List;
 
 internal static class ProgramExtensions
@@ -45,15 +45,7 @@ internal static class ProgramExtensions
         services.AddScoped<TaskUpdateUseCase, TaskUpdateUseCase>();
 
         services.AddScoped<UserGetDetailsUseCase, UserGetDetailsUseCase>();
+        services.AddScoped<UserInitializationUseCase, UserInitializationUseCase>();
         services.AddScoped<UserListUseCase, UserListUseCase>();
-
-        services.AddOptions<KeycloakClientOptions>()
-            .Bind(builder.Configuration.GetSection(KeycloakClientOptions.Key))
-            .ValidateDataAnnotations();
-        services.AddScoped<IKeycloakClientFactory, KeycloakClientFactory>();
-
-        services.AddOptions<UserOptions>()
-            .Bind(builder.Configuration.GetSection(UserOptions.Key))
-            .ValidateDataAnnotations();
     }
 }

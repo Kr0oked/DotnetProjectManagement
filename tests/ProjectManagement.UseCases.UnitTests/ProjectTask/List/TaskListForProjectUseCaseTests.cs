@@ -30,6 +30,8 @@ public class TaskListForProjectUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var pageRequest = new PageRequest(0, 10);
@@ -87,6 +89,8 @@ public class TaskListForProjectUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var pageRequest = new PageRequest(0, 10);
@@ -143,6 +147,8 @@ public class TaskListForProjectUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var pageRequest = new PageRequest(0, 10);

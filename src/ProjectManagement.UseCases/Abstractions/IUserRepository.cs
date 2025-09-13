@@ -10,4 +10,6 @@ public interface IUserRepository
     public Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken = default);
 
     public Task<User?> FindOneAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    public Task<User> SaveAsync(User user, CancellationToken cancellationToken);
 }

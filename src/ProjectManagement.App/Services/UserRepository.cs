@@ -1,42 +1,30 @@
 namespace DotnetProjectManagement.ProjectManagement.App.Services;
 
 using System.Collections.Immutable;
-using System.Net;
 using Data.Contexts;
 using Domain.Entities;
-using FS.Keycloak.RestApiClient.Client;
-using FS.Keycloak.RestApiClient.Model;
-using Keycloak;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using UseCases.Abstractions;
 using UseCases.DTOs;
+using UserDb = Data.Models.User;
 
-public class UserRepository(
-    ProjectManagementDbContext dbContext,
-    IKeycloakClientFactory keycloakClientFactory,
-    IOptions<UserOptions> options)
-    : IUserRepository
+public class UserRepository(ProjectManagementDbContext dbContext) : IUserRepository
 {
     public async Task<Page<User>> FindAllAsync(PageRequest pageRequest, CancellationToken cancellationToken = default)
     {
-        var usersApi = keycloakClientFactory.GetUsersApi();
+        var queryable = dbContext.Users
+            .OrderBy(user => user.CreatedAt);
 
-        var totalElements = await usersApi
-            .GetUsersCountAsync(options.Value.Realm, cancellationToken: cancellationToken);
+        var totalElements = await queryable.LongCountAsync(cancellationToken);
 
-        var keycloakUsers = await usersApi.GetUsersAsync(
-            options.Value.Realm,
-            true,
-            first: pageRequest.Offset,
-            max: pageRequest.Size,
-            cancellationToken: cancellationToken);
-
-        var users = keycloakUsers
-            .Select(representation => new User
+        var users = queryable
+            .Skip(pageRequest.Offset)
+            .Take(pageRequest.Size)
+            .Select(user => new User
             {
-                Id = new Guid(representation.Id),
-                FirstName = representation.FirstName,
-                LastName = representation.LastName
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName
             })
             .ToImmutableList();
 
@@ -44,57 +32,35 @@ public class UserRepository(
     }
 
     public async Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken = default) =>
-        await this.DbUserExistsAsync(userId, cancellationToken) ||
-        await this.KeycloakUserExistsAsync(userId, cancellationToken);
+        await this.FindOneAsync(userId, cancellationToken) is not null;
 
     public async Task<User?> FindOneAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var keycloakUser = await this.FindKeycloakUserAsync(userId, cancellationToken);
-
-        if (keycloakUser is not null)
-        {
-            return new User
-            {
-                Id = new Guid(keycloakUser.Id),
-                FirstName = keycloakUser.FirstName,
-                LastName = keycloakUser.LastName
-            };
-        }
-
-        var dbUser = await dbContext.Users
+        var userDb = await dbContext.Users
             .FindAsync([userId], cancellationToken);
 
-        return dbUser is not null ? new User { Id = dbUser.Id } : null;
+        return userDb is not null ? MapToEntity(userDb) : null;
     }
 
-    private async Task<bool> KeycloakUserExistsAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<User> SaveAsync(User user, CancellationToken cancellationToken)
     {
-        var keycloakUser = await this.FindKeycloakUserAsync(userId, cancellationToken);
-        return keycloakUser is not null;
-    }
-
-    private async Task<bool> DbUserExistsAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var dbUser = await dbContext.Users
-            .FindAsync([userId], cancellationToken);
-        return dbUser is not null;
-    }
-
-    private async Task<UserRepresentation?> FindKeycloakUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var usersApi = keycloakClientFactory.GetUsersApi();
-
-        try
+        var userDb = new UserDb
         {
-            var keycloakUser = await usersApi.GetUsersByUserIdAsync(
-                options.Value.Realm,
-                userId.ToString(),
-                cancellationToken: cancellationToken);
-            return keycloakUser;
-        }
-        catch (ApiException exception) when (exception.ErrorCode == (int)HttpStatusCode.NotFound)
-        {
-            return null;
-        }
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName
+        };
+
+        dbContext.Users.Add(userDb);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return MapToEntity(userDb);
     }
+
+    private static User MapToEntity(UserDb userDb) => new()
+    {
+        Id = userDb.Id,
+        FirstName = userDb.FirstName,
+        LastName = userDb.LastName
+    };
 }

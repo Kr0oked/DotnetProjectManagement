@@ -1,5 +1,6 @@
 using DotnetProjectManagement.ProjectManagement.App.APIs;
 using DotnetProjectManagement.ProjectManagement.App.Extensions;
+using DotnetProjectManagement.ProjectManagement.App.Middlewares;
 using DotnetProjectManagement.ProjectManagement.Data.Contexts;
 using DotnetProjectManagement.ServiceDefaults;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -72,15 +73,17 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseHttpsRedirection();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseCors(corsDevelopmentPolicy);
 }
 
-app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseUserInitialization();
 
 app.MapProjectApi()
     .WithOpenApi()

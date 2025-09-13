@@ -42,6 +42,8 @@ public class TaskCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new TaskCreateCommand
@@ -70,8 +72,7 @@ public class TaskCreateUseCaseTests
             .ReturnsAsync(project);
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(true);
 
         var capturedTasks = new List<ProjectTask>();
@@ -137,6 +138,8 @@ public class TaskCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var command = new TaskCreateCommand
@@ -165,8 +168,7 @@ public class TaskCreateUseCaseTests
             .ReturnsAsync(project);
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(true);
 
         var capturedTasks = new List<ProjectTask>();
@@ -231,6 +233,8 @@ public class TaskCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new TaskCreateCommand
@@ -259,8 +263,7 @@ public class TaskCreateUseCaseTests
             .ReturnsAsync(project);
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(false);
 
         await Invoking(() => this.taskCreateUseCase.CreateTaskAsync(actor, command, cancellationToken))
@@ -276,6 +279,8 @@ public class TaskCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new TaskCreateCommand
@@ -316,6 +321,8 @@ public class TaskCreateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var command = new TaskCreateCommand
@@ -355,6 +362,8 @@ public class TaskCreateUseCaseTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new TaskCreateCommand
@@ -394,6 +403,8 @@ public class TaskCreateUseCaseTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new TaskCreateCommand

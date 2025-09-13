@@ -3,12 +3,12 @@ namespace DotnetProjectManagement.ProjectManagement.IntegrationTests;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using Data.Contexts;
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Clients;
 using Xunit;
 using Xunit.Abstractions;
-using UserRepresentation = FS.Keycloak.RestApiClient.Model.UserRepresentation;
 
 [Collection("IntegrationTests")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
@@ -32,33 +32,14 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
 
         this.MigrateDatabase();
         this.CleanupDatabase();
-        this.KeycloakUsers =
-        [
-            new UserRepresentation
-            {
-                Id = DefaultAdminId,
-                FirstName = "FirstNameAdmin",
-                LastName = "LastNameAdmin"
-            },
-            new UserRepresentation
-            {
-                Id = DefaultUserId,
-                FirstName = "FirstNameUser",
-                LastName = "LastNameUser"
-            }
-        ];
+        this.SetupUsersInDatabase();
+
         this.ActAsUser();
     }
 
     protected UserClient UserClient { get; }
     protected ProjectClient ProjectClient { get; }
     protected TaskClient TaskClient { get; }
-
-    protected List<UserRepresentation> KeycloakUsers
-    {
-        get => this.webApplicationFactory.UsersApiFake.Users;
-        set => this.webApplicationFactory.UsersApiFake.Users = value;
-    }
 
     private void MigrateDatabase()
     {
@@ -75,6 +56,25 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
         dbContext.Users.ExecuteDelete();
     }
 
+    private void SetupUsersInDatabase()
+    {
+        using var scope = this.webApplicationFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ProjectManagementDbContext>();
+        dbContext.Users.Add(new User
+        {
+            Id = DefaultAdminGuid,
+            FirstName = "FirstNameAdmin",
+            LastName = "LastNameAdmin"
+        });
+        dbContext.Users.Add(new User
+        {
+            Id = DefaultUserGuid,
+            FirstName = "FirstNameUser",
+            LastName = "LastNameUser"
+        });
+        dbContext.SaveChanges();
+    }
+
     protected void ActAsUser(string userId = DefaultUserId) =>
         this.ActAsUser(new Guid(userId));
 
@@ -82,7 +82,9 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
     {
         this.webApplicationFactory.ClaimsProvider.Claims.Clear();
         this.webApplicationFactory.ClaimsProvider.Claims.AddRange([
-            new Claim(ClaimTypes.Name, userId.ToString())
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.GivenName, "FirstNameUser"),
+            new Claim(ClaimTypes.Surname, "LastNameUser"),
         ]);
     }
 
@@ -93,7 +95,9 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
     {
         this.webApplicationFactory.ClaimsProvider.Claims.Clear();
         this.webApplicationFactory.ClaimsProvider.Claims.AddRange([
-            new Claim(ClaimTypes.Name, userId.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.GivenName, "FirstNameAdmin"),
+            new Claim(ClaimTypes.Surname, "LastNameAdmin"),
             new Claim(ClaimTypes.Role, "app_admin")
         ]);
     }

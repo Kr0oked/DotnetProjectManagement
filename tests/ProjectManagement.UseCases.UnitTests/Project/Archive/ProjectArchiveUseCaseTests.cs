@@ -36,6 +36,8 @@ public class ProjectArchiveUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var cancellationToken = CancellationToken.None;
@@ -105,6 +107,8 @@ public class ProjectArchiveUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var cancellationToken = CancellationToken.None;
@@ -159,6 +163,8 @@ public class ProjectArchiveUseCaseTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var cancellationToken = CancellationToken.None;
@@ -192,6 +198,8 @@ public class ProjectArchiveUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var cancellationToken = CancellationToken.None;
@@ -224,6 +232,8 @@ public class ProjectArchiveUseCaseTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var cancellationToken = CancellationToken.None;

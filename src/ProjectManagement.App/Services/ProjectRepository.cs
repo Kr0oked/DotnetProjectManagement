@@ -138,19 +138,8 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         return existingProject;
     }
 
-    private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var existingUser = await dbContext.Users.FindAsync([userId], cancellationToken);
-
-        if (existingUser is not null)
-        {
-            return existingUser;
-        }
-
-        var user = new User { Id = userId };
-        dbContext.Users.Add(user);
-        return user;
-    }
+    private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken) =>
+        await dbContext.Users.FindAsync([userId], cancellationToken) ?? throw new UserNotFoundException(userId);
 
     private static ProjectEntity MapToEntity(ProjectDb project) => new()
     {

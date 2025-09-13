@@ -16,6 +16,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = true
         };
 
@@ -30,6 +32,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
 
@@ -44,6 +48,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = true
         };
         var project = new Project
@@ -65,6 +71,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project
@@ -87,6 +95,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project
@@ -110,6 +120,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project
@@ -133,6 +145,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project
@@ -154,6 +168,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = new Guid("fd9f45e1-48f0-42ae-a390-2f4d1653451f"),
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = true
         };
         var project = new Project
@@ -175,6 +191,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project
@@ -196,6 +214,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project
@@ -217,6 +237,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project
@@ -239,6 +261,8 @@ public class ActorExtensionsTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "Lastname",
             IsAdministrator = false
         };
         var project = new Project

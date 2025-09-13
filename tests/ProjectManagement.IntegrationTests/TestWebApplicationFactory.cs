@@ -2,8 +2,6 @@ namespace DotnetProjectManagement.ProjectManagement.IntegrationTests;
 
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using App.Keycloak;
-using Fakes;
 using MartinCostello.Logging.XUnit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +26,6 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
         .Build();
 
     public ClaimsProvider ClaimsProvider { get; } = new();
-    public UsersApiFake UsersApiFake { get; } = new();
 
     public Task InitializeAsync() => this.postgreSqlContainer.StartAsync();
 
@@ -61,8 +58,6 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
                     .Build());
 
             services.Add(new ServiceDescriptor(typeof(ClaimsProvider), this.ClaimsProvider));
-
-            services.AddScoped<IKeycloakClientFactory>(_ => new KeycloakClientFactoryFake(this.UsersApiFake));
         });
 
         builder.ConfigureLogging(logging => logging.AddXUnit(this));

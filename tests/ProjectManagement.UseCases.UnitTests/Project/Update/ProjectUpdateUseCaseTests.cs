@@ -40,6 +40,8 @@ public class ProjectUpdateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectUpdateCommand
@@ -68,14 +70,12 @@ public class ProjectUpdateUseCaseTests
             .ReturnsAsync(project);
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(true);
 
         var capturedProjects = new List<Project>();
         this.projectRepositoryMock
-            .Setup(projectRepository =>
-                projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken));
+            .Setup(projectRepository => projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken));
 
         var capturedActivities = new List<ProjectUpdatedActivity>();
         this.activityRepositoryMock
@@ -134,6 +134,8 @@ public class ProjectUpdateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var command = new ProjectUpdateCommand
@@ -162,8 +164,7 @@ public class ProjectUpdateUseCaseTests
             .ReturnsAsync(project);
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(true);
 
         var capturedProjects = new List<Project>();
@@ -231,6 +232,8 @@ public class ProjectUpdateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectUpdateCommand
@@ -270,6 +273,8 @@ public class ProjectUpdateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectUpdateCommand
@@ -282,8 +287,7 @@ public class ProjectUpdateUseCaseTests
         var cancellationToken = CancellationToken.None;
 
         this.userRepositoryMock
-            .Setup(userRepository =>
-                userRepository.ExistsAsync(userId, cancellationToken))
+            .Setup(userRepository => userRepository.ExistsAsync(userId, cancellationToken))
             .ReturnsAsync(false);
 
         this.transactionManagerMock
@@ -315,6 +319,8 @@ public class ProjectUpdateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectUpdateCommand
@@ -354,6 +360,8 @@ public class ProjectUpdateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = false
         };
         var command = new ProjectUpdateCommand
@@ -393,6 +401,8 @@ public class ProjectUpdateUseCaseTests
         var actor = new Actor
         {
             UserId = userId,
+            FirstName = "FirstName",
+            LastName = "LastName",
             IsAdministrator = true
         };
         var command = new ProjectUpdateCommand
