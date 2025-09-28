@@ -8,7 +8,6 @@ class Project {
     + Archived: bool
     + Milestones: ISet<Milestone>
     + Tasks: ISet<Task>
-    + History: ISet<ProjectActivity>
 }
 
 enum ProjectMemberRole {
@@ -25,7 +24,6 @@ class Milestone {
     + Deleted: bool
     + Project: Project
     + Tasks: ISet<Task>
-    + History: ISet<MilestoneActivity>
 }
 
 class Task {
@@ -36,110 +34,21 @@ class Task {
     + Project: Project
     + Milestone: Milestone?
     + Assignees: ISet<User>
-    + History: IList<TaskActivity>
-}
-
-abstract class Activity {
-    + Id: Guid
-    + User: User
-    + Timestamp: DateTimeOffset
-}
-
-abstract class ProjectActivity extends Activity {
-    + Project: Project
-}
-
-class ProjectCreatedActivity extends ProjectActivity {
-    + DisplayName: string
-    + Members: IDictionary<User, ProjectMemberRole>
-}
-
-class ProjectUpdatedActivity extends ProjectActivity {
-    + NewDisplayName: string
-    + OldDisplayName: string
-    + NewMembers: IDictionary<User, ProjectMemberRole>
-    + OldMembers: IDictionary<User, ProjectMemberRole>
-}
-
-class ProjectArchivedActivity extends ProjectActivity {
-}
-
-class ProjectRestoredActivity extends ProjectActivity {
-}
-
-abstract class MilestoneActivity extends Activity {
-    + Milestone: Milestone
-}
-
-class MilestoneCreatedActivity extends MilestoneActivity {
-    + DisplayName: string
-    + StartDate: DateOnly?
-    + EndDate: DateOnly?
-}
-
-class MilestoneUpdatedActivity extends MilestoneActivity {
-    + NewDisplayName: string
-    + OldDisplayName: string
-    + NewStartDate: DateOnly?
-    + NewEndDate: DateOnly?
-    + OldStartDate: DateOnly?
-    + OldEndDate: DateOnly?
-}
-
-class MilestoneDeletedActivity extends MilestoneActivity {
-}
-
-abstract class TaskActivity extends Activity {
-    + Task: Task
-}
-
-class TaskCreatedActivity extends TaskActivity {
-    + DisplayName: string
-    + Description: string
-    + Milestone: Milestone?
-    + Assignees: ISet<User>
-}
-
-class TaskUpdatedActivity extends TaskActivity {
-    + NewDisplayName: string
-    + OldDisplayName: string
-    + NewDescription : string
-    + OldDescription: string
-    + NewMilestone: Milestone?
-    + OldMilestone: Milestone?
-    + NewAssignees: ISet<User>
-    + OldAssignees: ISet<User>
-}
-
-class TaskClosedActivity extends TaskActivity {
-}
-
-class TaskReopenedActivity extends TaskActivity {
 }
 
 class User {
     + Username: string
     + Projects: IDictionary<Projects, ProjectMemberRole>
     + Tasks: ISet<Task>
-    + History: IList<Activity>
 }
 
 Project "1" *-- "0..*" Milestone
 Project "1" *-- "0..*" Task
-Project "1" *-- "1..*" ProjectActivity
 Project "0..*" o-- "0..*" User
 Project o-- ProjectMemberRole
 
 Milestone "0..1" --o "0..*" Task
-Milestone "1" *-- "1..*" MilestoneActivity
 
-Task "1" *-- "1..*" TaskActivity
 Task "0..*" o-- "0..*" User
-
-Activity "0..*"  o-- "1" User
-ProjectCreatedActivity "0..*" o-- "0..*" User
-ProjectMembersUpdatedActivity "0..*" o-- "0..*" User
-TaskCreatedActivity "0..*" o-- "0..*" User
-TaskAssigneesUpdatedActivity "0..*" o-- "0..*" User
 
 @enduml

@@ -3,6 +3,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Project.C
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using Exceptions;
 using FluentAssertions;
@@ -18,18 +19,14 @@ public class ProjectCreateUseCaseTests
     private readonly ProjectCreateUseCase projectCreateUseCase;
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<IUserRepository> userRepositoryMock = new();
-    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectCreateUseCaseTests() =>
         this.projectCreateUseCase = new ProjectCreateUseCase(
             this.projectRepositoryMock.Object,
             this.userRepositoryMock.Object,
-            this.activityRepositoryMock.Object,
             this.transactionManagerMock.Object,
-            this.timeProviderMock.Object,
             new NullLogger<ProjectCreateUseCase>());
 
     [Fact]
@@ -62,8 +59,8 @@ public class ProjectCreateUseCaseTests
 
         var capturedProjects = new List<Project>();
         this.projectRepositoryMock
-            .Setup(projectRepository =>
-                projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken))
+            .Setup(projectRepository => projectRepository
+                .SaveAsync(Capture.In(capturedProjects), ProjectAction.Create, userId, cancellationToken))
             .ReturnsAsync(new Project
             {
                 Id = projectId,
@@ -71,16 +68,6 @@ public class ProjectCreateUseCaseTests
                 Archived = false,
                 Members = new Dictionary<Guid, ProjectMemberRole> { { userId, ProjectMemberRole.Manager } }
             });
-
-        var capturedActivities = new List<ProjectCreatedActivity>();
-        this.activityRepositoryMock
-            .Setup(activityRepository =>
-                activityRepository.SaveAsync(Capture.In(capturedActivities), cancellationToken));
-
-        var now = DateTimeOffset.FromUnixTimeSeconds(123);
-        this.timeProviderMock
-            .Setup(timeProvider => timeProvider.GetUtcNow())
-            .Returns(() => now);
 
         var projectDto = await this.projectCreateUseCase.CreateProjectAsync(actor, command, cancellationToken);
 
@@ -98,18 +85,6 @@ public class ProjectCreateUseCaseTests
             capturedProject.DisplayName.Should().Be("DisplayName");
             capturedProject.Archived.Should().BeFalse();
             capturedProject.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
-            {
-                { userId, ProjectMemberRole.Manager }
-            });
-        });
-
-        capturedActivities.Should().SatisfyRespectively(capturedActivity =>
-        {
-            capturedActivity.UserId.Should().Be(userId);
-            capturedActivity.Timestamp.Should().Be(now);
-            capturedActivity.ProjectId.Should().Be(projectDto.Id);
-            capturedActivity.DisplayName.Should().Be("DisplayName");
-            capturedActivity.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
             {
                 { userId, ProjectMemberRole.Manager }
             });

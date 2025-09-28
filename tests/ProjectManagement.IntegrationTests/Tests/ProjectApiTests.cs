@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.IntegrationTests.Tests;
 
 using System.Collections.Immutable;
 using System.Net;
+using Domain.Actions;
 using Domain.Entities;
 using FluentAssertions;
 using Web.Models;
@@ -686,6 +687,194 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
     [Fact]
     public async Task RestoreProjectWithUnknownProjectId() =>
         await Invoking(() => this.ProjectClient.RestoreProjectAsync(Guid.Empty))
+            .Should().ThrowAsync<HttpRequestException>()
+            .Where(exception => exception.StatusCode == HttpStatusCode.NotFound);
+
+    [Fact]
+    public async Task GetProjectHistoryAsAdministrator()
+    {
+        this.ActAsAdmin();
+
+        var createdProject = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "DisplayNameA",
+            Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Manager } }
+                .ToImmutableDictionary()
+        });
+
+        var updatedProject = await this.ProjectClient.UpdateProjectAsync(
+            createdProject.Id,
+            new ProjectSaveRequest
+            {
+                DisplayName = "DisplayNameB",
+                Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Guest } }
+                    .ToImmutableDictionary()
+            });
+
+        var archivedProject = await this.ProjectClient.ArchiveProjectAsync(createdProject.Id);
+
+        var restoredProject = await this.ProjectClient.RestoreProjectAsync(createdProject.Id);
+
+        var history = await this.ProjectClient.GetProjectHistoryAsync(createdProject.Id);
+
+        history.Should().SatisfyRespectively(
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Create);
+                entry.Entity.Should().Be(createdProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Update);
+                entry.Entity.Should().Be(updatedProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Archive);
+                entry.Entity.Should().Be(archivedProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Restore);
+                entry.Entity.Should().Be(restoredProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetProjectHistoryAsNormalUserWithProjectMembership()
+    {
+        this.ActAsAdmin();
+
+        var createdProject = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "DisplayNameA",
+            Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Manager } }
+                .ToImmutableDictionary()
+        });
+
+        var updatedProject = await this.ProjectClient.UpdateProjectAsync(
+            createdProject.Id,
+            new ProjectSaveRequest
+            {
+                DisplayName = "DisplayNameB",
+                Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Guest } }
+                    .ToImmutableDictionary()
+            });
+
+        var archivedProject = await this.ProjectClient.ArchiveProjectAsync(createdProject.Id);
+
+        var restoredProject = await this.ProjectClient.RestoreProjectAsync(createdProject.Id);
+
+        this.ActAsUser();
+
+        var history = await this.ProjectClient.GetProjectHistoryAsync(createdProject.Id);
+
+        history.Should().SatisfyRespectively(
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Create);
+                entry.Entity.Should().Be(createdProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Update);
+                entry.Entity.Should().Be(updatedProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Archive);
+                entry.Entity.Should().Be(archivedProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Restore);
+                entry.Entity.Should().Be(restoredProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetProjectHistoryWithArchivedProject()
+    {
+        this.ActAsAdmin();
+
+        var createdProject = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "DisplayNameA",
+            Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Manager } }
+                .ToImmutableDictionary()
+        });
+
+        var archivedProject = await this.ProjectClient.ArchiveProjectAsync(createdProject.Id);
+
+        var history = await this.ProjectClient.GetProjectHistoryAsync(createdProject.Id);
+
+        history.Should().SatisfyRespectively(
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Create);
+                entry.Entity.Should().Be(createdProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(ProjectAction.Archive);
+                entry.Entity.Should().Be(archivedProject);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetProjectHistoryIsForbiddenWhenUserIsNotProjectMember()
+    {
+        this.ActAsAdmin();
+
+        var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "DisplayName",
+            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+        });
+
+        this.ActAsUser();
+
+        await Invoking(() => this.ProjectClient.GetProjectHistoryAsync(project.Id))
+            .Should().ThrowAsync<HttpRequestException>()
+            .Where(exception => exception.StatusCode == HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetProjectHistoryWithUnknownProjectId() =>
+        await Invoking(() => this.ProjectClient.GetProjectHistoryAsync(Guid.Empty))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.NotFound);
 }

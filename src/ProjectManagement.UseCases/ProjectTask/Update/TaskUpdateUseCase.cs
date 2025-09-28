@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.ProjectTask.Update;
 
 using System.ComponentModel.DataAnnotations;
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
@@ -12,9 +13,7 @@ public class TaskUpdateUseCase(
     ITaskRepository taskRepository,
     IProjectRepository projectRepository,
     IUserRepository userRepository,
-    IActivityRepository activityRepository,
     ITransactionManager transactionManager,
-    TimeProvider timeProvider,
     ILogger<TaskUpdateUseCase> logger)
 {
     public async Task<TaskDto> UpdateTaskAsync(
@@ -31,8 +30,7 @@ public class TaskUpdateUseCase(
         actor.VerifyIsManager(project);
         project.VerifyProjectIsNotArchived();
 
-        await this.CreateActivityAsync(actor, command, task, cancellationToken);
-        await this.UpdateTaskAsync(command, task, cancellationToken);
+        await this.UpdateEntityAsync(actor, command, task, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogTaskUpdated(actor.UserId, task);
@@ -58,29 +56,8 @@ public class TaskUpdateUseCase(
         }
     }
 
-    private async Task CreateActivityAsync(
+    private async Task UpdateEntityAsync(
         Actor actor,
-        TaskUpdateCommand update,
-        ProjectTask task,
-        CancellationToken cancellationToken)
-    {
-        var activity = new TaskUpdatedActivity
-        {
-            UserId = actor.UserId,
-            Timestamp = timeProvider.GetUtcNow(),
-            TaskId = task.Id,
-            NewDisplayName = update.DisplayName,
-            OldDisplayName = task.DisplayName,
-            NewDescription = update.Description,
-            OldDescription = task.Description,
-            NewAssignees = [.. update.Assignees],
-            OldAssignees = [.. task.Assignees]
-        };
-
-        await activityRepository.SaveAsync(activity, cancellationToken);
-    }
-
-    private async Task UpdateTaskAsync(
         TaskUpdateCommand command,
         ProjectTask task,
         CancellationToken cancellationToken)
@@ -91,6 +68,6 @@ public class TaskUpdateUseCase(
 
         Validator.ValidateObject(task, new ValidationContext(task), true);
 
-        await taskRepository.SaveAsync(task, cancellationToken);
+        await taskRepository.SaveAsync(task, TaskAction.Update, actor.UserId, cancellationToken);
     }
 }

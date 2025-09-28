@@ -1,8 +1,10 @@
 @page "/projects/{projectId:guid}/tasks"
 @using System.Collections.Immutable
 @using System.ComponentModel.DataAnnotations
+@using System.Globalization
 @using System.Security.Claims
 @using DotnetProjectManagement.ProjectManagement.Domain
+@using DotnetProjectManagement.ProjectManagement.Domain.Actions
 @using DotnetProjectManagement.ProjectManagement.Domain.Entities
 @using DotnetProjectManagement.ProjectManagement.Web.Clients
 @using DotnetProjectManagement.ProjectManagement.Web.Models
@@ -76,19 +78,29 @@ else
                     <Icon Name="IconName.ArrowCounterclockwise"></Icon>
                 </Button>
             }
+            <Button Color="ButtonColor.Primary"
+                    TooltipTitle="@Localizer["ActionShowHistory"]"
+                    Class="mx-1"
+                    @onclick="() => ShowHistory(context.Id)">
+                <Icon Name="IconName.ClockHistory"></Icon>
+            </Button>
         </GridColumn>
+
         <GridColumn TItem="TaskRepresentation" HeaderText="@Localizer["TaskName"]">
             @context.DisplayName
         </GridColumn>
+
         <GridColumn TItem="TaskRepresentation" HeaderText="@Localizer["TaskAssigneesCount"]">
             @context.Assignees.Count
         </GridColumn>
+
         <GridColumn TItem="TaskRepresentation" HeaderText="@Localizer["TaskOpen"]">
             @(context.Open ? Localizer["StateYes"] : Localizer["StateNo"])
         </GridColumn>
+
     </Grid>
 
-    <Modal @ref="modal" Title="@Localizer["TaskSaveTitle"]" Size="ModalSize.Large" UseStaticBackdrop="true">
+    <Modal @ref="saveModal" Title="@Localizer["TaskSaveTitle"]" Size="ModalSize.Large" UseStaticBackdrop="true">
         <BodyTemplate>
             <EditForm EditContext="@editContext">
                 <DataAnnotationsValidator/>
@@ -117,7 +129,7 @@ else
                               Responsive="true">
 
                             <GridColumn TItem="UserRepresentation"
-                                        HeaderText="@Localizer["UserName"]"
+                                        HeaderText="@Localizer["User"]"
                                         Context="item">
                                 @item.FirstName @item.LastName
                             </GridColumn>
@@ -143,8 +155,55 @@ else
             </EditForm>
         </BodyTemplate>
         <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onclick="modal.HideAsync">@Localizer["ActionCancel"]</Button>
+            <Button Color="ButtonColor.Secondary" @onclick="saveModal.HideAsync">@Localizer["ActionCancel"]</Button>
             <Button Color="ButtonColor.Primary" @onclick="SaveTAsk">@Localizer["ActionSave"]</Button>
+        </FooterTemplate>
+    </Modal>
+
+    <Modal @ref="historyModal"
+           Title="@Localizer["TaskHistoryTitle"]"
+           Size="ModalSize.Large"
+           UseStaticBackdrop="true">
+        <BodyTemplate>
+            <Grid TItem="HistoryEntryRepresentation<TaskAction, TaskRepresentation>"
+                  Class="table table-hover"
+                  Data="history"
+                  Responsive="true">
+
+                <GridColumn TItem="HistoryEntryRepresentation<TaskAction, TaskRepresentation>"
+                            HeaderText="@Localizer["Timestamp"]">
+                    @context.Timestamp.ToLocalTime().ToString(CultureInfo.CurrentCulture)
+                </GridColumn>
+
+                <GridColumn TItem="HistoryEntryRepresentation<TaskAction, TaskRepresentation>"
+                            HeaderText="@Localizer["User"]">
+                    @context.User.FirstName @context.User.LastName
+                </GridColumn>
+
+                <GridColumn TItem="HistoryEntryRepresentation<TaskAction, TaskRepresentation>"
+                            HeaderText="@Localizer["Action"]">
+                    @context.Action.ToString()
+                </GridColumn>
+
+                <GridColumn TItem="HistoryEntryRepresentation<TaskAction, TaskRepresentation>"
+                            HeaderText="@Localizer["TaskName"]">
+                    @context.Entity.DisplayName
+                </GridColumn>
+
+                <GridColumn TItem="HistoryEntryRepresentation<TaskAction, TaskRepresentation>"
+                            HeaderText="@Localizer["TaskAssigneesCount"]">
+                    @context.Entity.Assignees.Count
+                </GridColumn>
+
+                <GridColumn TItem="HistoryEntryRepresentation<TaskAction, TaskRepresentation>"
+                            HeaderText="@Localizer["TaskOpen"]">
+                    @(context.Entity.Open ? Localizer["StateYes"] : Localizer["StateNo"])
+                </GridColumn>
+
+            </Grid>
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button Color="ButtonColor.Secondary" @onclick="historyModal.HideAsync">@Localizer["ActionCancel"]</Button>
         </FooterTemplate>
     </Modal>
 }
@@ -157,7 +216,9 @@ else
     private readonly CancellationTokenSource cancellationTokenSource = new();
     private ClaimsPrincipal? user;
     private Grid<TaskRepresentation> grid = null!;
-    private Modal modal = null!;
+    private Modal saveModal = null!;
+    private Modal historyModal = null!;
+    private List<HistoryEntryRepresentation<TaskAction, TaskRepresentation>> history = [];
     private EditContext editContext = null!;
     private ProjectRepresentation? project;
     private readonly TaskModel taskModel = new();
@@ -239,7 +300,7 @@ else
         taskModel.DisplayName = "";
         taskModel.Description = "";
         taskModel.Assignees = [];
-        await modal.ShowAsync();
+        await saveModal.ShowAsync();
     }
 
     private async Task StartEditTask(TaskRepresentation task)
@@ -248,7 +309,7 @@ else
         taskModel.DisplayName = task.DisplayName;
         taskModel.Description = task.Description;
         taskModel.Assignees = task.Assignees.ToHashSet();
-        await modal.ShowAsync();
+        await saveModal.ShowAsync();
     }
 
     private void SetAssignee(Guid userId, bool assigned)
@@ -292,9 +353,15 @@ else
                     cancellationTokenSource.Token);
             }
 
-            await modal.HideAsync();
+            await saveModal.HideAsync();
             await grid.RefreshDataAsync(cancellationTokenSource.Token);
         }
+    }
+
+    private async Task ShowHistory(Guid taskId)
+    {
+        history = await TaskClient.GetTaskHistoryAsync(taskId, cancellationTokenSource.Token);
+        await historyModal.ShowAsync();
     }
 
     public void Dispose()

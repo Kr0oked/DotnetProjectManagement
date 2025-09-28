@@ -20,5 +20,5 @@ public class ProjectMember
     public required ProjectMemberRole Role { get; set; }
 
     [Timestamp]
-    public uint Version { get; set; }
+    public byte[] Version { get; set; } = null!;
 }

@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.IntegrationTests.Tests;
 
 using System.Collections.Immutable;
 using System.Net;
+using Domain.Actions;
 using Domain.Entities;
 using FluentAssertions;
 using Web.Models;
@@ -891,6 +892,222 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         await Invoking(() => this.TaskClient.CloseTaskAsync(task.Id))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetTaskHistoryAsAdministrator()
+    {
+        this.ActAsAdmin();
+
+        var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "ProjectDisplayName",
+            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+        });
+
+        var createdTask = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
+        {
+            ProjectId = project.Id,
+            DisplayName = "DisplayNameA",
+            Description = "DescriptionA",
+            Assignees = [DefaultUserGuid]
+        });
+
+        var updatedTask = await this.TaskClient.UpdateTaskAsync(
+            createdTask.Id,
+            new TaskUpdateRequest
+            {
+                DisplayName = "DisplayNameB",
+                Description = "DescriptionB",
+                Assignees = [DefaultUserGuid]
+            });
+
+        var closedTask = await this.TaskClient.CloseTaskAsync(createdTask.Id);
+
+        var reopenedTask = await this.TaskClient.ReopenTaskAsync(createdTask.Id);
+
+        var history = await this.TaskClient.GetTaskHistoryAsync(createdTask.Id);
+
+        history.Should().SatisfyRespectively(
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Create);
+                entry.Entity.Should().Be(createdTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Update);
+                entry.Entity.Should().Be(updatedTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Close);
+                entry.Entity.Should().Be(closedTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Reopen);
+                entry.Entity.Should().Be(reopenedTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetTaskHistoryAsNormalUserWithProjectMembership()
+    {
+        this.ActAsAdmin();
+
+        var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "ProjectDisplayName",
+            Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Manager } }
+                .ToImmutableDictionary()
+        });
+
+        var createdTask = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
+        {
+            ProjectId = project.Id,
+            DisplayName = "DisplayNameA",
+            Description = "DescriptionA",
+            Assignees = []
+        });
+
+        var updatedTask = await this.TaskClient.UpdateTaskAsync(
+            createdTask.Id,
+            new TaskUpdateRequest
+            {
+                DisplayName = "DisplayNameB",
+                Description = "DescriptionB",
+                Assignees = []
+            });
+
+        var closedTask = await this.TaskClient.CloseTaskAsync(createdTask.Id);
+
+        var reopenedTask = await this.TaskClient.ReopenTaskAsync(createdTask.Id);
+
+        this.ActAsUser();
+
+        var history = await this.TaskClient.GetTaskHistoryAsync(createdTask.Id);
+
+        history.Should().SatisfyRespectively(
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Create);
+                entry.Entity.Should().Be(createdTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Update);
+                entry.Entity.Should().Be(updatedTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Close);
+                entry.Entity.Should().Be(closedTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            },
+            entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Reopen);
+                entry.Entity.Should().Be(reopenedTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetTaskHistoryWithArchivedProject()
+    {
+        this.ActAsAdmin();
+
+        var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "ProjectDisplayName",
+            Members = new Dictionary<Guid, ProjectMemberRole> { { DefaultUserGuid, ProjectMemberRole.Manager } }
+                .ToImmutableDictionary()
+        });
+
+        var createdTask = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
+        {
+            ProjectId = project.Id,
+            DisplayName = "DisplayName",
+            Description = "Description",
+            Assignees = []
+        });
+
+        await this.ProjectClient.ArchiveProjectAsync(project.Id);
+
+        this.ActAsUser();
+
+        var history = await this.TaskClient.GetTaskHistoryAsync(createdTask.Id);
+
+        history.Should().SatisfyRespectively(entry =>
+            {
+                entry.Action.Should().Be(TaskAction.Create);
+                entry.Entity.Should().Be(createdTask);
+                entry.User.Id.Should().Be(DefaultAdminGuid);
+                entry.User.FirstName.Should().Be("FirstNameAdmin");
+                entry.User.LastName.Should().Be("LastNameAdmin");
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetTaskHistoryIsForbiddenWhenUserIsNotProjectMember()
+    {
+        this.ActAsAdmin();
+
+        var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
+        {
+            DisplayName = "ProjectDisplayName",
+            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+        });
+
+        var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
+        {
+            ProjectId = project.Id,
+            DisplayName = "DisplayName",
+            Description = "Description",
+            Assignees = []
+        });
+
+        this.ActAsUser();
+
+        await Invoking(() => this.TaskClient.GetTaskHistoryAsync(task.Id))
+            .Should().ThrowAsync<HttpRequestException>()
+            .Where(exception => exception.StatusCode == HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetTaskHistoryWithUnknownTaskId()
+    {
+        this.ActAsAdmin();
+
+        await Invoking(() => this.TaskClient.GetTaskHistoryAsync(Guid.Empty))
+            .Should().ThrowAsync<HttpRequestException>()
+            .Where(exception => exception.StatusCode == HttpStatusCode.NotFound);
     }
 
     [Fact]

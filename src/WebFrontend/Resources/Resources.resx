@@ -176,4 +176,25 @@
   <data name="ActionNavigateToTasks" xml:space="preserve">
     <value>Open tasks</value>
   </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Timestamp" xml:space="preserve">
+    <value>Timestamp</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="ProjectHistoryTitle" xml:space="preserve">
+    <value>Project history</value>
+  </data>
+  <data name="ActionShowHistory" xml:space="preserve">
+    <value>Show history</value>
+  </data>
+  <data name="TaskHistoryTitle" xml:space="preserve">
+    <value>Task history</value>
+  </data>
+  <data name="TaskDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
 </root>

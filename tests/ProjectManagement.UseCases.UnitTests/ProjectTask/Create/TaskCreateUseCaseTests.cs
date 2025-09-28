@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.ProjectTa
 
 using System.ComponentModel.DataAnnotations;
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using Exceptions;
 using FluentAssertions;
@@ -18,9 +19,7 @@ public class TaskCreateUseCaseTests
     private readonly Mock<ITaskRepository> taskRepositoryMock = new();
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<IUserRepository> userRepositoryMock = new();
-    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public TaskCreateUseCaseTests() =>
@@ -28,9 +27,7 @@ public class TaskCreateUseCaseTests
             this.taskRepositoryMock.Object,
             this.projectRepositoryMock.Object,
             this.userRepositoryMock.Object,
-            this.activityRepositoryMock.Object,
             this.transactionManagerMock.Object,
-            this.timeProviderMock.Object,
             new NullLogger<TaskCreateUseCase>());
 
     [Fact]
@@ -77,7 +74,8 @@ public class TaskCreateUseCaseTests
 
         var capturedTasks = new List<ProjectTask>();
         this.taskRepositoryMock
-            .Setup(taskRepository => taskRepository.SaveAsync(Capture.In(capturedTasks), cancellationToken))
+            .Setup(taskRepository => taskRepository
+                .SaveAsync(Capture.In(capturedTasks), TaskAction.Create, userId, cancellationToken))
             .ReturnsAsync(new ProjectTask
             {
                 Id = taskId,
@@ -87,16 +85,6 @@ public class TaskCreateUseCaseTests
                 Assignees = [userId],
                 ProjectId = projectId
             });
-
-        var capturedActivities = new List<TaskCreatedActivity>();
-        this.activityRepositoryMock
-            .Setup(activityRepository =>
-                activityRepository.SaveAsync(Capture.In(capturedActivities), cancellationToken));
-
-        var now = DateTimeOffset.FromUnixTimeSeconds(123);
-        this.timeProviderMock
-            .Setup(timeProvider => timeProvider.GetUtcNow())
-            .Returns(() => now);
 
         var taskDto = await this.taskCreateUseCase.CreateTaskAsync(actor, command, cancellationToken);
 
@@ -114,16 +102,6 @@ public class TaskCreateUseCaseTests
             capturedTask.Open.Should().BeTrue();
             capturedTask.Assignees.Should().Equal(userId);
             capturedTask.ProjectId.Should().Be(projectId);
-        });
-
-        capturedActivities.Should().SatisfyRespectively(capturedActivity =>
-        {
-            capturedActivity.UserId.Should().Be(userId);
-            capturedActivity.Timestamp.Should().Be(now);
-            capturedActivity.TaskId.Should().Be(taskDto.Id);
-            capturedActivity.DisplayName.Should().Be("DisplayName");
-            capturedActivity.Description.Should().Be("Description");
-            capturedActivity.Assignees.Should().Equal(userId);
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
@@ -173,7 +151,8 @@ public class TaskCreateUseCaseTests
 
         var capturedTasks = new List<ProjectTask>();
         this.taskRepositoryMock
-            .Setup(taskRepository => taskRepository.SaveAsync(Capture.In(capturedTasks), cancellationToken))
+            .Setup(taskRepository => taskRepository
+                .SaveAsync(Capture.In(capturedTasks), TaskAction.Create, userId, cancellationToken))
             .ReturnsAsync(new ProjectTask
             {
                 Id = taskId,
@@ -183,16 +162,6 @@ public class TaskCreateUseCaseTests
                 Assignees = [userId],
                 ProjectId = projectId
             });
-
-        var capturedActivities = new List<TaskCreatedActivity>();
-        this.activityRepositoryMock
-            .Setup(activityRepository =>
-                activityRepository.SaveAsync(Capture.In(capturedActivities), cancellationToken));
-
-        var now = DateTimeOffset.FromUnixTimeSeconds(123);
-        this.timeProviderMock
-            .Setup(timeProvider => timeProvider.GetUtcNow())
-            .Returns(() => now);
 
         var taskDto = await this.taskCreateUseCase.CreateTaskAsync(actor, command, cancellationToken);
 
@@ -210,16 +179,6 @@ public class TaskCreateUseCaseTests
             capturedTask.Open.Should().BeTrue();
             capturedTask.Assignees.Should().Equal(userId);
             capturedTask.ProjectId.Should().Be(projectId);
-        });
-
-        capturedActivities.Should().SatisfyRespectively(capturedActivity =>
-        {
-            capturedActivity.UserId.Should().Be(userId);
-            capturedActivity.Timestamp.Should().Be(now);
-            capturedActivity.TaskId.Should().Be(taskDto.Id);
-            capturedActivity.DisplayName.Should().Be("DisplayName");
-            capturedActivity.Description.Should().Be("Description");
-            capturedActivity.Assignees.Should().Equal(userId);
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));

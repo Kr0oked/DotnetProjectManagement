@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.App.APIs;
 
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using Domain.Actions;
 using Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using UseCases.Exceptions;
 using UseCases.ProjectTask.Close;
 using UseCases.ProjectTask.Create;
 using UseCases.ProjectTask.GetDetails;
+using UseCases.ProjectTask.GetHistory;
 using UseCases.ProjectTask.ListForProject;
 using UseCases.ProjectTask.Reopen;
 using UseCases.ProjectTask.Update;
@@ -42,6 +44,10 @@ public static class TaskApi
             .WithName("ReopenTask")
             .WithSummary("Reopen task")
             .WithDescription("Reopens a task.");
+        api.MapGet("/{taskId:guid}/history", GetTaskHistoryAsync)
+            .WithName("GetTaskHistory")
+            .WithSummary("Get task history")
+            .WithDescription("Get history for a task.");
         api.MapGet("/project/{projectId:guid}", ListTasksForProjectAsync)
             .WithName("ListTasksForProject")
             .WithSummary("List tasks for a project")
@@ -57,7 +63,7 @@ public static class TaskApi
             UnauthorizedHttpResult,
             ValidationProblem>>
         CreateTaskAsync(
-            ClaimsPrincipal user,
+            ClaimsPrincipal principal,
             [FromServices] TaskCreateUseCase useCase,
             [FromBody] TaskCreateRequest body,
             CancellationToken cancellationToken = default)
@@ -71,7 +77,7 @@ public static class TaskApi
 
         try
         {
-            var actor = user.ToActor();
+            var actor = principal.ToActor();
             var command = new TaskCreateCommand
             {
                 ProjectId = body.ProjectId,
@@ -98,14 +104,14 @@ public static class TaskApi
 
     private static async Task<Results<Ok<TaskRepresentation>, UnauthorizedHttpResult, NotFound<ProblemDetails>>>
         GetTaskDetailsAsync(
-            ClaimsPrincipal user,
+            ClaimsPrincipal principal,
             [FromServices] TaskGetDetailsUseCase useCase,
             [FromRoute] Guid taskId,
             CancellationToken cancellationToken = default)
     {
         try
         {
-            var actor = user.ToActor();
+            var actor = principal.ToActor();
             var task = await useCase.GetTaskDetailsAsync(actor, taskId, cancellationToken);
             return TypedResults.Ok(task.ToWeb());
         }
@@ -130,7 +136,7 @@ public static class TaskApi
             NotFound<ProblemDetails>,
             ValidationProblem>>
         UpdateTaskAsync(
-            ClaimsPrincipal user,
+            ClaimsPrincipal principal,
             [FromServices] TaskUpdateUseCase useCase,
             [FromRoute] Guid taskId,
             [FromBody] TaskUpdateRequest body,
@@ -145,7 +151,7 @@ public static class TaskApi
 
         try
         {
-            var actor = user.ToActor();
+            var actor = principal.ToActor();
 
             var command = new TaskUpdateCommand
             {
@@ -182,14 +188,14 @@ public static class TaskApi
             UnauthorizedHttpResult,
             NotFound<ProblemDetails>>>
         CloseTaskAsync(
-            ClaimsPrincipal user,
+            ClaimsPrincipal principal,
             [FromServices] TaskCloseUseCase taskCloseUseCase,
             [FromRoute] Guid taskId,
             CancellationToken cancellationToken = default)
     {
         try
         {
-            var actor = user.ToActor();
+            var actor = principal.ToActor();
             var project = await taskCloseUseCase.CloseTaskAsync(actor, taskId, cancellationToken);
             return TypedResults.Ok(project.ToWeb());
         }
@@ -217,14 +223,14 @@ public static class TaskApi
             UnauthorizedHttpResult,
             NotFound<ProblemDetails>>>
         ReopenTaskAsync(
-            ClaimsPrincipal user,
+            ClaimsPrincipal principal,
             [FromServices] TaskReopenUseCase taskReopenUseCase,
             [FromRoute] Guid taskId,
             CancellationToken cancellationToken = default)
     {
         try
         {
-            var actor = user.ToActor();
+            var actor = principal.ToActor();
             var project = await taskReopenUseCase.ReopenTaskAsync(actor, taskId, cancellationToken);
             return TypedResults.Ok(project.ToWeb());
         }
@@ -246,13 +252,43 @@ public static class TaskApi
         }
     }
 
+    private static async Task<Results<
+            Ok<List<HistoryEntryRepresentation<TaskAction, TaskRepresentation>>>,
+            UnauthorizedHttpResult,
+            NotFound<ProblemDetails>>>
+        GetTaskHistoryAsync(
+            ClaimsPrincipal principal,
+            [FromServices] TaskGetHistoryUseCase useCase,
+            [FromRoute] Guid taskId,
+            CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var actor = principal.ToActor();
+            var history = await useCase.GetTaskHistoryAsync(actor, taskId, cancellationToken);
+            return TypedResults.Ok(history.Select(entry => entry.ToWeb()).ToList());
+        }
+        catch (ProjectMemberException)
+        {
+            return TypedResults.Unauthorized();
+        }
+        catch (ProjectNotFoundException exception)
+        {
+            return TypedResults.NotFound(new ProblemDetails { Detail = exception.Message });
+        }
+        catch (TaskNotFoundException exception)
+        {
+            return TypedResults.NotFound(new ProblemDetails { Detail = exception.Message });
+        }
+    }
+
     private static async
         Task<Results<
             Ok<PageRepresentation<TaskRepresentation>>,
             UnauthorizedHttpResult,
             NotFound<ProblemDetails>>>
         ListTasksForProjectAsync(
-            ClaimsPrincipal user,
+            ClaimsPrincipal principal,
             [FromServices] TaskListForProjectUseCase useCase,
             [FromRoute] Guid projectId,
             [FromQuery, Range(0, int.MaxValue)] int pageNumber = 0,
@@ -261,7 +297,7 @@ public static class TaskApi
     {
         try
         {
-            var actor = user.ToActor();
+            var actor = principal.ToActor();
             var pageRequest = new PageRequest(pageNumber, pageSize);
             var page = await useCase.ListTasksForProjectAsync(actor, projectId, pageRequest, cancellationToken);
             return TypedResults.Ok(page.ToWeb());
@@ -284,6 +320,21 @@ public static class TaskApi
             TotalPages = page.TotalPages,
             Number = page.Number,
             Content = [.. page.Content.Select(task => task.ToWeb())]
+        };
+
+    private static HistoryEntryRepresentation<TaskAction, TaskRepresentation> ToWeb(
+        this HistoryEntry<TaskAction, TaskDto> historyEntry) =>
+        new()
+        {
+            Action = historyEntry.Action,
+            Entity = historyEntry.Entity.ToWeb(),
+            Timestamp = historyEntry.Timestamp,
+            User = new UserRepresentation
+            {
+                Id = historyEntry.User.Id,
+                FirstName = historyEntry.User.FirstName,
+                LastName = historyEntry.User.LastName
+            }
         };
 
     private static TaskRepresentation ToWeb(this TaskDto task) =>

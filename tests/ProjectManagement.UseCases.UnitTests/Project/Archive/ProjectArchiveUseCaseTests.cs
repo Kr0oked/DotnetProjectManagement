@@ -1,6 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Project.Archive;
 
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using Exceptions;
 using FluentAssertions;
@@ -15,17 +16,13 @@ public class ProjectArchiveUseCaseTests
 {
     private readonly ProjectArchiveUseCase projectArchiveUseCase;
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
-    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectArchiveUseCaseTests() =>
         this.projectArchiveUseCase = new ProjectArchiveUseCase(
             this.projectRepositoryMock.Object,
-            this.activityRepositoryMock.Object,
             this.transactionManagerMock.Object,
-            this.timeProviderMock.Object,
             new NullLogger<ProjectArchiveUseCase>());
 
     [Fact]
@@ -60,18 +57,8 @@ public class ProjectArchiveUseCaseTests
 
         var capturedProjects = new List<Project>();
         this.projectRepositoryMock
-            .Setup(projectRepository =>
-                projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken));
-
-        var capturedActivities = new List<ProjectArchivedActivity>();
-        this.activityRepositoryMock
-            .Setup(activityRepository =>
-                activityRepository.SaveAsync(Capture.In(capturedActivities), cancellationToken));
-
-        var now = DateTimeOffset.FromUnixTimeSeconds(123);
-        this.timeProviderMock
-            .Setup(timeProvider => timeProvider.GetUtcNow())
-            .Returns(() => now);
+            .Setup(projectRepository => projectRepository
+                .SaveAsync(Capture.In(capturedProjects), ProjectAction.Archive, userId, cancellationToken));
 
         var projectDto = await this.projectArchiveUseCase.ArchiveProjectAsync(actor, projectId, cancellationToken);
 
@@ -87,13 +74,6 @@ public class ProjectArchiveUseCaseTests
         {
             capturedProject.Should().Be(project);
             capturedProject.Archived.Should().BeTrue();
-        });
-
-        capturedActivities.Should().SatisfyRespectively(capturedActivity =>
-        {
-            capturedActivity.UserId.Should().Be(userId);
-            capturedActivity.Timestamp.Should().Be(now);
-            capturedActivity.ProjectId.Should().Be(projectId);
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
@@ -129,31 +109,16 @@ public class ProjectArchiveUseCaseTests
             .Setup(projectRepository => projectRepository.FindOneAsync(projectId, cancellationToken))
             .ReturnsAsync(project);
 
-        var capturedActivities = new List<ProjectArchivedActivity>();
-        this.activityRepositoryMock
-            .Setup(activityRepository =>
-                activityRepository.SaveAsync(Capture.In(capturedActivities), cancellationToken));
-
-        var now = DateTimeOffset.FromUnixTimeSeconds(123);
-        this.timeProviderMock
-            .Setup(timeProvider => timeProvider.GetUtcNow())
-            .Returns(() => now);
-
         var projectDto = await this.projectArchiveUseCase.ArchiveProjectAsync(actor, projectId, cancellationToken);
 
-        this.projectRepositoryMock.Verify(projectRepository => projectRepository.SaveAsync(project, cancellationToken));
+        this.projectRepositoryMock
+            .Verify(projectRepository => projectRepository
+                .SaveAsync(project, ProjectAction.Archive, userId, cancellationToken));
 
         projectDto.Id.Should().Be(projectId);
         projectDto.DisplayName.Should().Be("DisplayName");
         projectDto.Archived.Should().BeTrue();
         projectDto.Members.Should().BeEmpty();
-
-        capturedActivities.Should().SatisfyRespectively(capturedActivity =>
-        {
-            capturedActivity.UserId.Should().Be(userId);
-            capturedActivity.Timestamp.Should().Be(now);
-            capturedActivity.ProjectId.Should().Be(projectId);
-        });
     }
 
     [Fact]

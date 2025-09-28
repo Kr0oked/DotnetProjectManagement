@@ -3,6 +3,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.UnitTests.Project.U
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using Exceptions;
 using FluentAssertions;
@@ -18,18 +19,14 @@ public class ProjectUpdateUseCaseTests
     private readonly ProjectUpdateUseCase projectUpdateUseCase;
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<IUserRepository> userRepositoryMock = new();
-    private readonly Mock<IActivityRepository> activityRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
-    private readonly Mock<TimeProvider> timeProviderMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectUpdateUseCaseTests() =>
         this.projectUpdateUseCase = new ProjectUpdateUseCase(
             this.projectRepositoryMock.Object,
             this.userRepositoryMock.Object,
-            this.activityRepositoryMock.Object,
             this.transactionManagerMock.Object,
-            this.timeProviderMock.Object,
             new NullLogger<ProjectUpdateUseCase>());
 
     [Fact]
@@ -75,17 +72,8 @@ public class ProjectUpdateUseCaseTests
 
         var capturedProjects = new List<Project>();
         this.projectRepositoryMock
-            .Setup(projectRepository => projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken));
-
-        var capturedActivities = new List<ProjectUpdatedActivity>();
-        this.activityRepositoryMock
-            .Setup(activityRepository =>
-                activityRepository.SaveAsync(Capture.In(capturedActivities), cancellationToken));
-
-        var now = DateTimeOffset.FromUnixTimeSeconds(123);
-        this.timeProviderMock
-            .Setup(timeProvider => timeProvider.GetUtcNow())
-            .Returns(() => now);
+            .Setup(projectRepository => projectRepository
+                .SaveAsync(Capture.In(capturedProjects), ProjectAction.Update, userId, cancellationToken));
 
         var projectDto = await this.projectUpdateUseCase.UpdateProjectAsync(actor, command, cancellationToken);
 
@@ -107,20 +95,6 @@ public class ProjectUpdateUseCaseTests
             {
                 { userId, ProjectMemberRole.Manager }
             });
-        });
-
-        capturedActivities.Should().SatisfyRespectively(capturedActivity =>
-        {
-            capturedActivity.UserId.Should().Be(userId);
-            capturedActivity.Timestamp.Should().Be(now);
-            capturedActivity.ProjectId.Should().Be(projectId);
-            capturedActivity.NewDisplayName.Should().Be("NewDisplayName");
-            capturedActivity.OldDisplayName.Should().Be("OldDisplayName");
-            capturedActivity.NewMembers.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
-            {
-                { userId, ProjectMemberRole.Manager }
-            });
-            capturedActivity.OldMembers.Should().BeEmpty();
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
@@ -169,18 +143,8 @@ public class ProjectUpdateUseCaseTests
 
         var capturedProjects = new List<Project>();
         this.projectRepositoryMock
-            .Setup(projectRepository =>
-                projectRepository.SaveAsync(Capture.In(capturedProjects), cancellationToken));
-
-        var capturedActivities = new List<ProjectUpdatedActivity>();
-        this.activityRepositoryMock
-            .Setup(activityRepository =>
-                activityRepository.SaveAsync(Capture.In(capturedActivities), cancellationToken));
-
-        var now = DateTimeOffset.FromUnixTimeSeconds(123);
-        this.timeProviderMock
-            .Setup(timeProvider => timeProvider.GetUtcNow())
-            .Returns(() => now);
+            .Setup(projectRepository => projectRepository
+                .SaveAsync(Capture.In(capturedProjects), ProjectAction.Update, userId, cancellationToken));
 
         var projectDto = await this.projectUpdateUseCase.UpdateProjectAsync(actor, command, cancellationToken);
 
@@ -201,23 +165,6 @@ public class ProjectUpdateUseCaseTests
             capturedProject.Members.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
             {
                 { userId, ProjectMemberRole.Guest }
-            });
-        });
-
-        capturedActivities.Should().SatisfyRespectively(capturedActivity =>
-        {
-            capturedActivity.UserId.Should().Be(userId);
-            capturedActivity.Timestamp.Should().Be(now);
-            capturedActivity.ProjectId.Should().Be(projectId);
-            capturedActivity.NewDisplayName.Should().Be("NewDisplayName");
-            capturedActivity.OldDisplayName.Should().Be("OldDisplayName");
-            capturedActivity.NewMembers.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
-            {
-                { userId, ProjectMemberRole.Guest }
-            });
-            capturedActivity.OldMembers.Should().Equal(new Dictionary<Guid, ProjectMemberRole>
-            {
-                { userId, ProjectMemberRole.Manager }
             });
         });
 

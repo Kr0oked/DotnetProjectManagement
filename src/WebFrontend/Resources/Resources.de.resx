@@ -170,4 +170,25 @@
   <data name="ActionNavigateToTasks" xml:space="preserve">
     <value>Aufgaben öffnen</value>
   </data>
+  <data name="User" xml:space="preserve">
+    <value>Benutzer</value>
+  </data>
+  <data name="Timestamp" xml:space="preserve">
+    <value>Zeitstempel</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Aktion</value>
+  </data>
+  <data name="ProjectHistoryTitle" xml:space="preserve">
+    <value>Projekthistorie</value>
+  </data>
+  <data name="ActionShowHistory" xml:space="preserve">
+    <value>Historie anzeigen</value>
+  </data>
+  <data name="TaskHistoryTitle" xml:space="preserve">
+    <value>Aufgabenhistorie</value>
+  </data>
+  <data name="TaskDescription" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
 </root>

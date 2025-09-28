@@ -11,7 +11,7 @@ cloud "Cloud Services" {
 
     frame "ProjectManagement Service" {
         agent "ProjectManagement App" as ProjectAPI
-        database "Database" as ProjectDB
+        database "SQL Server" as ProjectDB
     }
 
     frame Infrastructure {

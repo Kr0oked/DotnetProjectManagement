@@ -1,5 +1,6 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.Abstractions;
 
+using Domain.Actions;
 using Domain.Entities;
 using DTOs;
 
@@ -16,5 +17,13 @@ public interface IProjectRepository
 
     public Task<Project?> FindOneAsync(Guid projectId, CancellationToken cancellationToken = default);
 
-    public Task<Project> SaveAsync(Project project, CancellationToken cancellationToken = default);
+    public Task<List<HistoryEntry<ProjectAction, Project>>> GetHistory(
+        Guid projectId,
+        CancellationToken cancellationToken = default);
+
+    public Task<Project> SaveAsync(
+        Project project,
+        ProjectAction action,
+        Guid actorUserId,
+        CancellationToken cancellationToken = default);
 }

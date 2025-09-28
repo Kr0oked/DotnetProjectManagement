@@ -2,13 +2,14 @@ namespace DotnetProjectManagement.ProjectManagement.App.Services;
 
 using System.Collections.Immutable;
 using Data.Contexts;
-using Data.Models;
+using Domain.Actions;
 using Microsoft.EntityFrameworkCore;
 using UseCases.Abstractions;
 using UseCases.DTOs;
 using UseCases.Exceptions;
 using TaskEntity = Domain.Entities.ProjectTask;
 using TaskDb = Data.Models.ProjectTask;
+using User = Data.Models.User;
 
 public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskRepository
 {
@@ -40,18 +41,76 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
         return new Page<TaskEntity>(tasks, pageRequest, totalElements);
     }
 
-    public async Task<TaskEntity> SaveAsync(TaskEntity task, CancellationToken cancellationToken)
+    public async Task<List<HistoryEntry<TaskAction, TaskEntity>>> GetHistory(
+        Guid taskId,
+        CancellationToken cancellationToken = default)
+    {
+        var instants = await dbContext.Tasks
+            .TemporalAll()
+            .Where(task => task.Id == taskId)
+            .OrderBy(project => EF.Property<DateTime>(project, ProjectManagementDbContext.TemporalPeriodStart))
+            .Select(project => EF.Property<DateTime>(project, ProjectManagementDbContext.TemporalPeriodStart))
+            .ToListAsync(cancellationToken);
+
+        var historyEntries = new List<HistoryEntry<TaskAction, TaskEntity>>();
+        foreach (var instant in instants)
+        {
+            var historyEntry = await this.GetHistoryEntry(instant, cancellationToken);
+            historyEntries.Add(historyEntry);
+        }
+
+        return historyEntries;
+    }
+
+    private async Task<HistoryEntry<TaskAction, TaskEntity>> GetHistoryEntry(
+        DateTime instant,
+        CancellationToken cancellationToken) =>
+        await dbContext.Tasks.TemporalAsOf(instant)
+            .Include(task => task.Assignees)
+            .Join(
+                dbContext.Users,
+                task => task.ActorId,
+                user => user.Id,
+                (task, user) => new
+                {
+                    task,
+                    user
+                }
+            )
+            .Select(entry => new HistoryEntry<TaskAction, TaskEntity>
+            {
+                Action = entry.task.Action,
+                Entity = MapToEntity(entry.task),
+                Timestamp = EF.Property<DateTime>(entry.task, ProjectManagementDbContext.TemporalPeriodStart),
+                User = new UserDto
+                {
+                    Id = entry.user.Id,
+                    FirstName = entry.user.FirstName,
+                    LastName = entry.user.LastName
+                }
+            })
+            .FirstAsync(cancellationToken);
+
+    public async Task<TaskEntity> SaveAsync(
+        TaskEntity task,
+        TaskAction action,
+        Guid actorUserId,
+        CancellationToken cancellationToken)
     {
         var taskDB = task.Id == Guid.Empty
-            ? await this.CreateTaskAsync(task, cancellationToken)
-            : await this.UpdateTaskAsync(task, cancellationToken);
+            ? await this.CreateTaskAsync(task, action, actorUserId, cancellationToken)
+            : await this.UpdateTaskAsync(task, action, actorUserId, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return MapToEntity(taskDB);
     }
 
-    private async Task<TaskDb> UpdateTaskAsync(TaskEntity task, CancellationToken cancellationToken)
+    private async Task<TaskDb> UpdateTaskAsync(
+        TaskEntity task,
+        TaskAction action,
+        Guid actorUserId,
+        CancellationToken cancellationToken)
     {
         var existingTask = await dbContext.Tasks
             .FindAsync([task.Id], cancellationToken) ?? throw new TaskNotFoundException(task.Id);
@@ -59,6 +118,8 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
         existingTask.DisplayName = task.DisplayName;
         existingTask.Description = task.Description;
         existingTask.Open = task.Open;
+        existingTask.Action = action;
+        existingTask.ActorId = actorUserId;
 
         await dbContext.Entry(existingTask)
             .Collection(t => t.Assignees)
@@ -87,7 +148,11 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
         return existingTask;
     }
 
-    private async Task<TaskDb> CreateTaskAsync(TaskEntity task, CancellationToken cancellationToken)
+    private async Task<TaskDb> CreateTaskAsync(
+        TaskEntity task,
+        TaskAction action,
+        Guid actorUserId,
+        CancellationToken cancellationToken)
     {
         var taskDb = new TaskDb
         {
@@ -95,7 +160,9 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
             DisplayName = task.DisplayName,
             Description = task.Description,
             Open = task.Open,
-            ProjectId = task.ProjectId
+            ProjectId = task.ProjectId,
+            Action = action,
+            ActorId = actorUserId
         };
 
         foreach (var assigneeUserId in task.Assignees)

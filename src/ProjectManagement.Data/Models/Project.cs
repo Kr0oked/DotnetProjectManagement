@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Domain;
+using Domain.Actions;
 
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class Project
@@ -22,10 +23,14 @@ public class Project
 
     public ICollection<ProjectTask> Tasks { get; } = [];
 
-    public ICollection<ProjectActivity> History { get; } = [];
+    public required ProjectAction Action { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public required Guid ActorId { get; set; }
+
+    public User Actor { get; set; } = null!;
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Timestamp]
-    public uint Version { get; set; }
+    public byte[] Version { get; set; } = null!;
 }

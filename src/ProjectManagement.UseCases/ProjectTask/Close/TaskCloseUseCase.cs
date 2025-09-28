@@ -1,6 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.ProjectTask.Close;
 
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
@@ -10,9 +11,7 @@ using Microsoft.Extensions.Logging;
 public class TaskCloseUseCase(
     ITaskRepository taskRepository,
     IProjectRepository projectRepository,
-    IActivityRepository activityRepository,
     ITransactionManager transactionManager,
-    TimeProvider timeProvider,
     ILogger<TaskCloseUseCase> logger)
 {
     public async Task<TaskDto> CloseTaskAsync(Actor actor, Guid taskId, CancellationToken cancellationToken = default)
@@ -27,9 +26,7 @@ public class TaskCloseUseCase(
 
         task.Open = false;
 
-        await taskRepository.SaveAsync(task, cancellationToken);
-
-        await this.CreateActivityAsync(actor, task.Id, cancellationToken);
+        await taskRepository.SaveAsync(task, TaskAction.Close, actor.UserId, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogTaskClosed(actor.UserId, taskId);
@@ -58,17 +55,5 @@ public class TaskCloseUseCase(
         {
             throw new TaskClosedException(taskId);
         }
-    }
-
-    private async Task CreateActivityAsync(Actor actor, Guid taskId, CancellationToken cancellationToken)
-    {
-        var activity = new TaskClosedActivity
-        {
-            UserId = actor.UserId,
-            Timestamp = timeProvider.GetUtcNow(),
-            TaskId = taskId
-        };
-
-        await activityRepository.SaveAsync(activity, cancellationToken);
     }
 }

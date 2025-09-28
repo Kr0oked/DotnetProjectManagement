@@ -1,8 +1,8 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.Project.Update;
 
-using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
@@ -12,9 +12,7 @@ using Microsoft.Extensions.Logging;
 public class ProjectUpdateUseCase(
     IProjectRepository projectRepository,
     IUserRepository userRepository,
-    IActivityRepository activityRepository,
     ITransactionManager transactionManager,
-    TimeProvider timeProvider,
     ILogger<ProjectUpdateUseCase> logger)
 {
     public async Task<ProjectDto> UpdateProjectAsync(
@@ -29,8 +27,7 @@ public class ProjectUpdateUseCase(
         actor.VerifyIsManager(project);
         project.VerifyProjectIsNotArchived();
 
-        await this.CreateActivityAsync(actor, command, project, cancellationToken);
-        await this.UpdateProjectAsync(command, project, cancellationToken);
+        await this.UpdateEntityAsync(actor, command, project, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogProjectUpdated(actor.UserId, project);
@@ -52,27 +49,8 @@ public class ProjectUpdateUseCase(
         }
     }
 
-    private async Task CreateActivityAsync(
+    private async Task UpdateEntityAsync(
         Actor actor,
-        ProjectUpdateCommand update,
-        Project project,
-        CancellationToken cancellationToken)
-    {
-        var activity = new ProjectUpdatedActivity
-        {
-            UserId = actor.UserId,
-            Timestamp = timeProvider.GetUtcNow(),
-            ProjectId = project.Id,
-            NewDisplayName = update.DisplayName,
-            OldDisplayName = project.DisplayName,
-            NewMembers = update.Members,
-            OldMembers = project.Members.ToImmutableDictionary()
-        };
-
-        await activityRepository.SaveAsync(activity, cancellationToken);
-    }
-
-    private async Task UpdateProjectAsync(
         ProjectUpdateCommand command,
         Project project,
         CancellationToken cancellationToken)
@@ -82,6 +60,6 @@ public class ProjectUpdateUseCase(
 
         Validator.ValidateObject(project, new ValidationContext(project), true);
 
-        await projectRepository.SaveAsync(project, cancellationToken);
+        await projectRepository.SaveAsync(project, ProjectAction.Update, actor.UserId, cancellationToken);
     }
 }

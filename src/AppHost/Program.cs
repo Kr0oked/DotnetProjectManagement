@@ -9,14 +9,11 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keyc
     .WithRealmImport("realms")
     .WithDataVolume();
 
-var postgresUsername = builder.AddParameter("postgresUsername", true);
-var postgresPassword = builder.AddParameter("postgresPassword", true);
-var postgres = builder.AddPostgres("postgres", postgresUsername, postgresPassword)
-    .WithDataVolume()
-    .WithPgAdmin();
+var sqlPassword = builder.AddParameter("sqlPassword", true);
+var sql = builder.AddSqlServer("sql", sqlPassword)
+    .WithDataVolume();
 
-var projectManagementDatabase = postgres
-    .AddDatabase("project-management-db");
+var projectManagementDatabase = sql.AddDatabase("project-management-db");
 
 var projectManagementMigrationService = builder.AddProject<ProjectManagement_MigrationService>("migration-service")
     .WithReference(projectManagementDatabase)

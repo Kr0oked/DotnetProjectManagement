@@ -2,6 +2,7 @@ namespace DotnetProjectManagement.ProjectManagement.UseCases.ProjectTask.Create;
 
 using System.ComponentModel.DataAnnotations;
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
@@ -12,9 +13,7 @@ public class TaskCreateUseCase(
     ITaskRepository taskRepository,
     IProjectRepository projectRepository,
     IUserRepository userRepository,
-    IActivityRepository activityRepository,
     ITransactionManager transactionManager,
-    TimeProvider timeProvider,
     ILogger<TaskCreateUseCase> logger)
 {
     public async Task<TaskDto> CreateTaskAsync(
@@ -30,8 +29,7 @@ public class TaskCreateUseCase(
         project.VerifyProjectIsNotArchived();
         await this.VerifyUsersExist(command, cancellationToken);
 
-        var task = await this.CreateTaskAsync(command, cancellationToken);
-        await this.CreateActivityAsync(actor, task, cancellationToken);
+        var task = await this.CreateEntityAsync(actor, command, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 
@@ -54,7 +52,10 @@ public class TaskCreateUseCase(
         }
     }
 
-    private async Task<ProjectTask> CreateTaskAsync(TaskCreateCommand command, CancellationToken cancellationToken)
+    private async Task<ProjectTask> CreateEntityAsync(
+        Actor actor,
+        TaskCreateCommand command,
+        CancellationToken cancellationToken)
     {
         var task = new ProjectTask
         {
@@ -62,26 +63,11 @@ public class TaskCreateUseCase(
             Description = command.Description,
             Open = true,
             Assignees = [.. command.Assignees],
-            ProjectId = command.ProjectId
+            ProjectId = command.ProjectId,
         };
 
         Validator.ValidateObject(task, new ValidationContext(task), true);
 
-        return await taskRepository.SaveAsync(task, cancellationToken);
-    }
-
-    private async Task CreateActivityAsync(Actor actor, ProjectTask task, CancellationToken cancellationToken)
-    {
-        var activity = new TaskCreatedActivity
-        {
-            UserId = actor.UserId,
-            Timestamp = timeProvider.GetUtcNow(),
-            TaskId = task.Id,
-            DisplayName = task.DisplayName,
-            Description = task.Description,
-            Assignees = [.. task.Assignees]
-        };
-
-        await activityRepository.SaveAsync(activity, cancellationToken);
+        return await taskRepository.SaveAsync(task, TaskAction.Create, actor.UserId, cancellationToken);
     }
 }

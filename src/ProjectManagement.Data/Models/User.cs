@@ -24,18 +24,12 @@ public class User
 
     public ICollection<ProjectTask> AssignedTasks { get; } = [];
 
-    public ICollection<Activity> History { get; } = [];
+    public ICollection<Project> ActorForProjects { get; } = [];
 
-    public ICollection<ProjectCreatedActivityMember> ProjectCreatedActivityMemberships { get; } = [];
+    public ICollection<ProjectTask> ActorForTasks { get; } = [];
 
-    public ICollection<ProjectUpdatedActivityMember> ProjectUpdatedActivityMemberships { get; } = [];
-
-    public ICollection<TaskUpdatedActivity> TaskUpdatedActivityNewAssignees { get; } = [];
-
-    public ICollection<TaskUpdatedActivity> TaskUpdatedActivityOldAssignees { get; } = [];
-
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Timestamp]
-    public uint Version { get; set; }
+    public byte[] Version { get; set; } = null!;
 }

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Testcontainers.PostgreSql;
+using Testcontainers.MsSql;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,15 +21,15 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
     ITestOutputHelperAccessor
     where TProgram : class
 {
-    private readonly PostgreSqlContainer postgreSqlContainer = new PostgreSqlBuilder()
-        .WithImage("postgres:17.0")
+    private readonly MsSqlContainer msSqlContainer = new MsSqlBuilder()
+        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
     public ClaimsProvider ClaimsProvider { get; } = new();
 
-    public Task InitializeAsync() => this.postgreSqlContainer.StartAsync();
+    public Task InitializeAsync() => this.msSqlContainer.StartAsync();
 
-    public new Task DisposeAsync() => this.postgreSqlContainer.DisposeAsync().AsTask();
+    public new Task DisposeAsync() => this.msSqlContainer.DisposeAsync().AsTask();
 
     public ITestOutputHelper? OutputHelper { get; set; }
 
@@ -38,7 +38,7 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
         builder.ConfigureHostConfiguration(configuration =>
             configuration.AddInMemoryCollection(new Dictionary<string, string>
             {
-                { "ConnectionStrings:project-management-db", this.postgreSqlContainer.GetConnectionString() }
+                { "ConnectionStrings:project-management-db", this.msSqlContainer.GetConnectionString() }
             }!));
         return base.CreateHost(builder);
     }

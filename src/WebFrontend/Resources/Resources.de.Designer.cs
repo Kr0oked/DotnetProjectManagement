@@ -338,5 +338,47 @@ namespace DotnetProjectManagement.WebFrontend.Resources {
                 return ResourceManager.GetString("ActionNavigateToTasks", resourceCulture);
             }
         }
+        
+        internal static string User {
+            get {
+                return ResourceManager.GetString("User", resourceCulture);
+            }
+        }
+        
+        internal static string Timestamp {
+            get {
+                return ResourceManager.GetString("Timestamp", resourceCulture);
+            }
+        }
+        
+        internal static string Action {
+            get {
+                return ResourceManager.GetString("Action", resourceCulture);
+            }
+        }
+        
+        internal static string ProjectHistoryTitle {
+            get {
+                return ResourceManager.GetString("ProjectHistoryTitle", resourceCulture);
+            }
+        }
+        
+        internal static string ActionShowHistory {
+            get {
+                return ResourceManager.GetString("ActionShowHistory", resourceCulture);
+            }
+        }
+        
+        internal static string TaskHistoryTitle {
+            get {
+                return ResourceManager.GetString("TaskHistoryTitle", resourceCulture);
+            }
+        }
+        
+        internal static string TaskDescription {
+            get {
+                return ResourceManager.GetString("TaskDescription", resourceCulture);
+            }
+        }
     }
 }

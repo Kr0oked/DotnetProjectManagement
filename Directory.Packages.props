@@ -14,9 +14,9 @@
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="$(AspVersioningVersion)"/>
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="$(AspireVersion)"/>
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version=" 9.4.1-preview.1.25408.4"/>
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="$(AspireVersion)"/>
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="$(AspireVersion)"/>
     <PackageVersion Include="Aspire.Hosting.Testing" Version="$(AspireVersion)"/>
-    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(AspireVersion)"/>
+    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="$(AspireVersion)"/>
     <PackageVersion Include="Blazor.Bootstrap" Version="3.4.0"/>
     <PackageVersion Include="Blazored.LocalStorage" Version="4.5.0"/>
     <PackageVersion Include="FluentAssertions" Version="8.6.0"/>
@@ -28,6 +28,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCore)"/>
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EntityFrameworkCore)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCore)"/>
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(DotnetRuntimeVersion)"/>
     <PackageVersion Include="Microsoft.Extensions.Http" Version="$(DotnetRuntimeVersion)"/>
@@ -39,7 +40,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
     <PackageVersion Include="Moq" Version="4.20.72"/>
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.3.2"/>
-    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.7.0"/>
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.7.0"/>
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0"/>
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0"/>
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0"/>

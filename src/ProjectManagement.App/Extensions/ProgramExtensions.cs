@@ -5,12 +5,14 @@ using UseCases.Abstractions;
 using UseCases.Project.Archive;
 using UseCases.Project.Create;
 using UseCases.Project.GetDetails;
+using UseCases.Project.GetHistory;
 using UseCases.Project.List;
 using UseCases.Project.Restore;
 using UseCases.Project.Update;
 using UseCases.ProjectTask.Close;
 using UseCases.ProjectTask.Create;
 using UseCases.ProjectTask.GetDetails;
+using UseCases.ProjectTask.GetHistory;
 using UseCases.ProjectTask.ListForProject;
 using UseCases.ProjectTask.Reopen;
 using UseCases.ProjectTask.Update;
@@ -24,7 +26,6 @@ internal static class ProgramExtensions
     {
         var services = builder.Services;
 
-        services.AddScoped<IActivityRepository, ActivityRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<ITransactionManager, TransactionManager>();
@@ -33,6 +34,7 @@ internal static class ProgramExtensions
         services.AddScoped<ProjectArchiveUseCase, ProjectArchiveUseCase>();
         services.AddScoped<ProjectCreateUseCase, ProjectCreateUseCase>();
         services.AddScoped<ProjectGetDetailsUseCase, ProjectGetDetailsUseCase>();
+        services.AddScoped<ProjectGetHistoryUseCase, ProjectGetHistoryUseCase>();
         services.AddScoped<ProjectListUseCase, ProjectListUseCase>();
         services.AddScoped<ProjectRestoreUseCase, ProjectRestoreUseCase>();
         services.AddScoped<ProjectUpdateUseCase, ProjectUpdateUseCase>();
@@ -40,6 +42,7 @@ internal static class ProgramExtensions
         services.AddScoped<TaskCloseUseCase, TaskCloseUseCase>();
         services.AddScoped<TaskCreateUseCase, TaskCreateUseCase>();
         services.AddScoped<TaskGetDetailsUseCase, TaskGetDetailsUseCase>();
+        services.AddScoped<TaskGetHistoryUseCase, TaskGetHistoryUseCase>();
         services.AddScoped<TaskListForProjectUseCase, TaskListForProjectUseCase>();
         services.AddScoped<TaskReopenUseCase, TaskReopenUseCase>();
         services.AddScoped<TaskUpdateUseCase, TaskUpdateUseCase>();

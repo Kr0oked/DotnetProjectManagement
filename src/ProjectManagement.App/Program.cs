@@ -53,9 +53,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.AddNpgsqlDbContext<ProjectManagementDbContext>("project-management-db",
+
+builder.AddSqlServerDbContext<ProjectManagementDbContext>("project-management-db",
     settings => settings.DisableRetry = true,
-    dbContext => dbContext.UseNpgsql(npgsql => npgsql.MigrationsAssembly("ProjectManagement.MigrationService")));
+    dbContext => dbContext
+        .UseSqlServer(sqlServer => sqlServer.MigrationsAssembly("ProjectManagement.MigrationService")));
 
 builder.AddApplicationServices();
 

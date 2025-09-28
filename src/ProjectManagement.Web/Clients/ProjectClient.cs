@@ -1,6 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.Web.Clients;
 
 using System.Net.Http.Json;
+using Domain.Actions;
 using Models;
 
 public class ProjectClient(HttpClient httpClient)
@@ -67,5 +68,15 @@ public class ProjectClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
         var project = await response.Content.ReadFromJsonAsync<ProjectRepresentation>(cancellationToken);
         return project!;
+    }
+
+    public async Task<List<HistoryEntryRepresentation<ProjectAction, ProjectRepresentation>>> GetProjectHistoryAsync(
+        Guid projectId,
+        CancellationToken cancellationToken = default)
+    {
+        var history = await httpClient
+            .GetFromJsonAsync<List<HistoryEntryRepresentation<ProjectAction, ProjectRepresentation>>>(
+                $"projects/{projectId}/history", cancellationToken);
+        return history!;
     }
 }

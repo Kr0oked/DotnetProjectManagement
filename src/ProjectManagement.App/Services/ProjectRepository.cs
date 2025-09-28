@@ -3,12 +3,14 @@ namespace DotnetProjectManagement.ProjectManagement.App.Services;
 using System.Collections.Immutable;
 using Data.Contexts;
 using Data.Models;
+using Domain.Actions;
 using Microsoft.EntityFrameworkCore;
 using UseCases.Abstractions;
 using UseCases.DTOs;
 using UseCases.Exceptions;
 using ProjectEntity = Domain.Entities.Project;
 using ProjectDb = Data.Models.Project;
+using User = Data.Models.User;
 
 public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectRepository
 {
@@ -60,24 +62,84 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
             .Select(project => MapToEntity(project))
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<ProjectEntity> SaveAsync(ProjectEntity project, CancellationToken cancellationToken = default)
+    public async Task<List<HistoryEntry<ProjectAction, ProjectEntity>>> GetHistory(
+        Guid projectId,
+        CancellationToken cancellationToken = default)
+    {
+        var instants = await dbContext.Projects
+            .TemporalAll()
+            .Where(project => project.Id == projectId)
+            .OrderBy(project => EF.Property<DateTime>(project, ProjectManagementDbContext.TemporalPeriodStart))
+            .Select(project => EF.Property<DateTime>(project, ProjectManagementDbContext.TemporalPeriodStart))
+            .ToListAsync(cancellationToken);
+
+        var historyEntries = new List<HistoryEntry<ProjectAction, ProjectEntity>>();
+        foreach (var instant in instants)
+        {
+            var historyEntry = await this.GetHistoryEntry(instant, cancellationToken);
+            historyEntries.Add(historyEntry);
+        }
+
+        return historyEntries;
+    }
+
+    private async Task<HistoryEntry<ProjectAction, ProjectEntity>> GetHistoryEntry(
+        DateTime instant,
+        CancellationToken cancellationToken) =>
+        await dbContext.Projects.TemporalAsOf(instant)
+            .Include(project => project.Members)
+            .Join(
+                dbContext.Users,
+                project => project.ActorId,
+                user => user.Id,
+                (project, user) => new
+                {
+                    project,
+                    user
+                }
+            )
+            .Select(entry => new HistoryEntry<ProjectAction, ProjectEntity>
+            {
+                Action = entry.project.Action,
+                Entity = MapToEntity(entry.project),
+                Timestamp = EF.Property<DateTime>(entry.project, ProjectManagementDbContext.TemporalPeriodStart),
+                User = new UserDto
+                {
+                    Id = entry.user.Id,
+                    FirstName = entry.user.FirstName,
+                    LastName = entry.user.LastName
+                }
+            })
+            .FirstAsync(cancellationToken);
+
+    public async Task<ProjectEntity> SaveAsync(
+        ProjectEntity project,
+        ProjectAction action,
+        Guid actorUserId,
+        CancellationToken cancellationToken = default)
     {
         var projectDb = project.Id == Guid.Empty
-            ? await this.CreateProjectAsync(project, cancellationToken)
-            : await this.UpdateProjectAsync(project, cancellationToken);
+            ? await this.CreateProjectAsync(project, action, actorUserId, cancellationToken)
+            : await this.UpdateProjectAsync(project, action, actorUserId, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return MapToEntity(projectDb);
     }
 
-    private async Task<ProjectDb> CreateProjectAsync(ProjectEntity project, CancellationToken cancellationToken)
+    private async Task<ProjectDb> CreateProjectAsync(
+        ProjectEntity project,
+        ProjectAction action,
+        Guid actorUserId,
+        CancellationToken cancellationToken)
     {
         var projectDb = new ProjectDb
         {
             Id = project.Id,
             DisplayName = project.DisplayName,
-            Archived = project.Archived
+            Archived = project.Archived,
+            Action = action,
+            ActorId = actorUserId
         };
 
         foreach (var (memberUserId, memberRole) in project.Members)
@@ -97,13 +159,19 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         return projectDb;
     }
 
-    private async Task<ProjectDb> UpdateProjectAsync(ProjectEntity project, CancellationToken cancellationToken)
+    private async Task<ProjectDb> UpdateProjectAsync(
+        ProjectEntity project,
+        ProjectAction action,
+        Guid actorUserId,
+        CancellationToken cancellationToken)
     {
         var existingProject = await dbContext.Projects
             .FindAsync([project.Id], cancellationToken) ?? throw new ProjectNotFoundException(project.Id);
 
         existingProject.DisplayName = project.DisplayName;
         existingProject.Archived = project.Archived;
+        existingProject.Action = action;
+        existingProject.ActorId = actorUserId;
 
         await dbContext.Entry(existingProject)
             .Collection(p => p.Members)

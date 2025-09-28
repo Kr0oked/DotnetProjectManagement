@@ -1,6 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.UseCases.ProjectTask.Reopen;
 
 using Abstractions;
+using Domain.Actions;
 using Domain.Entities;
 using DTOs;
 using Exceptions;
@@ -10,9 +11,7 @@ using Microsoft.Extensions.Logging;
 public class TaskReopenUseCase(
     ITaskRepository taskRepository,
     IProjectRepository projectRepository,
-    IActivityRepository activityRepository,
     ITransactionManager transactionManager,
-    TimeProvider timeProvider,
     ILogger<TaskReopenUseCase> logger)
 {
     public async Task<TaskDto> ReopenTaskAsync(Actor actor, Guid taskId, CancellationToken cancellationToken = default)
@@ -27,9 +26,7 @@ public class TaskReopenUseCase(
 
         task.Open = true;
 
-        await taskRepository.SaveAsync(task, cancellationToken);
-
-        await this.CreateActivityAsync(actor, task.Id, cancellationToken);
+        await taskRepository.SaveAsync(task, TaskAction.Reopen, actor.UserId, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogTaskReopened(actor.UserId, taskId);
@@ -58,17 +55,5 @@ public class TaskReopenUseCase(
         {
             throw new TaskOpenException(taskId);
         }
-    }
-
-    private async Task CreateActivityAsync(Actor actor, Guid taskId, CancellationToken cancellationToken)
-    {
-        var activity = new TaskReopenedActivity
-        {
-            UserId = actor.UserId,
-            Timestamp = timeProvider.GetUtcNow(),
-            TaskId = taskId
-        };
-
-        await activityRepository.SaveAsync(activity, cancellationToken);
     }
 }
