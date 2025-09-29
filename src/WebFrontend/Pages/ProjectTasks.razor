@@ -13,6 +13,7 @@
 @implements IDisposable
 @attribute [Authorize]
 @inject IStringLocalizer<Resources> Localizer
+@inject PreloadService PreloadService
 @inject ProjectClient ProjectClient
 @inject TaskClient TaskClient
 @inject UserClient UserClient
@@ -226,12 +227,21 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        editContext = new EditContext(taskModel);
+        try
+        {
+            PreloadService.Show();
 
-        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        user = authenticationState.User;
+            editContext = new EditContext(taskModel);
 
-        project = await ProjectClient.GetProjectDetailsAsync(ProjectId, cancellationTokenSource.Token);
+            var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            user = authenticationState.User;
+
+            project = await ProjectClient.GetProjectDetailsAsync(ProjectId, cancellationTokenSource.Token);
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private bool IsUserAdmin() => user?.IsAdmin() ?? false;
@@ -259,57 +269,114 @@ else
     private async Task<GridDataProviderResult<TaskRepresentation>> TasksDataProvider(
         GridDataProviderRequest<TaskRepresentation> request)
     {
-        var page = await TaskClient
-            .ListTasksForProjectAsync(ProjectId, request.PageNumber - 1, request.PageSize, request.CancellationToken);
-
-        return new GridDataProviderResult<TaskRepresentation>
+        try
         {
-            Data = page.Content,
-            TotalCount = (int)page.TotalElements
-        };
+            PreloadService.Show();
+
+            var page = await TaskClient.ListTasksForProjectAsync(
+                ProjectId,
+                request.PageNumber - 1,
+                request.PageSize,
+                request.CancellationToken);
+
+            return new GridDataProviderResult<TaskRepresentation>
+            {
+                Data = page.Content,
+                TotalCount = (int)page.TotalElements
+            };
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task<GridDataProviderResult<UserRepresentation>> UsersDataProvider(
         GridDataProviderRequest<UserRepresentation> request)
     {
-        var page = await UserClient
-            .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
-
-        return new GridDataProviderResult<UserRepresentation>
+        try
         {
-            Data = page.Content,
-            TotalCount = (int)page.TotalElements
-        };
+            PreloadService.Show();
+
+            var page = await UserClient
+                .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+            return new GridDataProviderResult<UserRepresentation>
+            {
+                Data = page.Content,
+                TotalCount = (int)page.TotalElements
+            };
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task CloseTask(Guid taskId)
     {
-        await TaskClient.CloseTaskAsync(taskId, cancellationTokenSource.Token);
-        await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        try
+        {
+            PreloadService.Show();
+
+            await TaskClient.CloseTaskAsync(taskId, cancellationTokenSource.Token);
+            await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task ReopenTask(Guid taskId)
     {
-        await TaskClient.ReopenTaskAsync(taskId, cancellationTokenSource.Token);
-        await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        try
+        {
+            PreloadService.Show();
+
+            await TaskClient.ReopenTaskAsync(taskId, cancellationTokenSource.Token);
+            await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task StartNewTask()
     {
-        saveTaskId = null;
-        taskModel.DisplayName = "";
-        taskModel.Description = "";
-        taskModel.Assignees = [];
-        await saveModal.ShowAsync();
+        try
+        {
+            PreloadService.Show();
+
+            saveTaskId = null;
+            taskModel.DisplayName = "";
+            taskModel.Description = "";
+            taskModel.Assignees = [];
+            await saveModal.ShowAsync();
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task StartEditTask(TaskRepresentation task)
     {
-        saveTaskId = task.Id;
-        taskModel.DisplayName = task.DisplayName;
-        taskModel.Description = task.Description;
-        taskModel.Assignees = task.Assignees.ToHashSet();
-        await saveModal.ShowAsync();
+        try
+        {
+            PreloadService.Show();
+
+            saveTaskId = task.Id;
+            taskModel.DisplayName = task.DisplayName;
+            taskModel.Description = task.Description;
+            taskModel.Assignees = task.Assignees.ToHashSet();
+            await saveModal.ShowAsync();
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private void SetAssignee(Guid userId, bool assigned)
@@ -326,42 +393,60 @@ else
 
     private async Task SaveTAsk()
     {
-        if (editContext.Validate())
+        try
         {
-            if (saveTaskId is { } taskId)
-            {
-                await TaskClient.UpdateTaskAsync(
-                    taskId,
-                    new TaskUpdateRequest
-                    {
-                        DisplayName = taskModel.DisplayName,
-                        Description = taskModel.Description,
-                        Assignees = taskModel.Assignees.ToImmutableHashSet()
-                    },
-                    cancellationTokenSource.Token);
-            }
-            else
-            {
-                await TaskClient.CreateTaskAsync(
-                    new TaskCreateRequest
-                    {
-                        ProjectId = ProjectId,
-                        DisplayName = taskModel.DisplayName,
-                        Description = taskModel.Description,
-                        Assignees = taskModel.Assignees.ToImmutableHashSet()
-                    },
-                    cancellationTokenSource.Token);
-            }
+            PreloadService.Show();
 
-            await saveModal.HideAsync();
-            await grid.RefreshDataAsync(cancellationTokenSource.Token);
+            if (editContext.Validate())
+            {
+                if (saveTaskId is { } taskId)
+                {
+                    await TaskClient.UpdateTaskAsync(
+                        taskId,
+                        new TaskUpdateRequest
+                        {
+                            DisplayName = taskModel.DisplayName,
+                            Description = taskModel.Description,
+                            Assignees = taskModel.Assignees.ToImmutableHashSet()
+                        },
+                        cancellationTokenSource.Token);
+                }
+                else
+                {
+                    await TaskClient.CreateTaskAsync(
+                        new TaskCreateRequest
+                        {
+                            ProjectId = ProjectId,
+                            DisplayName = taskModel.DisplayName,
+                            Description = taskModel.Description,
+                            Assignees = taskModel.Assignees.ToImmutableHashSet()
+                        },
+                        cancellationTokenSource.Token);
+                }
+
+                await saveModal.HideAsync();
+                await grid.RefreshDataAsync(cancellationTokenSource.Token);
+            }
+        }
+        finally
+        {
+            PreloadService.Hide();
         }
     }
 
     private async Task ShowHistory(Guid taskId)
     {
-        history = await TaskClient.GetTaskHistoryAsync(taskId, cancellationTokenSource.Token);
-        await historyModal.ShowAsync();
+        try
+        {
+            PreloadService.Show();
+
+            history = await TaskClient.GetTaskHistoryAsync(taskId, cancellationTokenSource.Token);
+            await historyModal.ShowAsync();
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     public void Dispose()

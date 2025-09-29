@@ -380,5 +380,11 @@ namespace DotnetProjectManagement.WebFrontend.Resources {
                 return ResourceManager.GetString("TaskDescription", resourceCulture);
             }
         }
+        
+        internal static string LoadingText {
+            get {
+                return ResourceManager.GetString("LoadingText", resourceCulture);
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 @inject ILocalStorageService LocalStorage
 @inject IStringLocalizer<Resources> Localizer
 @inject NavigationManager Navigation
+@inject PreloadService PreloadService
 @using System.Globalization
 @using Blazored.LocalStorage
 @using Microsoft.Extensions.Localization
@@ -33,13 +34,22 @@
 
     private async Task ApplySelectedCultureAsync(string selectedCulture)
     {
-        if (!Equals(CultureInfo.CurrentCulture.Name, selectedCulture))
+        try
         {
-            await LocalStorage.SetItemAsStringAsync(
-                WebAssemblyHostExtension.BlazorCultureKey,
-                selectedCulture,
-                cancellationTokenSource.Token);
-            Navigation.NavigateTo(Navigation.Uri, true);
+            PreloadService.Show();
+
+            if (!Equals(CultureInfo.CurrentCulture.Name, selectedCulture))
+            {
+                await LocalStorage.SetItemAsStringAsync(
+                    WebAssemblyHostExtension.BlazorCultureKey,
+                    selectedCulture,
+                    cancellationTokenSource.Token);
+                Navigation.NavigateTo(Navigation.Uri, true);
+            }
+        }
+        finally
+        {
+            PreloadService.Hide();
         }
     }
 

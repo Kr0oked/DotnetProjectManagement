@@ -14,6 +14,7 @@
 @attribute [Authorize]
 @inject IStringLocalizer<Resources> Localizer
 @inject NavigationManager NavigationManager
+@inject PreloadService PreloadService
 @inject ProjectClient ProjectClient
 @inject UserClient UserClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -233,10 +234,19 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        editContext = new EditContext(projectModel);
+        try
+        {
+            PreloadService.Show();
 
-        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        user = authenticationState.User;
+            editContext = new EditContext(projectModel);
+
+            var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            user = authenticationState.User;
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private bool IsUserAdmin() => user?.IsAdmin() ?? false;
@@ -254,57 +264,111 @@ else
     private async Task<GridDataProviderResult<ProjectRepresentation>> ProjectsDataProvider(
         GridDataProviderRequest<ProjectRepresentation> request)
     {
-        var page = await ProjectClient
-            .ListProjectsAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
-
-        return new GridDataProviderResult<ProjectRepresentation>
+        try
         {
-            Data = page.Content,
-            TotalCount = (int)page.TotalElements
-        };
+            PreloadService.Show();
+
+            var page = await ProjectClient
+                .ListProjectsAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+            return new GridDataProviderResult<ProjectRepresentation>
+            {
+                Data = page.Content,
+                TotalCount = (int)page.TotalElements
+            };
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task<GridDataProviderResult<UserRepresentation>> UsersDataProvider(
         GridDataProviderRequest<UserRepresentation> request)
     {
-        var page = await UserClient
-            .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
-
-        return new GridDataProviderResult<UserRepresentation>
+        try
         {
-            Data = page.Content,
-            TotalCount = (int)page.TotalElements
-        };
+            PreloadService.Show();
+
+            var page = await UserClient
+                .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+            return new GridDataProviderResult<UserRepresentation>
+            {
+                Data = page.Content,
+                TotalCount = (int)page.TotalElements
+            };
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private void NavigateToTasks(Guid projectId) => NavigationManager.NavigateTo($"/projects/{projectId}/tasks");
 
     private async Task ArchiveProject(Guid projectId)
     {
-        await ProjectClient.ArchiveProjectAsync(projectId, cancellationTokenSource.Token);
-        await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        try
+        {
+            PreloadService.Show();
+
+            await ProjectClient.ArchiveProjectAsync(projectId, cancellationTokenSource.Token);
+            await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task RestoreProject(Guid projectId)
     {
-        await ProjectClient.RestoreProjectAsync(projectId, cancellationTokenSource.Token);
-        await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        try
+        {
+            PreloadService.Show();
+
+            await ProjectClient.RestoreProjectAsync(projectId, cancellationTokenSource.Token);
+            await grid.RefreshDataAsync(cancellationTokenSource.Token);
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task StartNewProject()
     {
-        saveProjectId = null;
-        projectModel.DisplayName = "";
-        projectModel.Members = [];
-        await saveModal.ShowAsync();
+        try
+        {
+            PreloadService.Show();
+
+            saveProjectId = null;
+            projectModel.DisplayName = "";
+            projectModel.Members = [];
+            await saveModal.ShowAsync();
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private async Task StartEditProject(ProjectRepresentation project)
     {
-        saveProjectId = project.Id;
-        projectModel.DisplayName = project.DisplayName;
-        projectModel.Members = project.Members.ToDictionary();
-        await saveModal.ShowAsync();
+        try
+        {
+            PreloadService.Show();
+
+            saveProjectId = project.Id;
+            projectModel.DisplayName = project.DisplayName;
+            projectModel.Members = project.Members.ToDictionary();
+            await saveModal.ShowAsync();
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     private void SetProjectRole(Guid userId, ProjectMemberRole? value)
@@ -321,32 +385,50 @@ else
 
     private async Task SaveProject()
     {
-        if (editContext.Validate())
+        try
         {
-            var request = new ProjectSaveRequest
-            {
-                DisplayName = projectModel.DisplayName,
-                Members = projectModel.Members.ToImmutableDictionary()
-            };
+            PreloadService.Show();
 
-            if (saveProjectId is { } projectId)
+            if (editContext.Validate())
             {
-                await ProjectClient.UpdateProjectAsync(projectId, request, cancellationTokenSource.Token);
-            }
-            else
-            {
-                await ProjectClient.CreateProjectAsync(request, cancellationTokenSource.Token);
-            }
+                var request = new ProjectSaveRequest
+                {
+                    DisplayName = projectModel.DisplayName,
+                    Members = projectModel.Members.ToImmutableDictionary()
+                };
 
-            await saveModal.HideAsync();
-            await grid.RefreshDataAsync(cancellationTokenSource.Token);
+                if (saveProjectId is { } projectId)
+                {
+                    await ProjectClient.UpdateProjectAsync(projectId, request, cancellationTokenSource.Token);
+                }
+                else
+                {
+                    await ProjectClient.CreateProjectAsync(request, cancellationTokenSource.Token);
+                }
+
+                await saveModal.HideAsync();
+                await grid.RefreshDataAsync(cancellationTokenSource.Token);
+            }
+        }
+        finally
+        {
+            PreloadService.Hide();
         }
     }
 
     private async Task ShowHistory(Guid projectId)
     {
-        history = await ProjectClient.GetProjectHistoryAsync(projectId, cancellationTokenSource.Token);
-        await historyModal.ShowAsync();
+        try
+        {
+            PreloadService.Show();
+
+            history = await ProjectClient.GetProjectHistoryAsync(projectId, cancellationTokenSource.Token);
+            await historyModal.ShowAsync();
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
     public void Dispose()

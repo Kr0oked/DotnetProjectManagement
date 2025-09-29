@@ -23,6 +23,8 @@
 
 </BlazorBootstrapLayout>
 
+<Preload LoadingText="@Localizer["LoadingText"]"/>
+
 @code {
 
     private async Task<Sidebar2DataProviderResult> SidebarDataProvider(Sidebar2DataProviderRequest request)

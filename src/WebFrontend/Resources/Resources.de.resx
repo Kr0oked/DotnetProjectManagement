@@ -191,4 +191,7 @@
   <data name="TaskDescription" xml:space="preserve">
     <value>Beschreibung</value>
   </data>
+  <data name="LoadingText" xml:space="preserve">
+    <value>Lade...</value>
+  </data>
 </root>

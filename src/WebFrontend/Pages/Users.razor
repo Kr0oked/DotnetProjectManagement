@@ -5,6 +5,7 @@
 @using Microsoft.Extensions.Localization
 @attribute [Authorize]
 @inject IStringLocalizer<Resources> Localizer
+@inject PreloadService PreloadService
 @inject UserClient UserClient
 
 <PageTitle>@Localizer["Users"]</PageTitle>
@@ -30,14 +31,23 @@
     private async Task<GridDataProviderResult<UserRepresentation>> UsersDataProvider(
         GridDataProviderRequest<UserRepresentation> request)
     {
-        var page = await UserClient
-            .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
-
-        return new GridDataProviderResult<UserRepresentation>
+        try
         {
-            Data = page.Content,
-            TotalCount = (int)page.TotalElements
-        };
+            PreloadService.Show();
+
+            var page = await UserClient
+                .ListUsersAsync(request.PageNumber - 1, request.PageSize, request.CancellationToken);
+
+            return new GridDataProviderResult<UserRepresentation>
+            {
+                Data = page.Content,
+                TotalCount = (int)page.TotalElements
+            };
+        }
+        finally
+        {
+            PreloadService.Hide();
+        }
     }
 
 }
