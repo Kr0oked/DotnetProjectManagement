@@ -18,7 +18,7 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
             .Where(task => task.Id == taskId)
             .Include(task => task.Assignees)
             .Select(task => MapToEntity(task))
-            .FirstOrDefaultAsync(cancellationToken);
+            .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<Page<TaskEntity>> FindAllByProjectIdAsync(
         Guid projectId,
@@ -55,7 +55,7 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
         var historyEntries = new List<HistoryEntry<TaskAction, TaskEntity>>();
         foreach (var instant in instants)
         {
-            var historyEntry = await this.GetHistoryEntry(instant, cancellationToken);
+            var historyEntry = await this.GetHistoryEntry(taskId, instant, cancellationToken);
             historyEntries.Add(historyEntry);
         }
 
@@ -63,9 +63,11 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
     }
 
     private async Task<HistoryEntry<TaskAction, TaskEntity>> GetHistoryEntry(
+        Guid taskId,
         DateTime instant,
         CancellationToken cancellationToken) =>
         await dbContext.Tasks.TemporalAsOf(instant)
+            .Where(task => task.Id == taskId)
             .Include(task => task.Assignees)
             .Join(
                 dbContext.Users,
@@ -89,7 +91,7 @@ public class TaskRepository(ProjectManagementDbContext dbContext) : ITaskReposit
                     LastName = entry.user.LastName
                 }
             })
-            .FirstAsync(cancellationToken);
+            .SingleAsync(cancellationToken);
 
     public async Task<TaskEntity> SaveAsync(
         TaskEntity task,

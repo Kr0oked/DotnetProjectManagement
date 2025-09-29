@@ -60,7 +60,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
             .Where(project => project.Id == projectId)
             .Include(project => project.Members)
             .Select(project => MapToEntity(project))
-            .FirstOrDefaultAsync(cancellationToken);
+            .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<List<HistoryEntry<ProjectAction, ProjectEntity>>> GetHistory(
         Guid projectId,
@@ -76,7 +76,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
         var historyEntries = new List<HistoryEntry<ProjectAction, ProjectEntity>>();
         foreach (var instant in instants)
         {
-            var historyEntry = await this.GetHistoryEntry(instant, cancellationToken);
+            var historyEntry = await this.GetHistoryEntry(projectId, instant, cancellationToken);
             historyEntries.Add(historyEntry);
         }
 
@@ -84,9 +84,11 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
     }
 
     private async Task<HistoryEntry<ProjectAction, ProjectEntity>> GetHistoryEntry(
+        Guid projectId,
         DateTime instant,
         CancellationToken cancellationToken) =>
         await dbContext.Projects.TemporalAsOf(instant)
+            .Where(project => project.Id == projectId)
             .Include(project => project.Members)
             .Join(
                 dbContext.Users,
@@ -110,7 +112,7 @@ public class ProjectRepository(ProjectManagementDbContext dbContext) : IProjectR
                     LastName = entry.user.LastName
                 }
             })
-            .FirstAsync(cancellationToken);
+            .SingleAsync(cancellationToken);
 
     public async Task<ProjectEntity> SaveAsync(
         ProjectEntity project,
