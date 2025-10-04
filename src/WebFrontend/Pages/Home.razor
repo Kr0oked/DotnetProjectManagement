@@ -4,6 +4,20 @@
 
 <PageTitle>@Localizer["Home"]</PageTitle>
 
-<h1>@Localizer["Home"]</h1>
+<Breadcrumb Items="breadcrumbs"/>
 
 @Localizer["HomeDescription"]
+
+@code {
+
+    private List<BreadcrumbItem> breadcrumbs = [];
+
+    protected override void OnInitialized()
+    {
+        breadcrumbs =
+        [
+            new BreadcrumbItem { Text = Localizer["Home"], Href = "/", IsCurrentPage = true }
+        ];
+    }
+
+}

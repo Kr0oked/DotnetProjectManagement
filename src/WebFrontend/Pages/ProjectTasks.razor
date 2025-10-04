@@ -22,7 +22,7 @@
 
 <PageTitle>@Localizer["Tasks"]</PageTitle>
 
-<h1>@Localizer["Tasks"]</h1>
+<Breadcrumb Items="breadcrumbs"/>
 
 <p>@Localizer["TasksDescription"]</p>
 
@@ -216,6 +216,7 @@ else
     public Guid ProjectId { get; set; }
 
     private readonly CancellationTokenSource cancellationTokenSource = new();
+    private List<BreadcrumbItem> breadcrumbs = [];
     private ClaimsPrincipal? user;
     private Grid<TaskRepresentation> grid = null!;
     private Modal saveModal = null!;
@@ -233,6 +234,21 @@ else
             PreloadService.Show();
 
             await base.OnInitializedAsync();
+
+            breadcrumbs =
+            [
+                new BreadcrumbItem
+                {
+                    Text = Localizer["Projects"],
+                    Href = "/projects"
+                },
+                new BreadcrumbItem
+                {
+                    Text = Localizer["Tasks"],
+                    Href = $"/projects/{ProjectId}/tasks",
+                    IsCurrentPage = true
+                }
+            ];
 
             editContext = new EditContext(taskModel);
 

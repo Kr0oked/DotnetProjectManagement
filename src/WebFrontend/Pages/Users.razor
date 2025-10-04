@@ -10,7 +10,7 @@
 
 <PageTitle>@Localizer["Users"]</PageTitle>
 
-<h1>@Localizer["Users"]</h1>
+<Breadcrumb Items="breadcrumbs"/>
 
 <p>@Localizer["UsersDescription"]</p>
 
@@ -27,6 +27,16 @@
 </Grid>
 
 @code {
+
+    private List<BreadcrumbItem> breadcrumbs = [];
+
+    protected override void OnInitialized()
+    {
+        breadcrumbs =
+        [
+            new BreadcrumbItem { Text = Localizer["Users"], Href = "/users", IsCurrentPage = true }
+        ];
+    }
 
     private async Task<GridDataProviderResult<UserRepresentation>> UsersDataProvider(
         GridDataProviderRequest<UserRepresentation> request)
