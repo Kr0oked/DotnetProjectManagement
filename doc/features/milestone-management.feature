@@ -30,12 +30,14 @@ Feature: Manage milestones
         When I try to create a new milestone
         And I provide a display name
         Then the milestone gets created
+        And notification gets send to all project members
 
     Scenario: Update milestone display name
         Given I am logged in with a user that is manager in a project
         When I try to update the display name of an active milestone
         And I provide a display name
         Then the display name gets updated
+        And notification gets send to all project members
 
     Scenario: Update milestone dates
         Given I am logged in with a user that is manager in a project
@@ -43,6 +45,7 @@ Feature: Manage milestones
         And I provide a start date
         And I provide a end date
         Then the dates gets updated
+        And notification gets send to all project members
 
     Scenario: Delete milestone
         Given I am logged in with a user that is manager in a project
@@ -50,6 +53,7 @@ Feature: Manage milestones
         When I try to delete the milestone
         Then the milestone gets marked as deleted
         And all tasks that were previously associated with this milestone are not related to a milestone anymore
+        And notification gets send to all project members
 
     Scenario: View milestones
         Given I am logged in with a user

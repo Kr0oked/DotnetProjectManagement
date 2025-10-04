@@ -16,6 +16,7 @@
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version=" 9.4.1-preview.1.25408.4"/>
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="$(AspireVersion)"/>
     <PackageVersion Include="Aspire.Hosting.Testing" Version="$(AspireVersion)"/>
+    <PackageVersion Include="Aspire.Hosting.Valkey" Version="$(AspireVersion)"/>
     <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="$(AspireVersion)"/>
     <PackageVersion Include="Blazor.Bootstrap" Version="3.4.0"/>
     <PackageVersion Include="Blazored.LocalStorage" Version="4.5.0"/>
@@ -28,6 +29,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="$(AspnetVersion)"/>
+    <PackageVersion Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCore)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EntityFrameworkCore)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCore)"/>

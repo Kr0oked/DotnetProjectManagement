@@ -11,3 +11,4 @@ Feature: Manage projects
         When I try to update the display name of the project
         And I provide a display name
         Then the display name gets updated
+        And notification gets send to all project members

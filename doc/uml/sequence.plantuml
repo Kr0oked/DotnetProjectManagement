@@ -12,7 +12,7 @@ deactivate Application
 
 Administrator -> Application: Add Manager member
 activate Application
-Application --> Manager: Send mail
+Application --> Manager: Send message
 Application -> Administrator
 deactivate Application
 deactivate Administrator
@@ -20,13 +20,13 @@ deactivate Administrator
 activate Manager
 Manager -> Application: Add Worker member
 activate Application
-Application --> Worker: Send mail
+Application --> Worker: Send message
 Application -> Manager
 deactivate Application
 
 Manager -> Application: Create task for Worker
 activate Application
-Application --> Worker: Send mail
+Application --> Worker: Send message
 Application -> Manager
 deactivate Application
 deactivate Manager
@@ -34,7 +34,7 @@ deactivate Manager
 activate Worker
 Worker -> Application: Close task
 activate Application
-Application --> Manager: Send mail
+Application --> Manager: Send message
 Application -> Worker
 deactivate Application
 deactivate Worker

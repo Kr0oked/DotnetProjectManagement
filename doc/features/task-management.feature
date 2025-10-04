@@ -28,26 +28,31 @@ Feature: Manage tasks
         And I optionally provide a list of assignees
         Then the task gets created
         And the task is open
+        And notification gets send to all project members
 
     Scenario: Update task display name
         Given I am logged in with a user that is manager in a project
         When I try to update the display name of a task
         And I provide a display name
         Then the display name gets updated
+        And notification gets send to all project members
 
     Scenario: Update task description
         Given I am logged in with a user that is manager in a project
         When I try to update the description of a task
         And I provide a description
         Then the description gets updated
+        And notification gets send to all project members
 
     Scenario: Update task milestone
         Given I am logged in with a user that is manager in a project
         When I try to update the milestone of a task
         And I provide an active milestone of the project
         Then the milestone gets updated
+        And notification gets send to all project members
 
     Scenario: Assign task to yourself as worker
         Given I am logged in with a user that is woerker in a project
         When I try to assigne as task to myself
         Then I get added to the assignees
+        And notification gets send to all project members

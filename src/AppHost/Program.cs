@@ -9,6 +9,8 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keyc
     .WithRealmImport("realms")
     .WithDataVolume();
 
+var valkey = builder.AddValkey("distributed-cache");
+
 var sqlPassword = builder.AddParameter("sqlPassword", true);
 var sql = builder.AddSqlServer("sql", sqlPassword)
     .WithDataVolume();
@@ -21,8 +23,10 @@ var projectManagementMigrationService = builder.AddProject<ProjectManagement_Mig
 
 var projectManagementApp = builder.AddProject<ProjectManagement_App>("project-management-app")
     .WithReference(keycloak)
+    .WithReference(valkey)
     .WithReference(projectManagementDatabase)
     .WaitFor(keycloak)
+    .WaitFor(valkey)
     .WaitFor(projectManagementDatabase)
     .WaitForCompletion(projectManagementMigrationService);
 

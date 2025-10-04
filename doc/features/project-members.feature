@@ -38,3 +38,4 @@ Feature: Project members
         When I try to update the project members
         And I provide a list of members and their roles
         Then the project members get updated
+        And notification gets send to all project members

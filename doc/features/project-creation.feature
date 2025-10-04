@@ -14,3 +14,4 @@ Feature: Create projects
         And I provide a display name
         And I provide a list of members and their roles
         Then the project gets created
+        And notification gets send to all project members

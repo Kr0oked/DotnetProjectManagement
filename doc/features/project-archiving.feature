@@ -26,10 +26,12 @@ Feature: Project archiving
         When I archive the project
         Then the project is not in the list of active projects anymore
         And it appears in the list of archived projects
+        And notification gets send to all project members
 
     Scenario: Restore archived project
-            Given there is an archived project
-            Given I am logged in with a user that is manager in this project
-            When I restore the project
-            Then the project is not in the list of archived projects anymore
-            And it appears in the list of active projects
+        Given there is an archived project
+        Given I am logged in with a user that is manager in this project
+        When I restore the project
+        Then the project is not in the list of archived projects anymore
+        And it appears in the list of active projects
+        And notification gets send to all project members

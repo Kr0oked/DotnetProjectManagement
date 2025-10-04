@@ -14,7 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+    .AddStackExchangeRedis(builder.Configuration.GetConnectionString("distributed-cache")!);
+
 builder.Services.AddProblemDetails();
 
 builder.Services

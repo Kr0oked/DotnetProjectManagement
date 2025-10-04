@@ -16,6 +16,7 @@ Feature: Process tasks
         And the project contains an open task "Foo"
         When I try to close the task "Foo"
         Then the task gets closed
+        And notification gets send to all project members
 
     Scenario: Close task as assigned worker
         Given I am logged in with a user that is worker in a project
@@ -23,12 +24,14 @@ Feature: Process tasks
         And the user is assigned to the task "Foo"
         When I try to close the task "Foo"
         Then the task gets closed
+        And notification gets send to all project members
 
     Scenario: Reopen task as manager
         Given I am logged in with a user that is manager in a project
         And the project contains a closed task "Foo"
         When I try to reopen the task "Foo"
         Then the task gets reopened
+        And notification gets send to all project members
 
     Scenario: Reopen task as assigned worker
         Given I am logged in with a user that is worker in a project
@@ -36,3 +39,4 @@ Feature: Process tasks
         And the user is assigned to the task "Foo"
         When I try to reopen the task "Foo"
         Then the task gets reopened
+        And notification gets send to all project members
