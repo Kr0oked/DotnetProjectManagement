@@ -10,14 +10,15 @@
 @using DotnetProjectManagement.ProjectManagement.Web.Models
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Localization
+@inherits HubBase
 @implements IDisposable
 @attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IStringLocalizer<Resources> Localizer
 @inject PreloadService PreloadService
 @inject ProjectClient ProjectClient
 @inject TaskClient TaskClient
 @inject UserClient UserClient
-@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@Localizer["Tasks"]</PageTitle>
 
@@ -230,6 +231,8 @@ else
         try
         {
             PreloadService.Show();
+
+            await base.OnInitializedAsync();
 
             editContext = new EditContext(taskModel);
 
@@ -449,10 +452,11 @@ else
         }
     }
 
-    public void Dispose()
+    public new void Dispose()
     {
         cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
+        base.Dispose();
     }
 
     private class TaskModel

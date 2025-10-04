@@ -20,6 +20,7 @@ public class TaskUpdateUseCaseTests
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<IUserRepository> userRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<IMessageBroker> messageBrokerMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public TaskUpdateUseCaseTests() =>
@@ -28,6 +29,7 @@ public class TaskUpdateUseCaseTests
             this.projectRepositoryMock.Object,
             this.userRepositoryMock.Object,
             this.transactionManagerMock.Object,
+            this.messageBrokerMock.Object,
             new NullLogger<TaskUpdateUseCase>());
 
     [Fact]
@@ -111,6 +113,17 @@ public class TaskUpdateUseCaseTests
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(TaskAction.Update);
+            message.Task.Should().BeEquivalentTo(taskDto);
+            message.Project.Should().BeEquivalentTo(project);
+        });
     }
 
     [Fact]
@@ -194,6 +207,17 @@ public class TaskUpdateUseCaseTests
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(TaskAction.Update);
+            message.Task.Should().BeEquivalentTo(taskDto);
+            message.Project.Should().BeEquivalentTo(project);
+        });
     }
 
     [Fact]

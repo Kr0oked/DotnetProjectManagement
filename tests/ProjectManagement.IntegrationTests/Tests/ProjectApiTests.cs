@@ -5,6 +5,8 @@ using System.Net;
 using Domain.Actions;
 using Domain.Entities;
 using FluentAssertions;
+using Moq;
+using UseCases.DTOs;
 using Web.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -130,6 +132,16 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             var (memberUserId, memberRole) = member;
             memberUserId.Should().Be(DefaultUserGuid);
             memberRole.Should().Be(ProjectMemberRole.Manager);
+        });
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(ProjectAction.Create);
+            message.Project.Should().BeEquivalentTo(project);
         });
     }
 
@@ -301,6 +313,8 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 .ToImmutableDictionary()
         });
 
+        this.MessageBrokerMock.Reset();
+
         var updatedProject = await this.ProjectClient.UpdateProjectAsync(
             project.Id,
             new ProjectSaveRequest
@@ -317,6 +331,16 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             var (memberUserId, memberRole) = member;
             memberUserId.Should().Be(DefaultUserGuid);
             memberRole.Should().Be(ProjectMemberRole.Guest);
+        });
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(ProjectAction.Update);
+            message.Project.Should().BeEquivalentTo(updatedProject);
         });
 
         var projectDetails = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
@@ -337,6 +361,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         });
 
         this.ActAsUser();
+        this.MessageBrokerMock.Reset();
 
         var updatedProject = await this.ProjectClient.UpdateProjectAsync(
             project.Id,
@@ -354,6 +379,16 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             var (memberUserId, memberRole) = member;
             memberUserId.Should().Be(DefaultUserGuid);
             memberRole.Should().Be(ProjectMemberRole.Guest);
+        });
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultUserGuid);
+            message.Action.Should().Be(ProjectAction.Update);
+            message.Project.Should().BeEquivalentTo(updatedProject);
         });
 
         var projectDetails = await this.ProjectClient.GetProjectDetailsAsync(project.Id);
@@ -525,6 +560,8 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 .ToImmutableDictionary()
         });
 
+        this.MessageBrokerMock.Reset();
+
         var archivedProject = await this.ProjectClient.ArchiveProjectAsync(project.Id);
 
         archivedProject.DisplayName.Should().Be("DisplayName");
@@ -534,6 +571,16 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             var (memberUserId, memberRole) = member;
             memberUserId.Should().Be(DefaultUserGuid);
             memberRole.Should().Be(ProjectMemberRole.Manager);
+        });
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(ProjectAction.Archive);
+            message.Project.Should().BeEquivalentTo(archivedProject);
         });
     }
 
@@ -550,6 +597,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         });
 
         this.ActAsUser();
+        this.MessageBrokerMock.Reset();
 
         var archivedProject = await this.ProjectClient.ArchiveProjectAsync(project.Id);
 
@@ -560,6 +608,16 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
             var (memberUserId, memberRole) = member;
             memberUserId.Should().Be(DefaultUserGuid);
             memberRole.Should().Be(ProjectMemberRole.Manager);
+        });
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultUserGuid);
+            message.Action.Should().Be(ProjectAction.Archive);
+            message.Project.Should().BeEquivalentTo(archivedProject);
         });
     }
 
@@ -620,9 +678,22 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         });
 
         await this.ProjectClient.ArchiveProjectAsync(project.Id);
+
+        this.MessageBrokerMock.Reset();
+
         var restoredProject = await this.ProjectClient.RestoreProjectAsync(project.Id);
 
         restoredProject.Should().Be(project);
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(ProjectAction.Restore);
+            message.Project.Should().BeEquivalentTo(restoredProject);
+        });
     }
 
     [Fact]
@@ -640,10 +711,21 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         await this.ProjectClient.ArchiveProjectAsync(project.Id);
 
         this.ActAsUser();
+        this.MessageBrokerMock.Reset();
 
         var restoredProject = await this.ProjectClient.RestoreProjectAsync(project.Id);
 
         restoredProject.Should().Be(project);
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultUserGuid);
+            message.Action.Should().Be(ProjectAction.Restore);
+            message.Project.Should().BeEquivalentTo(restoredProject);
+        });
     }
 
     [Fact]

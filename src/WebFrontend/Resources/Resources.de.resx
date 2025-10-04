@@ -194,4 +194,13 @@
   <data name="LoadingText" xml:space="preserve">
     <value>Lade...</value>
   </data>
+  <data name="ReloadPage" xml:space="preserve">
+    <value>Seite neuladen</value>
+  </data>
+  <data name="PageContentObsolete" xml:space="preserve">
+    <value>Seiteninhalt ist veraltet</value>
+  </data>
+  <data name="UnknownUser" xml:space="preserve">
+    <value>Unbekannt</value>
+  </data>
 </root>

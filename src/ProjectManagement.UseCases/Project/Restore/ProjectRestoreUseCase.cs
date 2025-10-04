@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 public class ProjectRestoreUseCase(
     IProjectRepository projectRepository,
     ITransactionManager transactionManager,
+    IMessageBroker messageBroker,
     ILogger<ProjectRestoreUseCase> logger)
 {
     public async Task<ProjectDto> RestoreProjectAsync(
@@ -31,10 +32,24 @@ public class ProjectRestoreUseCase(
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogProjectRestored(actor.UserId, projectId);
+
+        await this.PublishMessageAsync(actor, project, cancellationToken);
+
         return project.ToDto();
     }
 
     private async Task<Project> GetProject(Guid projectId, CancellationToken cancellationToken) =>
         await projectRepository.FindOneAsync(projectId, cancellationToken)
         ?? throw new ProjectNotFoundException(projectId);
+
+    private async Task PublishMessageAsync(Actor actor, Project project, CancellationToken cancellationToken)
+    {
+        var projectActionMessage = new ProjectActionMessage
+        {
+            ActorUserId = actor.UserId,
+            Action = ProjectAction.Restore,
+            Project = project.ToDto()
+        };
+        await messageBroker.Publish(projectActionMessage, cancellationToken);
+    }
 }

@@ -18,6 +18,7 @@ public class TaskReopenUseCaseTests
     private readonly Mock<ITaskRepository> taskRepositoryMock = new();
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<IMessageBroker> messageBrokerMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public TaskReopenUseCaseTests() =>
@@ -25,6 +26,7 @@ public class TaskReopenUseCaseTests
             this.taskRepositoryMock.Object,
             this.projectRepositoryMock.Object,
             this.transactionManagerMock.Object,
+            this.messageBrokerMock.Object,
             new NullLogger<TaskReopenUseCase>());
 
     [Fact]
@@ -92,6 +94,17 @@ public class TaskReopenUseCaseTests
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(TaskAction.Reopen);
+            message.Task.Should().BeEquivalentTo(taskDto);
+            message.Project.Should().BeEquivalentTo(project);
+        });
     }
 
     [Fact]
@@ -159,6 +172,17 @@ public class TaskReopenUseCaseTests
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(TaskAction.Reopen);
+            message.Task.Should().BeEquivalentTo(taskDto);
+            message.Project.Should().BeEquivalentTo(project);
+        });
     }
 
     [Fact]

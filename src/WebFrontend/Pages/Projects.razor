@@ -10,14 +10,15 @@
 @using DotnetProjectManagement.ProjectManagement.Web.Models
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Localization
+@inherits HubBase
 @implements IDisposable
 @attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IStringLocalizer<Resources> Localizer
 @inject NavigationManager NavigationManager
 @inject PreloadService PreloadService
 @inject ProjectClient ProjectClient
 @inject UserClient UserClient
-@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@Localizer["Projects"]</PageTitle>
 
@@ -238,6 +239,8 @@ else
         {
             PreloadService.Show();
 
+            await base.OnInitializedAsync();
+
             editContext = new EditContext(projectModel);
 
             var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -431,10 +434,11 @@ else
         }
     }
 
-    public void Dispose()
+    public new void Dispose()
     {
         cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
+        base.Dispose();
     }
 
     private class ProjectModel

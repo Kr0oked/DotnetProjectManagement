@@ -12,6 +12,7 @@ public class TaskCloseUseCase(
     ITaskRepository taskRepository,
     IProjectRepository projectRepository,
     ITransactionManager transactionManager,
+    IMessageBroker messageBroker,
     ILogger<TaskCloseUseCase> logger)
 {
     public async Task<TaskDto> CloseTaskAsync(Actor actor, Guid taskId, CancellationToken cancellationToken = default)
@@ -30,6 +31,9 @@ public class TaskCloseUseCase(
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogTaskClosed(actor.UserId, taskId);
+
+        await this.PublishMessageAsync(actor, task, project, cancellationToken);
+
         return task.ToDto();
     }
 
@@ -55,5 +59,21 @@ public class TaskCloseUseCase(
         {
             throw new TaskClosedException(taskId);
         }
+    }
+
+    private async Task PublishMessageAsync(
+        Actor actor,
+        ProjectTask task,
+        Project project,
+        CancellationToken cancellationToken)
+    {
+        var taskActionMessage = new TaskActionMessage
+        {
+            ActorUserId = actor.UserId,
+            Action = TaskAction.Close,
+            Task = task.ToDto(),
+            Project = project.ToDto()
+        };
+        await messageBroker.Publish(taskActionMessage, cancellationToken);
     }
 }

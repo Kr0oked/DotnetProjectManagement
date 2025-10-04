@@ -14,6 +14,7 @@ public class TaskCreateUseCase(
     IProjectRepository projectRepository,
     IUserRepository userRepository,
     ITransactionManager transactionManager,
+    IMessageBroker messageBroker,
     ILogger<TaskCreateUseCase> logger)
 {
     public async Task<TaskDto> CreateTaskAsync(
@@ -32,8 +33,10 @@ public class TaskCreateUseCase(
         var task = await this.CreateEntityAsync(actor, command, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-
         logger.LogTaskCreated(actor.UserId, task);
+
+        await this.PublishMessageAsync(actor, task, project, cancellationToken);
+
         return task.ToDto();
     }
 
@@ -69,5 +72,21 @@ public class TaskCreateUseCase(
         Validator.ValidateObject(task, new ValidationContext(task), true);
 
         return await taskRepository.SaveAsync(task, TaskAction.Create, actor.UserId, cancellationToken);
+    }
+
+    private async Task PublishMessageAsync(
+        Actor actor,
+        ProjectTask task,
+        Project project,
+        CancellationToken cancellationToken)
+    {
+        var taskActionMessage = new TaskActionMessage
+        {
+            ActorUserId = actor.UserId,
+            Action = TaskAction.Create,
+            Task = task.ToDto(),
+            Project = project.ToDto()
+        };
+        await messageBroker.Publish(taskActionMessage, cancellationToken);
     }
 }

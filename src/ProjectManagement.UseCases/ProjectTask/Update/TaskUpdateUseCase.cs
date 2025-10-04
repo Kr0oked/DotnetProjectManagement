@@ -14,6 +14,7 @@ public class TaskUpdateUseCase(
     IProjectRepository projectRepository,
     IUserRepository userRepository,
     ITransactionManager transactionManager,
+    IMessageBroker messageBroker,
     ILogger<TaskUpdateUseCase> logger)
 {
     public async Task<TaskDto> UpdateTaskAsync(
@@ -34,6 +35,9 @@ public class TaskUpdateUseCase(
 
         await transaction.CommitAsync(cancellationToken);
         logger.LogTaskUpdated(actor.UserId, task);
+
+        await this.PublishMessageAsync(actor, task, project, cancellationToken);
+
         return task.ToDto();
     }
 
@@ -69,5 +73,21 @@ public class TaskUpdateUseCase(
         Validator.ValidateObject(task, new ValidationContext(task), true);
 
         await taskRepository.SaveAsync(task, TaskAction.Update, actor.UserId, cancellationToken);
+    }
+
+    private async Task PublishMessageAsync(
+        Actor actor,
+        ProjectTask task,
+        Project project,
+        CancellationToken cancellationToken)
+    {
+        var taskActionMessage = new TaskActionMessage
+        {
+            ActorUserId = actor.UserId,
+            Action = TaskAction.Update,
+            Task = task.ToDto(),
+            Project = project.ToDto()
+        };
+        await messageBroker.Publish(taskActionMessage, cancellationToken);
     }
 }

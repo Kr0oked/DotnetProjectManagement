@@ -17,12 +17,14 @@ public class ProjectRestoreUseCaseTests
     private readonly ProjectRestoreUseCase projectRestoreUseCase;
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<IMessageBroker> messageBrokerMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectRestoreUseCaseTests() =>
         this.projectRestoreUseCase = new ProjectRestoreUseCase(
             this.projectRepositoryMock.Object,
             this.transactionManagerMock.Object,
+            this.messageBrokerMock.Object,
             new NullLogger<ProjectRestoreUseCase>());
 
     [Fact]
@@ -77,6 +79,16 @@ public class ProjectRestoreUseCaseTests
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(ProjectAction.Restore);
+            message.Project.Should().BeEquivalentTo(projectDto);
+        });
     }
 
     [Fact]
@@ -119,6 +131,16 @@ public class ProjectRestoreUseCaseTests
         projectDto.DisplayName.Should().Be("DisplayName");
         projectDto.Archived.Should().BeFalse();
         projectDto.Members.Should().BeEmpty();
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(ProjectAction.Restore);
+            message.Project.Should().BeEquivalentTo(projectDto);
+        });
     }
 
     [Fact]

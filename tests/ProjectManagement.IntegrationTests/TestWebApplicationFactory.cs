@@ -10,9 +10,12 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Testcontainers.MsSql;
+using UseCases.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,6 +29,7 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
         .Build();
 
     public ClaimsProvider ClaimsProvider { get; } = new();
+    public Mock<IMessageBroker> MessageBrokerMock { get; } = new();
 
     public Task InitializeAsync() => this.msSqlContainer.StartAsync();
 
@@ -58,6 +62,8 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
                     .Build());
 
             services.Add(new ServiceDescriptor(typeof(ClaimsProvider), this.ClaimsProvider));
+
+            services.Replace(new ServiceDescriptor(typeof(IMessageBroker), this.MessageBrokerMock.Object));
         });
 
         builder.ConfigureLogging(logging => logging.AddXUnit(this));

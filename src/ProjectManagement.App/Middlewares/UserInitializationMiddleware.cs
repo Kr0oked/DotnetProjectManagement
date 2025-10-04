@@ -6,10 +6,21 @@ using UseCases.User.Initialization;
 
 public class UserInitializationMiddleware(RequestDelegate next)
 {
-    public async Task InvokeAsync(HttpContext httpContext, UserInitializationUseCase userInitializationUseCase)
+    public async Task InvokeAsync(
+        HttpContext httpContext,
+        UserInitializationUseCase userInitializationUseCase,
+        ILogger<UserInitializationMiddleware> logger)
     {
-        var actor = httpContext.User.ToActor();
-        await userInitializationUseCase.InitializeUserAsync(actor);
+        try
+        {
+            var actor = httpContext.User.ToActor();
+            await userInitializationUseCase.InitializeUserAsync(actor);
+        }
+        catch (MissingClaimException exception)
+        {
+            logger.LogMissingClaim(exception.Claim);
+        }
+
         await next(httpContext);
     }
 }

@@ -20,6 +20,7 @@ public class ProjectUpdateUseCaseTests
     private readonly Mock<IProjectRepository> projectRepositoryMock = new();
     private readonly Mock<IUserRepository> userRepositoryMock = new();
     private readonly Mock<ITransactionManager> transactionManagerMock = new();
+    private readonly Mock<IMessageBroker> messageBrokerMock = new();
     private readonly Mock<ITransaction> transactionMock = new();
 
     public ProjectUpdateUseCaseTests() =>
@@ -27,6 +28,7 @@ public class ProjectUpdateUseCaseTests
             this.projectRepositoryMock.Object,
             this.userRepositoryMock.Object,
             this.transactionManagerMock.Object,
+            this.messageBrokerMock.Object,
             new NullLogger<ProjectUpdateUseCase>());
 
     [Fact]
@@ -98,6 +100,16 @@ public class ProjectUpdateUseCaseTests
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(ProjectAction.Update);
+            message.Project.Should().BeEquivalentTo(projectDto);
+        });
     }
 
     [Fact]
@@ -169,6 +181,16 @@ public class ProjectUpdateUseCaseTests
         });
 
         this.transactionMock.Verify(transaction => transaction.CommitAsync(cancellationToken));
+
+        var capturedMessages = new List<ProjectActionMessage>();
+        this.messageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), cancellationToken));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(userId);
+            message.Action.Should().Be(ProjectAction.Update);
+            message.Project.Should().BeEquivalentTo(projectDto);
+        });
     }
 
     [Fact]

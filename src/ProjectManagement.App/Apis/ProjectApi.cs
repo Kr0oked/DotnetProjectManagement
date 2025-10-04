@@ -271,38 +271,4 @@ public static class ProjectApi
             return TypedResults.NotFound(new ProblemDetails { Detail = exception.Message });
         }
     }
-
-    private static PageRepresentation<ProjectRepresentation> ToWeb(this Page<ProjectDto> page) =>
-        new()
-        {
-            Size = page.Size,
-            TotalElements = page.TotalElements,
-            TotalPages = page.TotalPages,
-            Number = page.Number,
-            Content = [.. page.Content.Select(project => project.ToWeb())]
-        };
-
-    private static HistoryEntryRepresentation<ProjectAction, ProjectRepresentation> ToWeb(
-        this HistoryEntry<ProjectAction, ProjectDto> historyEntry) =>
-        new()
-        {
-            Action = historyEntry.Action,
-            Entity = historyEntry.Entity.ToWeb(),
-            Timestamp = historyEntry.Timestamp,
-            User = new UserRepresentation
-            {
-                Id = historyEntry.User.Id,
-                FirstName = historyEntry.User.FirstName,
-                LastName = historyEntry.User.LastName
-            }
-        };
-
-    private static ProjectRepresentation ToWeb(this ProjectDto project) =>
-        new()
-        {
-            Id = project.Id,
-            DisplayName = project.DisplayName,
-            Archived = project.Archived,
-            Members = project.Members
-        };
 }

@@ -1,0 +1,92 @@
+@using DotnetProjectManagement.ProjectManagement.Web.Models
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.Extensions.Localization
+@implements IAsyncDisposable
+@implements IDisposable
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAccessTokenProvider AccessTokenProvider
+@inject IConfiguration Configuration
+@inject IStringLocalizer<Resources> Localizer
+@inject NavigationManager NavigationManager
+@inject ToastService ToastService
+
+@code {
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private HubConnection? hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+
+        var apiUrl = Configuration["ApiUrl"]!;
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(apiUrl + "hubs/messages", options => { options.AccessTokenProvider = GetAccessToken; })
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<ProjectActionMessageRepresentation>("ReceiveProjectAction", message =>
+        {
+            if (message.ActorUserId != user.Id())
+            {
+                ToastService.Notify(new ToastMessage
+                {
+                    Type = ToastType.Info,
+                    Title = @Localizer["PageContentObsolete"],
+                    Content = @<div>
+                        <button class="btn btn-sm btn-primary mt-2" @onclick="ReloadPage">
+                            @Localizer["ReloadPage"]
+                        </button>
+                    </div>
+                });
+            }
+        });
+
+        hubConnection.On<TaskActionMessageRepresentation>("ReceiveTaskAction", message =>
+        {
+            if (message.ActorUserId != user.Id())
+            {
+                ToastService.Notify(new ToastMessage
+                {
+                    Type = ToastType.Info,
+                    Title = @Localizer["PageContentObsolete"],
+                    Content = @<div>
+                        <button class="btn btn-sm btn-primary mt-2" @onclick="ReloadPage">
+                            @Localizer["ReloadPage"]
+                        </button>
+                    </div>
+                });
+            }
+        });
+
+        await hubConnection.StartAsync(cancellationTokenSource.Token);
+    }
+
+    private async Task<string?> GetAccessToken()
+    {
+        var result = await AccessTokenProvider.RequestAccessToken();
+        return result.TryGetToken(out var token) ? token.Value : null;
+    }
+
+    private void ReloadPage() => NavigationManager.NavigateTo(NavigationManager.Uri, true);
+
+    public void Dispose()
+    {
+        cancellationTokenSource.Cancel();
+        cancellationTokenSource.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+}

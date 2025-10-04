@@ -5,6 +5,8 @@ using System.Net;
 using Domain.Actions;
 using Domain.Entities;
 using FluentAssertions;
+using Moq;
+using UseCases.DTOs;
 using Web.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,6 +26,8 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
             Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
         });
 
+        this.MessageBrokerMock.Reset();
+
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
         {
             ProjectId = project.Id,
@@ -36,6 +40,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         task.Description.Should().Be("Description");
         task.Open.Should().BeTrue();
         task.Assignees.Should().Equal(DefaultUserGuid);
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(TaskAction.Create);
+            message.Task.Should().BeEquivalentTo(task);
+            message.Project.Should().BeEquivalentTo(project);
+        });
     }
 
     [Fact]
@@ -51,6 +66,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         });
 
         this.ActAsAdmin();
+        this.MessageBrokerMock.Reset();
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
         {
@@ -64,6 +80,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         task.Description.Should().Be("Description");
         task.Open.Should().BeTrue();
         task.Assignees.Should().Equal(DefaultUserGuid);
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(TaskAction.Create);
+            message.Task.Should().BeEquivalentTo(task);
+            message.Project.Should().BeEquivalentTo(project);
+        });
     }
 
     [Fact]
@@ -298,6 +325,8 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
             Assignees = [DefaultUserGuid]
         });
 
+        this.MessageBrokerMock.Reset();
+
         var updatedTask = await this.TaskClient.UpdateTaskAsync(
             task.Id,
             new TaskUpdateRequest
@@ -311,6 +340,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         updatedTask.Description.Should().Be("DescriptionAfter");
         updatedTask.Open.Should().BeTrue();
         updatedTask.Assignees.Should().Equal(DefaultUserGuid);
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(TaskAction.Update);
+            message.Task.Should().BeEquivalentTo(updatedTask);
+            message.Project.Should().BeEquivalentTo(project);
+        });
 
         var taskDetails = await this.TaskClient.GetTaskDetailsAsync(task.Id);
 
@@ -338,6 +378,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         });
 
         this.ActAsUser();
+        this.MessageBrokerMock.Reset();
 
         var updatedTask = await this.TaskClient.UpdateTaskAsync(
             task.Id,
@@ -352,6 +393,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         updatedTask.Description.Should().Be("DescriptionAfter");
         updatedTask.Open.Should().BeTrue();
         updatedTask.Assignees.Should().Equal(DefaultUserGuid);
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultUserGuid);
+            message.Action.Should().Be(TaskAction.Update);
+            message.Task.Should().BeEquivalentTo(updatedTask);
+            message.Project.Should().BeEquivalentTo(project);
+        });
 
         var taskDetails = await this.TaskClient.GetTaskDetailsAsync(task.Id);
 
@@ -553,6 +605,8 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
             Assignees = [DefaultUserGuid]
         });
 
+        this.MessageBrokerMock.Reset();
+
         var closedTask = await this.TaskClient.CloseTaskAsync(task.Id);
 
         closedTask.Id.Should().Be(task.Id);
@@ -560,6 +614,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         closedTask.Description.Should().Be("Description");
         closedTask.Open.Should().BeFalse();
         closedTask.Assignees.Should().Equal(DefaultUserGuid);
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(TaskAction.Close);
+            message.Task.Should().BeEquivalentTo(closedTask);
+            message.Project.Should().BeEquivalentTo(project);
+        });
 
         var taskDetails = await this.TaskClient.GetTaskDetailsAsync(task.Id);
 
@@ -587,6 +652,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         });
 
         this.ActAsUser();
+        this.MessageBrokerMock.Reset();
 
         var closedTask = await this.TaskClient.CloseTaskAsync(task.Id);
 
@@ -595,6 +661,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         closedTask.Description.Should().Be("Description");
         closedTask.Open.Should().BeFalse();
         closedTask.Assignees.Should().Equal();
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultUserGuid);
+            message.Action.Should().Be(TaskAction.Close);
+            message.Task.Should().BeEquivalentTo(closedTask);
+            message.Project.Should().BeEquivalentTo(project);
+        });
 
         var taskDetails = await this.TaskClient.GetTaskDetailsAsync(task.Id);
 
@@ -621,6 +698,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         });
 
         this.ActAsUser();
+        this.MessageBrokerMock.Reset();
 
         var closedTask = await this.TaskClient.CloseTaskAsync(task.Id);
 
@@ -629,6 +707,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         closedTask.Description.Should().Be("Description");
         closedTask.Open.Should().BeFalse();
         closedTask.Assignees.Should().Equal(DefaultUserGuid);
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultUserGuid);
+            message.Action.Should().Be(TaskAction.Close);
+            message.Task.Should().BeEquivalentTo(closedTask);
+            message.Project.Should().BeEquivalentTo(project);
+        });
     }
 
     [Fact]
@@ -731,6 +820,8 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
 
         await this.TaskClient.CloseTaskAsync(task.Id);
 
+        this.MessageBrokerMock.Reset();
+
         var reopenedTask = await this.TaskClient.ReopenTaskAsync(task.Id);
 
         reopenedTask.Id.Should().Be(task.Id);
@@ -738,6 +829,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         reopenedTask.Description.Should().Be("Description");
         reopenedTask.Open.Should().BeTrue();
         reopenedTask.Assignees.Should().Equal(DefaultUserGuid);
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultAdminGuid);
+            message.Action.Should().Be(TaskAction.Reopen);
+            message.Task.Should().BeEquivalentTo(reopenedTask);
+            message.Project.Should().BeEquivalentTo(project);
+        });
 
         var taskDetails = await this.TaskClient.GetTaskDetailsAsync(task.Id);
 
@@ -768,6 +870,8 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
 
         await this.TaskClient.CloseTaskAsync(task.Id);
 
+        this.MessageBrokerMock.Reset();
+
         var reopenedTask = await this.TaskClient.ReopenTaskAsync(task.Id);
 
         reopenedTask.Id.Should().Be(task.Id);
@@ -775,6 +879,17 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         reopenedTask.Description.Should().Be("Description");
         reopenedTask.Open.Should().BeTrue();
         reopenedTask.Assignees.Should().Equal();
+
+        var capturedMessages = new List<TaskActionMessage>();
+        this.MessageBrokerMock.Verify(messageBroker => messageBroker
+            .Publish(Capture.In(capturedMessages), It.IsAny<CancellationToken>()));
+        capturedMessages.Should().SatisfyRespectively(message =>
+        {
+            message.ActorUserId.Should().Be(DefaultUserGuid);
+            message.Action.Should().Be(TaskAction.Reopen);
+            message.Task.Should().BeEquivalentTo(reopenedTask);
+            message.Project.Should().BeEquivalentTo(project);
+        });
 
         var taskDetails = await this.TaskClient.GetTaskDetailsAsync(task.Id);
 

@@ -27,6 +27,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspnetVersion)"/>
+    <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="$(AspnetVersion)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCore)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EntityFrameworkCore)"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCore)"/>

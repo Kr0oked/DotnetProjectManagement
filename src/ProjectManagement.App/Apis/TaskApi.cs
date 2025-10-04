@@ -311,39 +311,4 @@ public static class TaskApi
             return TypedResults.NotFound(new ProblemDetails { Detail = exception.Message });
         }
     }
-
-    private static PageRepresentation<TaskRepresentation> ToWeb(this Page<TaskDto> page) =>
-        new()
-        {
-            Size = page.Size,
-            TotalElements = page.TotalElements,
-            TotalPages = page.TotalPages,
-            Number = page.Number,
-            Content = [.. page.Content.Select(task => task.ToWeb())]
-        };
-
-    private static HistoryEntryRepresentation<TaskAction, TaskRepresentation> ToWeb(
-        this HistoryEntry<TaskAction, TaskDto> historyEntry) =>
-        new()
-        {
-            Action = historyEntry.Action,
-            Entity = historyEntry.Entity.ToWeb(),
-            Timestamp = historyEntry.Timestamp,
-            User = new UserRepresentation
-            {
-                Id = historyEntry.User.Id,
-                FirstName = historyEntry.User.FirstName,
-                LastName = historyEntry.User.LastName
-            }
-        };
-
-    private static TaskRepresentation ToWeb(this TaskDto task) =>
-        new()
-        {
-            Id = task.Id,
-            DisplayName = task.DisplayName,
-            Description = task.Description,
-            Open = task.Open,
-            Assignees = task.Assignees
-        };
 }

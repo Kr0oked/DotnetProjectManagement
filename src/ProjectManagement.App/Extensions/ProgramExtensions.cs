@@ -26,6 +26,8 @@ internal static class ProgramExtensions
     {
         var services = builder.Services;
 
+        services.AddScoped<IMessageBroker, MessageBroker>();
+
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<ITransactionManager, TransactionManager>();

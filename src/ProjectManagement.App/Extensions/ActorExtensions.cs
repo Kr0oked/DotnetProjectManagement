@@ -18,4 +18,7 @@ internal static class ActorExtensions
         };
 }
 
-internal sealed class MissingClaimException(string claim) : Exception($"Claim is missing: {claim}");
+internal sealed class MissingClaimException(string claim) : Exception($"Claim is missing: {claim}")
+{
+    public string Claim { get; } = claim;
+}

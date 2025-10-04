@@ -1,5 +1,6 @@
 using DotnetProjectManagement.ProjectManagement.App.APIs;
 using DotnetProjectManagement.ProjectManagement.App.Extensions;
+using DotnetProjectManagement.ProjectManagement.App.Hubs;
 using DotnetProjectManagement.ProjectManagement.App.Middlewares;
 using DotnetProjectManagement.ProjectManagement.Data.Contexts;
 using DotnetProjectManagement.ServiceDefaults;
@@ -13,11 +14,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+builder.Services.AddSignalR();
 builder.Services.AddProblemDetails();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options => builder.Configuration.Bind("JwtBearer", options));
+    .AddJwtBearer(options =>
+    {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/messages"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+        builder.Configuration.Bind("JwtBearer", options);
+    });
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
@@ -86,6 +106,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseUserInitialization();
+
+app.MapHub<MessageHub>("/hubs/messages");
 
 app.MapProjectApi()
     .WithOpenApi()

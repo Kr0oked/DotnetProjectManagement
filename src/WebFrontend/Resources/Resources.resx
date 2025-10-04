@@ -200,4 +200,13 @@
   <data name="LoadingText" xml:space="preserve">
     <value>Loading...</value>
   </data>
+  <data name="ReloadPage" xml:space="preserve">
+    <value>Reload page</value>
+  </data>
+  <data name="PageContentObsolete" xml:space="preserve">
+    <value>Page content is obsolete</value>
+  </data>
+  <data name="UnknownUser" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>

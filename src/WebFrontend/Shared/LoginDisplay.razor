@@ -5,7 +5,9 @@
 
 <AuthorizeView>
     <Authorized>
-        <span class="mx-2">@string.Format(Localizer["AppHello"], context.User.Identity?.Name!)</span>
+        <span class="mx-2">
+            @string.Format(Localizer["AppHello"], context.User.Identity?.Name ?? Localizer["UnknownUser"])
+        </span>
         <Button Color="ButtonColor.Primary" @onclick="BeginLogout">@Localizer["ActionLogout"]</Button>
     </Authorized>
     <NotAuthorized>

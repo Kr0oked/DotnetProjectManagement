@@ -6,6 +6,8 @@ using Data.Contexts;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using UseCases.Abstractions;
 using Web.Clients;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,11 +23,17 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
 
     private readonly TestWebApplicationFactory<Program> webApplicationFactory;
 
+    protected Mock<IMessageBroker> MessageBrokerMock { get; }
+    protected UserClient UserClient { get; }
+    protected ProjectClient ProjectClient { get; }
+    protected TaskClient TaskClient { get; }
+
     protected IntegrationTest(TestWebApplicationFactory<Program> webApplicationFactory, ITestOutputHelper output)
     {
         this.webApplicationFactory = webApplicationFactory;
         this.webApplicationFactory.OutputHelper = output;
 
+        this.MessageBrokerMock = this.webApplicationFactory.MessageBrokerMock;
         this.UserClient = new UserClient(this.webApplicationFactory.CreateClient());
         this.ProjectClient = new ProjectClient(this.webApplicationFactory.CreateClient());
         this.TaskClient = new TaskClient(this.webApplicationFactory.CreateClient());
@@ -34,12 +42,9 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
         this.CleanupDatabase();
         this.SetupUsersInDatabase();
 
+        this.ResetMocks();
         this.ActAsUser();
     }
-
-    protected UserClient UserClient { get; }
-    protected ProjectClient ProjectClient { get; }
-    protected TaskClient TaskClient { get; }
 
     private void MigrateDatabase()
     {
@@ -74,6 +79,9 @@ public abstract class IntegrationTest : IClassFixture<TestWebApplicationFactory<
         });
         dbContext.SaveChanges();
     }
+
+    protected void ResetMocks() =>
+        this.webApplicationFactory.MessageBrokerMock.Reset();
 
     protected void ActAsUser(string userId = DefaultUserId) =>
         this.ActAsUser(new Guid(userId));

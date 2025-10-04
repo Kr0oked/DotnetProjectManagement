@@ -1,6 +1,7 @@
 namespace DotnetProjectManagement.ProjectManagement.App.APIs;
 
 using System.ComponentModel.DataAnnotations;
+using Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.DTOs;
@@ -54,22 +55,4 @@ public static class UserApi
             return TypedResults.NotFound(new ProblemDetails { Detail = exception.Message });
         }
     }
-
-    private static PageRepresentation<UserRepresentation> ToWeb(this Page<UserDto> page) =>
-        new()
-        {
-            Size = page.Size,
-            TotalElements = page.TotalElements,
-            TotalPages = page.TotalPages,
-            Number = page.Number,
-            Content = [.. page.Content.Select(user => user.ToWeb())]
-        };
-
-    private static UserRepresentation ToWeb(this UserDto user) =>
-        new()
-        {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName
-        };
 }

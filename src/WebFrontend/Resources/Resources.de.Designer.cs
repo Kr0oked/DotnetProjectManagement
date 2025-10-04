@@ -386,5 +386,23 @@ namespace DotnetProjectManagement.WebFrontend.Resources {
                 return ResourceManager.GetString("LoadingText", resourceCulture);
             }
         }
+        
+        internal static string ReloadPage {
+            get {
+                return ResourceManager.GetString("ReloadPage", resourceCulture);
+            }
+        }
+        
+        internal static string PageContentObsolete {
+            get {
+                return ResourceManager.GetString("PageContentObsolete", resourceCulture);
+            }
+        }
+        
+        internal static string UnknownUser {
+            get {
+                return ResourceManager.GetString("UnknownUser", resourceCulture);
+            }
+        }
     }
 }
