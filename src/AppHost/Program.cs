@@ -9,7 +9,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keyc
     .WithRealmImport("realms")
     .WithDataVolume();
 
-var valkey = builder.AddValkey("distributed-cache");
+var distributedCache = builder.AddValkey("distributed-cache");
 
 var sqlPassword = builder.AddParameter("sqlPassword", true);
 var sql = builder.AddSqlServer("sql", sqlPassword)
@@ -17,18 +17,18 @@ var sql = builder.AddSqlServer("sql", sqlPassword)
 
 var projectManagementDatabase = sql.AddDatabase("project-management-db");
 
-var projectManagementMigrationService = builder.AddProject<ProjectManagement_MigrationService>("migration-service")
+var projectManagementMigrationsJob = builder.AddProject<ProjectManagement_Migrations_Job>("migrations-job")
     .WithReference(projectManagementDatabase)
     .WaitFor(projectManagementDatabase);
 
 var projectManagementApp = builder.AddProject<ProjectManagement_App>("project-management-app")
     .WithReference(keycloak)
-    .WithReference(valkey)
+    .WithReference(distributedCache)
     .WithReference(projectManagementDatabase)
     .WaitFor(keycloak)
-    .WaitFor(valkey)
+    .WaitFor(distributedCache)
     .WaitFor(projectManagementDatabase)
-    .WaitForCompletion(projectManagementMigrationService);
+    .WaitForCompletion(projectManagementMigrationsJob);
 
 var gateway = builder.AddProject<Gateway>("gateway")
     .WithExternalHttpEndpoints()

@@ -2,18 +2,19 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <AspVersioningVersion>8.1.0</AspVersioningVersion>
-    <AspireVersion>9.4.0</AspireVersion>
-    <AspnetVersion>9.0.8</AspnetVersion>
-    <DotnetRuntimeVersion>9.0.8</DotnetRuntimeVersion>
-    <DotnetExtensionsVersion>9.8.0</DotnetExtensionsVersion>
-    <EntityFrameworkCore>9.0.7</EntityFrameworkCore>
+    <AspireVersion>9.4.2</AspireVersion>
+    <AspnetVersion>10.0.0-preview.7.25380.108</AspnetVersion>
+    <DotnetRuntimeVersion>10.0.0-rc.1.25451.107</DotnetRuntimeVersion>
+    <DotnetExtensionsVersion>9.9.0</DotnetExtensionsVersion>
+    <EntityFrameworkCore>10.0.0-rc.1.25451.107</EntityFrameworkCore>
+    <Testcontainers>4.7.0</Testcontainers>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Asp.Versioning.Http" Version="$(AspVersioningVersion)"/>
     <PackageVersion Include="Asp.Versioning.Http.Client" Version="$(AspVersioningVersion)"/>
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="$(AspVersioningVersion)"/>
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="$(AspireVersion)"/>
-    <PackageVersion Include="Aspire.Hosting.Keycloak" Version=" 9.4.1-preview.1.25408.4"/>
+    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="9.4.2-preview.1.25428.12 "/>
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="$(AspireVersion)"/>
     <PackageVersion Include="Aspire.Hosting.Testing" Version="$(AspireVersion)"/>
     <PackageVersion Include="Aspire.Hosting.Valkey" Version="$(AspireVersion)"/>
@@ -42,8 +43,9 @@
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(DotnetExtensionsVersion)"/>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
     <PackageVersion Include="Moq" Version="4.20.72"/>
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.3.2"/>
-    <PackageVersion Include="Testcontainers.MsSql" Version="4.7.0"/>
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUi" Version="9.0.6"/>
+    <PackageVersion Include="Testcontainers.MsSql" Version="$(Testcontainers)"/>
+    <PackageVersion Include="Testcontainers.Redis" Version="$(Testcontainers)"/>
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0"/>
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0"/>
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0"/>

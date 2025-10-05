@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
+namespace DotnetProjectManagement.ProjectManagement.Migrations.Migrations
 {
     [DbContext(typeof(ProjectManagementDbContext))]
     partial class ProjectManagementDbContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,7 @@ namespace DotnetProjectManagement.ProjectManagement.MigrationService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.7")
+                .HasAnnotation("ProductVersion", "10.0.0-rc.1.25451.107")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);

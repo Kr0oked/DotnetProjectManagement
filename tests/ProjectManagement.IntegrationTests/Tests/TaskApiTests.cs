@@ -23,7 +23,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         this.MessageBrokerMock.Reset();
@@ -127,7 +127,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         await Invoking(() => this.TaskClient.CreateTaskAsync(
@@ -150,7 +150,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         await Invoking(() => this.TaskClient.CreateTaskAsync(
@@ -173,7 +173,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         await this.ProjectClient.ArchiveProjectAsync(project.Id);
@@ -198,7 +198,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var createdTask = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -278,7 +278,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -314,7 +314,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -418,7 +418,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -451,7 +451,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -484,7 +484,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -515,7 +515,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -546,7 +546,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -594,7 +594,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -686,7 +686,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -755,7 +755,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -781,7 +781,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -807,7 +807,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -904,7 +904,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -965,7 +965,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -989,7 +989,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -1017,7 +1017,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var createdTask = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -1197,7 +1197,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var task = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -1233,7 +1233,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var taskA = await this.TaskClient.CreateTaskAsync(new TaskCreateRequest
@@ -1283,7 +1283,7 @@ public class TaskApiTests(TestWebApplicationFactory<Program> testWebApplicationF
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "ProjectDisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         this.ActAsUser();

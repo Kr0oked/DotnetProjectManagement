@@ -14,7 +14,7 @@ builder.Services.AddOpenTelemetry()
 builder.AddSqlServerDbContext<ProjectManagementDbContext>(
     connectionName: "project-management-db",
     configureDbContextOptions: options =>
-        options.UseSqlServer(sqlServer => sqlServer.MigrationsAssembly(typeof(Program).Assembly.FullName)));
+        options.UseSqlServer(sqlServer => sqlServer.MigrationsAssembly("ProjectManagement.Migrations")));
 
 var host = builder.Build();
 host.Run();

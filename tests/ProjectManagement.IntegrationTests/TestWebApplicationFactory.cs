@@ -8,13 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Testcontainers.MsSql;
+using Testcontainers.Redis;
 using UseCases.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
@@ -28,24 +27,24 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
+    private readonly RedisContainer redisContainer = new RedisBuilder()
+        .WithImage("redis:8.2")
+        .Build();
+
     public ClaimsProvider ClaimsProvider { get; } = new();
     public Mock<IMessageBroker> MessageBrokerMock { get; } = new();
 
-    public Task InitializeAsync() => this.msSqlContainer.StartAsync();
+    public Task InitializeAsync() =>
+        Task.WhenAll(
+            this.msSqlContainer.StartAsync(),
+            this.redisContainer.StartAsync());
 
-    public new Task DisposeAsync() => this.msSqlContainer.DisposeAsync().AsTask();
+    public new Task DisposeAsync() =>
+        Task.WhenAll(
+            this.msSqlContainer.DisposeAsync().AsTask(),
+            this.redisContainer.DisposeAsync().AsTask());
 
     public ITestOutputHelper? OutputHelper { get; set; }
-
-    protected override IHost CreateHost(IHostBuilder builder)
-    {
-        builder.ConfigureHostConfiguration(configuration =>
-            configuration.AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "ConnectionStrings:project-management-db", this.msSqlContainer.GetConnectionString() }
-            }!));
-        return base.CreateHost(builder);
-    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -68,6 +67,8 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
 
         builder.ConfigureLogging(logging => logging.AddXUnit(this));
         builder.UseEnvironment("Development");
+        builder.UseSetting("ConnectionStrings:project-management-db", this.msSqlContainer.GetConnectionString());
+        builder.UseSetting("ConnectionStrings:distributed-cache", this.redisContainer.GetConnectionString());
     }
 
     protected override void ConfigureClient(HttpClient client) =>

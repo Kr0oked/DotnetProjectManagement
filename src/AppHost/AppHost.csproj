@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0"/>
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.0"/>
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <IsAspireHost>true</IsAspireHost>
     <IsPackable>false</IsPackable>
     <RootNamespace>DotnetProjectManagement.ProjectManagement.UsesCases</RootNamespace>
   </PropertyGroup>
@@ -17,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Gateway\Gateway.csproj"/>
-    <ProjectReference Include="..\ProjectManagement.MigrationService\ProjectManagement.MigrationService.csproj"/>
+    <ProjectReference Include="..\ProjectManagement.Migrations.Job\ProjectManagement.Migrations.Job.csproj" />
     <ProjectReference Include="..\ProjectManagement.App\ProjectManagement.App.csproj"/>
     <ProjectReference Include="..\WebFrontend\WebFrontend.csproj"/>
   </ItemGroup>

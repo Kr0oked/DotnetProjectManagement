@@ -5,7 +5,10 @@ package "Frameworks and Drivers" {
     map "ProjectManagement.App" as ProjectManagementApp {
     }
 
-    map "ProjectManagement.MigrationService" as ProjectManagementMigrationService {
+    map "ProjectManagement.Migrations.Job" as ProjectManagementMigrationsJob {
+    }
+
+    map "ProjectManagement.Migrations" as ProjectManagementMigrations {
     }
 
     map WebFrontend {
@@ -42,13 +45,17 @@ package "Frameworks and Drivers" {
 }
 
 ProjectManagementApp --> ProjectManagementUseCases
-ProjectManagementApp --> ProjectManagementMigrationService
+ProjectManagementApp --> ProjectManagementMigrations
 ProjectManagementApp --> ProjectManagementWeb
+ProjectManagementApp --> ServiceDefaults
 
 ProjectManagementUseCases --> ProjectManagementDomain
 
-ProjectManagementMigrationService --> ProjectManagementData
-ProjectManagementMigrationService --> ServiceDefaults
+ProjectManagementMigrationsJob --> ProjectManagementData
+ProjectManagementMigrationsJob --> ProjectManagementMigrations
+ProjectManagementMigrationsJob --> ServiceDefaults
+
+ProjectManagementMigrations --> ProjectManagementData
 
 ProjectManagementWeb --> ProjectManagementDomain
 

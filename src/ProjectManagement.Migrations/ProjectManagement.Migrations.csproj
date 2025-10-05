@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectManagement.Data\ProjectManagement.Data.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>DotnetProjectManagement.ProjectManagement.Migrations</RootNamespace>
+  </PropertyGroup>
+
+</Project>

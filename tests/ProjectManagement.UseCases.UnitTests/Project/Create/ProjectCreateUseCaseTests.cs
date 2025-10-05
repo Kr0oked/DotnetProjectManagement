@@ -118,7 +118,7 @@ public class ProjectCreateUseCaseTests
         var command = new ProjectCreateCommand
         {
             DisplayName = string.Concat(Enumerable.Repeat("a", 256)),
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         };
         var cancellationToken = CancellationToken.None;
 
@@ -173,7 +173,7 @@ public class ProjectCreateUseCaseTests
         var command = new ProjectCreateCommand
         {
             DisplayName = "DisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         };
 
         await Invoking(() => this.projectCreateUseCase.CreateProjectAsync(actor, command, CancellationToken.None))

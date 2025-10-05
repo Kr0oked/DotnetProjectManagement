@@ -6,7 +6,7 @@ using DotnetProjectManagement.ProjectManagement.Data.Contexts;
 using DotnetProjectManagement.ServiceDefaults;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 const string corsDevelopmentPolicy = "CorsDevelopmentPolicy";
 
@@ -49,53 +49,41 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod()));
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
 {
-    const string openApi = "OpenAPI";
-    options.AddSecurityDefinition(openApi,
-        new OpenApiSecurityScheme
-        {
-            Type = SecuritySchemeType.OpenIdConnect,
-            OpenIdConnectUrl = new Uri(builder.Configuration.GetValue<string>("JwtBearer:MetadataAddress")!)
-        });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    document.Components = new OpenApiComponents
     {
+        SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
         {
-            new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
+                "OpenIdConnect", new OpenApiSecurityScheme
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = openApi
+                    Type = SecuritySchemeType.OpenIdConnect,
+                    OpenIdConnectUrl = new Uri(builder.Configuration.GetValue<string>("JwtBearer:MetadataAddress")!)
                 }
-            },
-            []
+            }
         }
-    });
-});
+    };
 
+    foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations ?? []))
+    {
+        operation.Value.Security =
+        [
+            new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("OpenIdConnect", document)] = [] }
+        ];
+    }
+
+    return Task.CompletedTask;
+}));
 
 builder.AddSqlServerDbContext<ProjectManagementDbContext>("project-management-db",
     settings => settings.DisableRetry = true,
     dbContext => dbContext
-        .UseSqlServer(sqlServer => sqlServer.MigrationsAssembly("ProjectManagement.MigrationService")));
+        .UseSqlServer(sqlServer => sqlServer.MigrationsAssembly("ProjectManagement.Migrations")));
 
 builder.AddApplicationServices();
 
 var app = builder.Build();
-
-app.MapDefaultEndpoints();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.OAuthClientId("swagger");
-        options.OAuthScopes("dotnet-roles", "openid", "profile");
-    });
-}
 
 app.UseHttpsRedirection();
 
@@ -109,18 +97,28 @@ app.UseAuthorization();
 
 app.UseUserInitialization();
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+        options.OAuthClientId("swagger");
+        options.OAuthScopes("dotnet-roles", "openid", "profile");
+    });
+}
+
+app.MapDefaultEndpoints();
+
 app.MapHub<MessageHub>("/hubs/messages");
 
 app.MapProjectApi()
-    .WithOpenApi()
     .RequireAuthorization();
 
 app.MapTaskApi()
-    .WithOpenApi()
     .RequireAuthorization();
 
 app.MapUserApi()
-    .WithOpenApi()
     .RequireAuthorization();
 
 app.Run();

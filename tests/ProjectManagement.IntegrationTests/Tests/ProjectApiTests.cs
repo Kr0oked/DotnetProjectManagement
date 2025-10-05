@@ -23,17 +23,17 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         var projectA = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayNameA",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
         var projectB = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayNameB",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
         var projectC = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayNameC",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         var page1 = await this.ProjectClient.ListProjectsAsync(0, 2);
@@ -154,7 +154,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = "DisplayName",
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.Unauthorized);
@@ -169,7 +169,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = "",
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.BadRequest);
@@ -184,7 +184,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = string.Concat(Enumerable.Repeat("a", 256)),
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.BadRequest);
@@ -285,7 +285,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         this.ActAsUser();
@@ -415,7 +415,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = "DisplayName",
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.Unauthorized);
@@ -440,7 +440,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = "DisplayName",
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.BadRequest);
@@ -454,7 +454,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         await Invoking(() => this.ProjectClient.UpdateProjectAsync(
@@ -462,7 +462,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = "",
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.BadRequest);
@@ -476,7 +476,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         await Invoking(() => this.ProjectClient.UpdateProjectAsync(
@@ -484,7 +484,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = string.Concat(Enumerable.Repeat("a", 256)),
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.BadRequest);
@@ -498,7 +498,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         await Invoking(() => this.ProjectClient.UpdateProjectAsync(
@@ -521,7 +521,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         await Invoking(() => this.ProjectClient.UpdateProjectAsync(
@@ -543,7 +543,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
                 new ProjectSaveRequest
                 {
                     DisplayName = "DisplayName",
-                    Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+                    Members = []
                 }))
             .Should().ThrowAsync<HttpRequestException>()
             .Where(exception => exception.StatusCode == HttpStatusCode.NotFound);
@@ -944,7 +944,7 @@ public class ProjectApiTests(TestWebApplicationFactory<Program> testWebApplicati
         var project = await this.ProjectClient.CreateProjectAsync(new ProjectSaveRequest
         {
             DisplayName = "DisplayName",
-            Members = ImmutableDictionary<Guid, ProjectMemberRole>.Empty
+            Members = []
         });
 
         this.ActAsUser();
