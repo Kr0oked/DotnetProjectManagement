@@ -1,0 +1,24 @@
+﻿<Solution>
+    <Folder Name="/src/">
+        <Project Path="src\AppHost\AppHost.csproj" Type="Classic C#"/>
+        <Project Path="src\Gateway\Gateway.csproj" Type="Classic C#"/>
+        <Project Path="src\ProjectManagement.App\ProjectManagement.App.csproj" Type="Classic C#"/>
+        <Project Path="src\ProjectManagement.Data\ProjectManagement.Data.csproj" Type="Classic C#"/>
+        <Project Path="src\ProjectManagement.Domain\ProjectManagement.Domain.csproj" Type="Classic C#"/>
+        <Project Path="src\ProjectManagement.Migrations.Job\ProjectManagement.Migrations.Job.csproj" Type="Classic C#"/>
+        <Project Path="src\ProjectManagement.Migrations\ProjectManagement.Migrations.csproj" Type="Classic C#"/>
+        <Project Path="src\ProjectManagement.UseCases\ProjectManagement.UseCases.csproj" Type="Classic C#"/>
+        <Project Path="src\ProjectManagement.Web\ProjectManagement.Web.csproj" Type="Classic C#"/>
+        <Project Path="src\ServiceDefaults\ServiceDefaults.csproj" Type="Classic C#"/>
+        <Project Path="src\WebFrontend\WebFrontend.csproj" Type="Classic C#"/>
+    </Folder>
+    <Folder Name="/tests/">
+        <Project Path="tests\AppHost.IntegrationTests\AppHost.IntegrationTests.csproj" Type="Classic C#"/>
+        <Project Path="tests\ProjectManagement.Domain.UnitTests\ProjectManagement.Domain.UnitTests.csproj"
+                 Type="Classic C#"/>
+        <Project Path="tests\ProjectManagement.IntegrationTests\ProjectManagement.IntegrationTests.csproj"
+                 Type="Classic C#"/>
+        <Project Path="tests\ProjectManagement.UseCases.UnitTests\ProjectManagement.UseCases.UnitTests.csproj"
+                 Type="Classic C#"/>
+    </Folder>
+</Solution>
