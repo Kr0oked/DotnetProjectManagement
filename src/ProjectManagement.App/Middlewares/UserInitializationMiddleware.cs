@@ -18,7 +18,7 @@ public class UserInitializationMiddleware(RequestDelegate next)
         }
         catch (MissingClaimException exception)
         {
-            logger.LogMissingClaim(exception.Claim);
+            logger.LogTrace(exception, "User initialization failed. Missing claim: {Claim}", exception.Claim);
         }
 
         await next(httpContext);

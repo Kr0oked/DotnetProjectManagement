@@ -31,7 +31,7 @@ public class ProjectArchiveUseCase(
         await projectRepository.SaveAsync(project, ProjectAction.Archive, actor.UserId, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-        logger.LogProjectArchived(actor.UserId, projectId);
+        logger.LogInformation("User {UserId} archived project {ProjectId}", actor.UserId, projectId);
 
         await this.PublishMessageAsync(actor, project, cancellationToken);
 

@@ -31,7 +31,7 @@ public class ProjectRestoreUseCase(
         await projectRepository.SaveAsync(project, ProjectAction.Restore, actor.UserId, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-        logger.LogProjectRestored(actor.UserId, projectId);
+        logger.LogInformation("User {UserId} restored project {ProjectId}", actor.UserId, projectId);
 
         await this.PublishMessageAsync(actor, project, cancellationToken);
 

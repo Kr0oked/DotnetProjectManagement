@@ -31,7 +31,7 @@ public class ProjectUpdateUseCase(
         await this.UpdateEntityAsync(actor, command, project, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-        logger.LogProjectUpdated(actor.UserId, project);
+        logger.LogInformation("User {UserId} updated {Project}", actor.UserId, project);
 
         await this.PublishMessageAsync(actor, project, cancellationToken);
 

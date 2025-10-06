@@ -30,7 +30,7 @@ public class TaskCloseUseCase(
         await taskRepository.SaveAsync(task, TaskAction.Close, actor.UserId, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-        logger.LogTaskClosed(actor.UserId, taskId);
+        logger.LogInformation("User {UserId} closed task {TaskId}", actor.UserId, taskId);
 
         await this.PublishMessageAsync(actor, task, project, cancellationToken);
 

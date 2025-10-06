@@ -28,7 +28,7 @@ public class ProjectCreateUseCase(
 
         var project = await this.CreateEntityAsync(actor, command, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        logger.LogProjectCreated(actor.UserId, project);
+        logger.LogInformation("User {UserId} created {Project}", actor.UserId, project);
 
         await this.PublishMessageAsync(actor, project, cancellationToken);
 

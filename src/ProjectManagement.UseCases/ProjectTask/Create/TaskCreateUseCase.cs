@@ -33,7 +33,7 @@ public class TaskCreateUseCase(
         var task = await this.CreateEntityAsync(actor, command, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-        logger.LogTaskCreated(actor.UserId, task);
+        logger.LogInformation("User {UserId} created {Task}", actor.UserId, task);
 
         await this.PublishMessageAsync(actor, task, project, cancellationToken);
 

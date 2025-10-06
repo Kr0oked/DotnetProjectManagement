@@ -34,7 +34,7 @@ public class TaskUpdateUseCase(
         await this.UpdateEntityAsync(actor, command, task, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-        logger.LogTaskUpdated(actor.UserId, task);
+        logger.LogInformation("User {UserId} updated {Task}", actor.UserId, task);
 
         await this.PublishMessageAsync(actor, task, project, cancellationToken);
 

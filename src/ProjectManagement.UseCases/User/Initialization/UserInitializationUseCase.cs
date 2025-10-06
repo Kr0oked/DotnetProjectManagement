@@ -16,12 +16,12 @@ public class UserInitializationUseCase(IUserRepository userRepository, ILogger<U
 
         if (exists)
         {
-            logger.LogExistingUserFound(actor.UserId);
+            logger.LogTrace("Found existing user for {UserId}", actor.UserId);
         }
         else
         {
             var user = await this.CreateUserAsync(actor, cancellationToken);
-            logger.LogInitializedUser(user);
+            logger.LogInformation("Initialized {User}", user);
         }
     }
 

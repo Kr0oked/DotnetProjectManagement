@@ -30,7 +30,7 @@ public class TaskReopenUseCase(
         await taskRepository.SaveAsync(task, TaskAction.Reopen, actor.UserId, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
-        logger.LogTaskReopened(actor.UserId, taskId);
+        logger.LogInformation("User {UserId} reopened task {TaskId}", actor.UserId, taskId);
 
         await this.PublishMessageAsync(actor, task, project, cancellationToken);
 
