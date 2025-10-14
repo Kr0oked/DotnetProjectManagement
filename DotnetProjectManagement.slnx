@@ -1,6 +1,7 @@
 ﻿<Solution>
     <Folder Name="/src/">
         <Project Path="src\AppHost\AppHost.csproj" Type="Classic C#"/>
+        <Project Path="src\ExternalResource\ExternalResource.csproj" Type="Classic C#"/>
         <Project Path="src\Gateway\Gateway.csproj" Type="Classic C#"/>
         <Project Path="src\ProjectManagement.App\ProjectManagement.App.csproj" Type="Classic C#"/>
         <Project Path="src\ProjectManagement.Data\ProjectManagement.Data.csproj" Type="Classic C#"/>

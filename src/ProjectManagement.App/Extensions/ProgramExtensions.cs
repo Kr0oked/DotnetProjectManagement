@@ -1,5 +1,6 @@
 namespace DotnetProjectManagement.ProjectManagement.App.Extensions;
 
+using Jobs;
 using Services;
 using UseCases.Abstractions;
 using UseCases.Project.Archive;
@@ -26,6 +27,11 @@ internal static class ProgramExtensions
     {
         var services = builder.Services;
 
+        services.AddHttpClient<ExternalResourceService>(client =>
+            client.BaseAddress = new Uri("http+http://external-resource"));
+
+        services.AddTransient<ImportUsersJob>();
+
         services.AddScoped<IMessageBroker, MessageBroker>();
 
         services.AddScoped<IProjectRepository, ProjectRepository>();
@@ -33,24 +39,24 @@ internal static class ProgramExtensions
         services.AddScoped<ITransactionManager, TransactionManager>();
         services.AddScoped<IUserRepository, UserRepository>();
 
-        services.AddScoped<ProjectArchiveUseCase, ProjectArchiveUseCase>();
-        services.AddScoped<ProjectCreateUseCase, ProjectCreateUseCase>();
-        services.AddScoped<ProjectGetDetailsUseCase, ProjectGetDetailsUseCase>();
-        services.AddScoped<ProjectGetHistoryUseCase, ProjectGetHistoryUseCase>();
-        services.AddScoped<ProjectListUseCase, ProjectListUseCase>();
-        services.AddScoped<ProjectRestoreUseCase, ProjectRestoreUseCase>();
-        services.AddScoped<ProjectUpdateUseCase, ProjectUpdateUseCase>();
+        services.AddScoped<ProjectArchiveUseCase>();
+        services.AddScoped<ProjectCreateUseCase>();
+        services.AddScoped<ProjectGetDetailsUseCase>();
+        services.AddScoped<ProjectGetHistoryUseCase>();
+        services.AddScoped<ProjectListUseCase>();
+        services.AddScoped<ProjectRestoreUseCase>();
+        services.AddScoped<ProjectUpdateUseCase>();
 
-        services.AddScoped<TaskCloseUseCase, TaskCloseUseCase>();
-        services.AddScoped<TaskCreateUseCase, TaskCreateUseCase>();
-        services.AddScoped<TaskGetDetailsUseCase, TaskGetDetailsUseCase>();
-        services.AddScoped<TaskGetHistoryUseCase, TaskGetHistoryUseCase>();
-        services.AddScoped<TaskListForProjectUseCase, TaskListForProjectUseCase>();
-        services.AddScoped<TaskReopenUseCase, TaskReopenUseCase>();
-        services.AddScoped<TaskUpdateUseCase, TaskUpdateUseCase>();
+        services.AddScoped<TaskCloseUseCase>();
+        services.AddScoped<TaskCreateUseCase>();
+        services.AddScoped<TaskGetDetailsUseCase>();
+        services.AddScoped<TaskGetHistoryUseCase>();
+        services.AddScoped<TaskListForProjectUseCase>();
+        services.AddScoped<TaskReopenUseCase>();
+        services.AddScoped<TaskUpdateUseCase>();
 
-        services.AddScoped<UserGetDetailsUseCase, UserGetDetailsUseCase>();
-        services.AddScoped<UserInitializationUseCase, UserInitializationUseCase>();
-        services.AddScoped<UserListUseCase, UserListUseCase>();
+        services.AddScoped<UserGetDetailsUseCase>();
+        services.AddScoped<UserInitializationUseCase>();
+        services.AddScoped<UserListUseCase>();
     }
 }

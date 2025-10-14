@@ -2,6 +2,11 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+var externalResource = builder.AddDockerfile("external-resource", "external-resource")
+    .WithHttpEndpoint(4010, 4010, "http")
+    .WithExternalHttpEndpoints();
+var externalResourceEndpoint = externalResource.GetEndpoint("http");
+
 var keycloakAdminUsername = builder.AddParameter("keycloakAdminUsername", true);
 var keycloakAdminPassword = builder.AddParameter("keycloakAdminPassword", true);
 var keycloak = builder.AddKeycloak("keycloak", 8080, keycloakAdminUsername, keycloakAdminPassword)
@@ -22,9 +27,11 @@ var projectManagementMigrationsJob = builder.AddProject<ProjectManagement_Migrat
     .WaitFor(projectManagementDatabase);
 
 var projectManagementApp = builder.AddProject<ProjectManagement_App>("project-management-app")
+    .WithReference(externalResourceEndpoint)
     .WithReference(keycloak)
     .WithReference(distributedCache)
     .WithReference(projectManagementDatabase)
+    .WaitFor(externalResource)
     .WaitFor(keycloak)
     .WaitFor(distributedCache)
     .WaitFor(projectManagementDatabase)

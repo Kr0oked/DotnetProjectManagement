@@ -10,9 +10,11 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis"/>
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi"/>
+    <PackageReference Include="Quartz.AspNetCore"/>
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ExternalResource\ExternalResource.csproj" />
     <ProjectReference Include="..\ProjectManagement.Data\ProjectManagement.Data.csproj"/>
     <ProjectReference Include="..\ProjectManagement.Migrations\ProjectManagement.Migrations.csproj"/>
     <ProjectReference Include="..\ProjectManagement.UseCases\ProjectManagement.UseCases.csproj"/>

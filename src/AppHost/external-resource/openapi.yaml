@@ -1,0 +1,40 @@
+openapi: 3.0.4
+info:
+  title: External Resource
+  description: Example external resource
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      summary: Get users
+      description: Gets all users.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected error
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 95dae335-1e1f-4f0b-b43a-94bfa3daded5
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: John
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Doe

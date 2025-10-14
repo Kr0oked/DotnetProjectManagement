@@ -1,12 +1,15 @@
 using DotnetProjectManagement.ProjectManagement.App.APIs;
 using DotnetProjectManagement.ProjectManagement.App.Extensions;
 using DotnetProjectManagement.ProjectManagement.App.Hubs;
+using DotnetProjectManagement.ProjectManagement.App.Jobs;
 using DotnetProjectManagement.ProjectManagement.App.Middlewares;
 using DotnetProjectManagement.ProjectManagement.Data.Contexts;
 using DotnetProjectManagement.ServiceDefaults;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using Quartz;
+using Quartz.AspNetCore;
 
 const string corsDevelopmentPolicy = "CorsDevelopmentPolicy";
 
@@ -51,35 +54,42 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
 {
-    document.Components = new OpenApiComponents
+    document.Components ??= new OpenApiComponents();
+    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+    document.Components.SecuritySchemes["OpenIdConnect"] = new OpenApiSecurityScheme
     {
-        SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
-        {
-            {
-                "OpenIdConnect", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.OpenIdConnect,
-                    OpenIdConnectUrl = new Uri(builder.Configuration.GetValue<string>("JwtBearer:MetadataAddress")!)
-                }
-            }
-        }
+        Type = SecuritySchemeType.OpenIdConnect,
+        OpenIdConnectUrl = new Uri(builder.Configuration.GetValue<string>("JwtBearer:MetadataAddress")!)
     };
 
     foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations ?? []))
     {
-        operation.Value.Security =
-        [
-            new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("OpenIdConnect", document)] = [] }
-        ];
+        operation.Value.Security ??= [];
+        operation.Value.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("OpenIdConnect", document)] = []
+        });
     }
 
     return Task.CompletedTask;
 }));
+builder.Services.AddOpenApi();
 
 builder.AddSqlServerDbContext<ProjectManagementDbContext>("project-management-db",
     settings => settings.DisableRetry = true,
     dbContext => dbContext
         .UseSqlServer(sqlServer => sqlServer.MigrationsAssembly("ProjectManagement.Migrations")));
+
+builder.Services.AddQuartz(q =>
+{
+    var importUsersJobKey = new JobKey("ImportUsersJob");
+    q.AddJob<ImportUsersJob>(job => job.WithIdentity(importUsersJobKey));
+    q.AddTrigger(trigger => trigger
+        .ForJob(importUsersJobKey)
+        .WithIdentity("ImportUsersJobTrigger")
+        .WithSimpleSchedule(schedule => schedule.WithIntervalInSeconds(30).RepeatForever()));
+});
+builder.Services.AddQuartzServer(options => options.WaitForJobsToComplete = true);
 
 builder.AddApplicationServices();
 
